@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <title>Visualization</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="index.css"/>
+    <link rel="stylesheet" href="spinner.css"/>
+</head>
+<body>
+    <div id="spinnerDiv">
+        <div class="spinner" id="spinner">
+            <div class="spinnerDot"></div>
+            <div class="spinnerDot"></div>
+            <div class="spinnerDot"></div>
+            <div class="spinnerDot"></div>
+            <div class="spinnerDot"></div>
+            <div class="spinnerDot"></div>
+        </div>
+    </div>
+
+    <div class="flexContainer" id="mainDiv">
+        <div class="controlsDiv" id="controlsDiv">
+            <div class="controlsElement" id="timeFromDiv">
+                <label for="timeFromInput">Time from (UTC)</label>
+                <input type="datetime-local" id="timeFromInput">
+            </div>
+
+            <div class="controlsElement" id="timeToDiv">
+                <label for="timeToInput">Time to (UTC)</label>
+                <input type="datetime-local" id="timeToInput">
+            </div>
+
+            <div class="controlsElement" id="datasetsSelectDiv">
+                <!--
+                    datasets = [
+                        "SENTINEL-1",
+                        "SENTINEL-2",
+                        "SENTINEL-3",
+                        "SENTINEL-5P",
+                        "SENTINEL-6",
+                        "SENTINEL-1-RTC",
+                        "GLOBAL-MOSAICS",
+                        "SMOS",
+                        "ENVISAT",
+                        "LANDSAT-5",
+                        "LANDSAT-7",
+                        "LANDSAT-8",
+                        "COP-DEM",
+                        "TERRAAQUA",
+                        "S2GLC"
+                    ]
+                -->
+
+                <label for="datasetsSelect">Select dataset</label>
+                <select id="datasetsSelect">
+                    <option value="SENTINEL-1">Sentinel-1</option>
+                    <option value="SENTINEL-2">Sentinel-2</option>
+                </select>
+            </div>
+
+            <div class="controlsElement" id="fetchFeaturesDiv">
+                <button id="fetchFeaturesButton" onclick="fetchFeatures()">
+                    Fetch features
+                </button>
+            </div>
+
+            <div class="controlsElement" id="availableFeaturesDiv">
+                <label for="availableFeaturesSelect">Available features</label>
+                <select id="availableFeaturesSelect" onchange="showBorders()"></select>
+            </div>
+
+            <div class="controlsElement" id="visualizeFeatureButtonDiv">
+                <button id="visualizeFeatureButton" onclick="requestVisualization()" disabled>
+                    Visualize selected feature
+                </button>
+            </div>
+
+            <div class="controlsElement" id="showExampleGeoTiffButtonDiv">
+                <button id="showExampleGeoTiffButton" onclick="showExampleGeoTiff()">
+                    showExampleGeoTiff
+                </button>
+            </div>
+        </div>
+
+        <div class="mapDiv" id="mapDiv">
+
+        </div>
+
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/georaster"></script>
+    <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+
+    <script src="index.js"></script>
+</body>
+</html>
