@@ -1,3 +1,6 @@
+const backendHost = 'http://127.0.0.1:8000';
+const apiRoot = "https://catalogue.dataspace.copernicus.eu";
+
 let leafletMap = L.map('mapDiv').setView([50.05, 14.46], 10);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -45,8 +48,6 @@ const prepareBbox = (northWestLat, northWestLon, southEastLat, southEastLon) => 
     let bbox = coordArray.join(",");
     return bbox;
 };
-
-const apiRoot = "https://catalogue.dataspace.copernicus.eu";
 
 const fetchData = async (endpoint) => {
     let features = [];
@@ -161,7 +162,7 @@ const requestVisualization = async () => {
         featureId = document.querySelector("#availableFeaturesSelect").value
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/request_visualization', {
+            const response = await fetch(`${backendHost}/api/request_visualization`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -193,7 +194,7 @@ const requestVisualization = async () => {
 
 const checkVisualizationStatus = async (featureId) => {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/check_visualization_status?feature_id=${featureId}`, {
+        const response = await fetch(`${backendHost}/api/check_visualization_status?feature_id=${featureId}`, {
             method: 'GET',
         });
         const data = await response.json();

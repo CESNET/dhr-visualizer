@@ -4,6 +4,8 @@ from pydantic import BaseModel
 
 from fastapi.middleware.cors import CORSMiddleware
 
+from s3_connector import S3Connector
+
 app = FastAPI()
 
 # TODO odebrat na produkci
@@ -15,11 +17,41 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-db = {}  # TODO Daatabase needed
+db = {}  # TODO Database needed
 
 
 class ReqeustedFeature(BaseModel):
     feature_id: str = None
+
+    _s3_eodata = S3Connector(provider='eodata')
+
+    def __del__(self):
+        # TODO delete temporary directory with feature files from S3
+        pass
+
+    def _download_feature(self):
+        # TODO Need to create STAC search for given feature_id
+        # https://documentation.dataspace.copernicus.eu/APIs/STAC.html
+        # and then get 'S3Path' (s3 bucket_key) for this feature.
+
+        bucket_key = ""
+        if '/eodata/' in bucket_key:
+            bucket_key = bucket_key.replace('/eodata/', '')
+
+        feature_dir = self._s3_eodata.download_file(bucket_key=bucket_key)
+
+        if feature_dir is None:
+            raise Exception() # TODO proper exception - S3 download failed!
+
+    def _update_db(self, status=None):
+        if status is None:
+            raise Exception  # Propper exception
+
+        db[self.feature_id] = {
+            "feature_id": self.feature_id,
+            "status": status,
+            "href": f"http://cesnet.cz/tile/{self.feature_id}"
+        }
 
     def start_map_tile_generation(self):
         # Todo Generovat tilu
@@ -31,15 +63,12 @@ class ReqeustedFeature(BaseModel):
         Na stav se bude ptát peridociky forntend voláním /api/check_visualization_status
         """
 
+        self._update_db(status="processing")
+
+        self._download_feature()
+
         import time
         time.sleep(10)
-
-
-        db[self.feature_id] = {
-            "feature_id": self.feature_id,
-            "status": "completed",
-            "href": f"http://cesnet.cz/tile/{self.feature_id}"
-        }
 
 
 @app.post("/api/request_visualization")
@@ -61,6 +90,7 @@ async def check_visualization_status(feature_id: str):
         return db[feature_id]
     else:
         return HTTPException(status_code=404, detail=f"{feature_id} not found!")
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
