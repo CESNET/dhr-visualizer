@@ -4,7 +4,12 @@ from pydantic import BaseModel
 
 from fastapi.middleware.cors import CORSMiddleware
 
+from pathlib import Path
+
+from dataspace_stac import DataspaceSTAC
 from s3_connector import S3Connector
+
+from exceptions.requested_feature import *
 
 app = FastAPI()
 
@@ -22,26 +27,40 @@ db = {}  # TODO Database needed
 
 class ReqeustedFeature(BaseModel):
     feature_id: str = None
-
-    _s3_eodata = S3Connector(provider='eodata')
+    _feature_dir: Path = None
 
     def __del__(self):
-        # TODO delete temporary directory with feature files from S3
-        pass
+        if self._feature_dir is not None:
+            self._delete_folder(path=self._feature_dir.parent)
 
-    def _download_feature(self):
+    def _delete_folder(self, path: Path):
+        for sub_path in path.iterdir():
+            if sub_path.is_dir():
+                self._delete_folder(sub_path)
+            else:
+                sub_path.unlink()
+        path.rmdir()
+
+    def _get_s3_path(self) -> str:
+        dataspace_stac = DataspaceSTAC(feature_id=self.feature_id)  # TODO add logger
+        return dataspace_stac.get_s3_path()
+
+    def _download_feature(self) -> Path:
         # TODO Need to create STAC search for given feature_id
         # https://documentation.dataspace.copernicus.eu/APIs/STAC.html
         # and then get 'S3Path' (s3 bucket_key) for this feature.
 
-        bucket_key = ""
+        bucket_key = self._get_s3_path()
         if '/eodata/' in bucket_key:
             bucket_key = bucket_key.replace('/eodata/', '')
 
-        feature_dir = self._s3_eodata.download_file(bucket_key=bucket_key)
+        _s3_eodata = S3Connector(provider='eodata')
+        self._feature_dir = _s3_eodata.download_file(bucket_key=bucket_key)
 
-        if feature_dir is None:
-            raise Exception() # TODO proper exception - S3 download failed!
+        if self._feature_dir is None:
+            raise RequestedFeatureS3DownloadFailed(feature_id=self.feature_id)
+
+        return self._feature_dir
 
     def _update_db(self, status=None):
         if status is None:
@@ -62,10 +81,13 @@ class ReqeustedFeature(BaseModel):
 
         Na stav se bude ptát peridociky forntend voláním /api/check_visualization_status
         """
+        if self.feature_id is None:
+            raise RequestedFeatureIDNotSpecified()
 
         self._update_db(status="processing")
 
-        self._download_feature()
+        self._feature_dir = self._download_feature()
+        # v self._feature_dir nyní staženy data dané feature, destruktor self.__del__ složku smaže
 
         import time
         time.sleep(10)

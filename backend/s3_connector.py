@@ -46,6 +46,8 @@ class S3Connector:
         if bucket_key is None:
             raise Exception("Bucket key must be specified!")
 
+        download_to_directory = Path(self._download_dir, bucket_key.split('/')[-1])
+
         try:
             files = self._bucket.objects.filter(Prefix=bucket_key)
 
@@ -57,7 +59,7 @@ class S3Connector:
                 return None
 
             for file in files:
-                download_path = Path(self._download_dir, file.key)
+                download_path = Path(download_to_directory, file.key.replace(f"{bucket_key}/", ''))
                 download_path.parents[0].mkdir(parents=True, exist_ok=True)
 
                 print(f"Downloading contents of key {bucket_key} into {str(download_path)}.")
@@ -92,7 +94,7 @@ class S3Connector:
                         self._logger.error(e)
                         continue
 
-                return download_path
+            return download_to_directory
 
         except Exception as e:
             self._logger.error(e)

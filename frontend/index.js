@@ -4,7 +4,7 @@ const apiRoot = "https://catalogue.dataspace.copernicus.eu";
 let leafletMap = L.map('mapDiv').setView([50.05, 14.46], 10);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+    attribution: 'Map data (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
     maxZoom: 19,
 }).addTo(leafletMap);
 
@@ -126,6 +126,8 @@ const fetchFeatures = async () => {
 
     var availableFeaturesSelect = document.querySelector("#availableFeaturesSelect")
     availableFeaturesSelect.innerHTML = '';
+    
+    obtainedFeatures.sort((a, b) => a.id.toLowerCase().localeCompare(b.id.toLowerCase()))
 
     for (const feature of obtainedFeatures) {
         features.set(feature.id, feature)
@@ -235,7 +237,7 @@ const showBorders = () => {
     }).addTo(leafletMap);
 
     // To fit the map view to the polygon bounds
-    leafletMap.fitBounds(showedPolygon.getBounds());
+    //leafletMap.fitBounds(showedPolygon.getBounds());
 }
 
 const showExampleGeoTiff = async () => {
