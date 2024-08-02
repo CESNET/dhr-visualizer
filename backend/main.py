@@ -98,7 +98,7 @@ async def request_visualization(background_tasks: BackgroundTasks,
                                 requested_feature: ReqeustedFeature = ReqeustedFeature()):
     db[requested_feature.feature_id] = {
         "feature_id": requested_feature.feature_id,
-        "status": "processing",
+        "status": "accepted",
         "href": ""
     }
     background_tasks.add_task(requested_feature.start_map_tile_generation)
