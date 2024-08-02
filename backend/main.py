@@ -87,10 +87,10 @@ class ReqeustedFeature(BaseModel):
         self._update_db(status="processing")
 
         self._feature_dir = self._download_feature()
+        print(f"Feature downloaded into {str(self._feature_dir)}")
         # v self._feature_dir nyní staženy data dané feature, destruktor self.__del__ složku smaže
 
-        import time
-        time.sleep(10)
+        self._update_db(status="completed")
 
 
 @app.post("/api/request_visualization")
