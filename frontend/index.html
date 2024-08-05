@@ -30,6 +30,30 @@
                 <input type="datetime-local" id="timeToInput">
             </div>
 
+            <div class="controlsElement" id="coordinatesDiv">
+                <div class="controlsElement" id="coordinatesInputsDiv">
+                    <label for="coordinatesNWInput">North-west corner: </label>
+                    <input type="text" class="coordinateUserInput" id="coordinatesNWInput"
+                           placeholder="Latitude;Longitude">
+
+                    <label for="coordinatesSEInput">South-east corner: </label>
+                    <input type="text" class="coordinateUserInput" id="coordinatesSEInput"
+                           placeholder="Latitude;Longitude">
+                </div>
+
+                <div class="controlsElement" id="coordinatesFromMapButtonDiv">
+                    <button id="coordinatesFromMapButton" onclick="insertCoordinatesFromMap()">
+                        Insert coordinates of map corners
+                    </button>
+                </div>
+
+                <div class="controlsElement" id="coordinatesClearButtonDiv">
+                    <button id="coordinatesClearButton" onclick="clearCoordinates()">
+                        Clear coordinates
+                    </button>
+                </div>
+            </div>
+
             <div class="controlsElement" id="datasetsSelectDiv">
                 <!--
                     datasets = [

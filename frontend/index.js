@@ -26,6 +26,7 @@ timeTo.setUTCSeconds(59);
 let timeToInput = document.querySelector("#timeToInput");
 timeToInput.value = timeTo.toISOString().substring(0, 16);
 
+/*
 const preparePolygon = (northWestLat, northWestLon, southEastLat, southEastLon) => {
     let polygon = [
         [northWestLon, northWestLat],
@@ -37,6 +38,7 @@ const preparePolygon = (northWestLat, northWestLon, southEastLat, southEastLon) 
 
     return polygon;
 };
+*/
 
 const prepareBbox = (northWestLat, northWestLon, southEastLat, southEastLon) => {
     let coordArray = [
@@ -84,66 +86,144 @@ const fetchData = async (endpoint) => {
 let features = new Map();
 let spinner = document.querySelector("#spinnerDiv");
 
-const fetchFeatures = async () => {
+const showSpinner = () => {
     spinner.style.display = "block";
+};
 
-    let timeFrom = new Date(document.querySelector("#timeFromInput").value + ":00Z");
-    let timeTo = new Date(document.querySelector("#timeToInput").value + ":00Z");
+const hideSpinner = () => {
+    spinner.style.display = "none";
+};
 
-    if (timeTo < timeFrom) {
-        alert("Time to must be after Time from!");
+const parseCoordinates = async (coordinatesString) => {
+    if (typeof coordinatesString !== 'string') {
+        throw new Error('coordinatesString must be a string');
+    }
+
+    coordinatesString = coordinatesString.replace(/,/g, '.');
+
+    const parts = coordinatesString.split(';');
+    if (parts.length !== 2) {
+        alert("Coordinates must be in format [dd.dddd;dd.dddd]");
         return;
     }
 
-    let polygon = preparePolygon(
-        leafletMap.getBounds().getNorthWest().lat,
-        leafletMap.getBounds().getNorthWest().lng,
-        leafletMap.getBounds().getSouthEast().lat,
-        leafletMap.getBounds().getSouthEast().lng
-    );
+    const [latitude, longitude] = parts.map(Number);
+    if (isNaN(latitude) || isNaN(longitude)) {
+        alert("Coordinates must be valid numbers");
+        return;
+    }
 
-    let bbox = prepareBbox(
-        leafletMap.getBounds().getNorthWest().lat,
-        leafletMap.getBounds().getNorthWest().lng,
-        leafletMap.getBounds().getSouthEast().lat,
-        leafletMap.getBounds().getSouthEast().lng
-    );
+    return [latitude, longitude];
+}
 
-    let dataset = document.querySelector("#datasetsSelect").value;
-
-    let endpoint = new URL(["stac", "collections", dataset, "items"].join("/"), apiRoot);
-    endpoint.searchParams.set("bbox", bbox);
-    endpoint.searchParams.set("datetime", [timeFrom.toISOString(), timeTo.toISOString()].join("/"));
-    endpoint.searchParams.set("limit", "100");
+const fetchFeatures = async () => {
+    showSpinner();
 
     try {
-        obtainedFeatures = await fetchData(endpoint.href);
+        let timeFrom = new Date(document.querySelector("#timeFromInput").value + ":00Z");
+        let timeTo = new Date(document.querySelector("#timeToInput").value + ":00Z");
+
+        if (timeTo < timeFrom) {
+            alert("Time to must be after Time from!");
+            return;
+        }
+
+        let tomorrow = new Date();
+        tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+        tomorrow.setUTCHours(0, 0, 0, 0);
+
+        if ((timeFrom > tomorrow) || (timeTo > tomorrow)) {
+            alert("Date could not be in the future!");
+            return;
+        }
+
+        const coordinatesUserInputElements = document.getElementsByClassName("coordinateUserInput")
+        let coordinatesUserInput = []
+        for (let coordinatesElement of coordinatesUserInputElements) {
+            if (coordinatesElement.value === "") {
+                continue;
+            }
+
+            const coordinates = await parseCoordinates(coordinatesElement.value);
+            if (coordinates) {
+                coordinatesUserInput.push(coordinates);
+            } else {
+                break; // Stop the loop if coordinates are not valid
+            }
+        }
+
+        if (coordinatesUserInput.length <= 0) {
+            insertCoordinatesFromMap();
+            await fetchFeatures();
+            return;
+        }
+
+        console.log(coordinatesUserInput);
+        /*
+        let polygon = preparePolygon(
+            leafletMap.getBounds().getNorthWest().lat,
+            leafletMap.getBounds().getNorthWest().lng,
+            leafletMap.getBounds().getSouthEast().lat,
+            leafletMap.getBounds().getSouthEast().lng
+        );
+         */
+
+        /*
+        let bbox = prepareBbox(
+            leafletMap.getBounds().getNorthWest().lat,
+            leafletMap.getBounds().getNorthWest().lng,
+            leafletMap.getBounds().getSouthEast().lat,
+            leafletMap.getBounds().getSouthEast().lng
+        );
+        */
+
+        let bbox = prepareBbox(
+            coordinatesUserInput[0][0],
+            coordinatesUserInput[0][1],
+            coordinatesUserInput[1][0],
+            coordinatesUserInput[1][1]
+        );
+
+        let dataset = document.querySelector("#datasetsSelect").value;
+
+        let endpoint = new URL(["stac", "collections", dataset, "items"].join("/"), apiRoot);
+        endpoint.searchParams.set("bbox", bbox);
+        endpoint.searchParams.set("datetime", [timeFrom.toISOString(), timeTo.toISOString()].join("/"));
+        endpoint.searchParams.set("limit", "100");
+
+        let obtainedFeatures = await fetchData(endpoint.href);
+
+        features = new Map();
+
+        var availableFeaturesSelect = document.querySelector("#availableFeaturesSelect");
+        availableFeaturesSelect.innerHTML = '';
+
+        obtainedFeatures.sort((a, b) => a.id.toLowerCase().localeCompare(b.id.toLowerCase()));
+
+        for (const feature of obtainedFeatures) {
+            features.set(feature.id, feature);
+
+            let option = document.createElement("option");
+            option.value = feature.id;
+            option.textContent = feature.id;
+
+            availableFeaturesSelect.appendChild(option);
+        }
+
+        showBorders();
+
+        document.querySelector("#visualizeFeatureButton").disabled = false;
     } catch (error) {
-        console.error("Error in fetchTiles:", error);
+        console.error("Error in fetchTiles:  ", error);
+    } finally {
+        hideSpinner();
     }
-
-    features = new Map()
-
-    var availableFeaturesSelect = document.querySelector("#availableFeaturesSelect")
-    availableFeaturesSelect.innerHTML = '';
-    
-    obtainedFeatures.sort((a, b) => a.id.toLowerCase().localeCompare(b.id.toLowerCase()))
-
-    for (const feature of obtainedFeatures) {
-        features.set(feature.id, feature)
-
-        let option = document.createElement("option")
-        option.value = feature.id
-        option.textContent = feature.id
-
-        availableFeaturesSelect.appendChild(option)
-    }
-
-    showBorders()
-
-    document.querySelector("#visualizeFeatureButton").disabled = false
-    spinner.style.display = "none";
 };
+
+const clearCoordinates = () => {
+    document.querySelector("#coordinatesNWInput").value = ""
+    document.querySelector("#coordinatesSEInput").value = ""
+}
 
 class VisualizationRequest {
     constructor(featureId, status, href) {
@@ -156,14 +236,13 @@ class VisualizationRequest {
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const requestVisualization = async () => {
-    spinner.style.display = "block";
+    showSpinner();
 
-    featureId = document.querySelector("#availableFeaturesSelect").value
+    const featureId = document.querySelector("#availableFeaturesSelect").value;
 
-    setTimeout(async () => {
-        featureId = document.querySelector("#availableFeaturesSelect").value
-
-        try {
+    try {
+        let visualizationRequest;
+        do {
             const response = await fetch(`${backendHost}/api/request_visualization`, {
                 method: 'POST',
                 headers: {
@@ -175,38 +254,21 @@ const requestVisualization = async () => {
             });
 
             const data = await response.json();
-            let visualizationRequest = new VisualizationRequest(
+            visualizationRequest = new VisualizationRequest(
                 data.feature_id,
                 data.status,
                 data.href
             );
 
-            while (visualizationRequest.status !== "completed") {
+            if (visualizationRequest.status !== "completed") {
+                console.log(visualizationRequest)
                 await delay(5000);
-                visualizationRequest = await checkVisualizationStatus(visualizationRequest.featureId);
-                console.log(visualizationRequest);
             }
-        } catch (error) {
-            console.error('Error:', error);
-        } finally {
-            spinner.style.display = "none";
-        }
-    }, 500);
-}
-
-const checkVisualizationStatus = async (featureId) => {
-    try {
-        const response = await fetch(`${backendHost}/api/check_visualization_status?feature_id=${featureId}`, {
-            method: 'GET',
-        });
-        const data = await response.json();
-        return new VisualizationRequest(
-            data.feature_id,
-            data.status,
-            data.href
-        );
+        } while (visualizationRequest.status !== "completed");
     } catch (error) {
         console.error('Error:', error);
+    } finally {
+        hideSpinner();
     }
 }
 
@@ -221,6 +283,14 @@ const transposeCoordinates = (coordinatesArray) => {
 }
 
 let showedPolygon = null
+
+const insertCoordinatesFromMap = () => {
+    let coordinatesNWInput = document.querySelector("#coordinatesNWInput");
+    coordinatesNWInput.value = `${leafletMap.getBounds().getNorthWest().lat.toFixed(4)};${leafletMap.getBounds().getNorthWest().lng.toFixed(4)}`;
+
+    let coordinatesSEInput = document.querySelector("#coordinatesSEInput");
+    coordinatesSEInput.value = `${leafletMap.getBounds().getSouthEast().lat.toFixed(4)};${leafletMap.getBounds().getSouthEast().lng.toFixed(4)}`;
+}
 
 const showBorders = () => {
     let featureId = document.querySelector("#availableFeaturesSelect").value;
@@ -237,7 +307,7 @@ const showBorders = () => {
     }).addTo(leafletMap);
 
     // To fit the map view to the polygon bounds
-    //leafletMap.fitBounds(showedPolygon.getBounds());
+    leafletMap.fitBounds(showedPolygon.getBounds());
 }
 
 const showExampleGeoTiff = async () => {

@@ -96,22 +96,15 @@ class ReqeustedFeature(BaseModel):
 @app.post("/api/request_visualization")
 async def request_visualization(background_tasks: BackgroundTasks,
                                 requested_feature: ReqeustedFeature = ReqeustedFeature()):
-    db[requested_feature.feature_id] = {
-        "feature_id": requested_feature.feature_id,
-        "status": "accepted",
-        "href": ""
-    }
-    background_tasks.add_task(requested_feature.start_map_tile_generation)
+    if requested_feature.feature_id not in db:
+        db[requested_feature.feature_id] = {
+            "feature_id": requested_feature.feature_id,
+            "status": "accepted",
+            "href": ""
+        }
+        background_tasks.add_task(requested_feature.start_map_tile_generation)
 
     return db[requested_feature.feature_id]
-
-
-@app.get("/api/check_visualization_status")
-async def check_visualization_status(feature_id: str):
-    if feature_id in db:
-        return db[feature_id]
-    else:
-        return HTTPException(status_code=404, detail=f"{feature_id} not found!")
 
 
 if __name__ == "__main__":
