@@ -166,3 +166,6 @@ frontend/example_tiffs
 
 # S3 credentials
 backend/config/s3_config.py
+
+# Example TIFs
+*example*.tif*
