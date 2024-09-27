@@ -3,6 +3,7 @@ html, body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: Arial, sans-serif;
 }
 
 #spinnerDiv {
@@ -21,31 +22,59 @@ html, body {
 
 .flexContainer {
     display: flex;
-    height: calc(100% - 5px);
+    height: 100%;
 }
 
 .controlsDiv {
     flex: 1;
     flex-direction: column;
-    margin: 4px;
+    margin: 10px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
     box-sizing: border-box;
 }
 
 .controlsElement {
     width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     display: flex;
     flex-direction: column;
 }
 
+.controlsElement label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.controlsElement input, .controlsElement select, .controlsElement button {
+    padding: 8px;
+    border: 1px solid #c0c0c0;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.controlsElement button {
+    cursor: pointer;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+.controlsElement button:hover {
+    background-color: #0056b3;
+}
+
 #availableFeaturesSelect {
     width: 100%;
-    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .mapDiv {
-    flex: 3;
-    height: 100%;
+    flex: 4;
+    padding: 10px;
+    margin: 10px 10px 10px 0;
 }
