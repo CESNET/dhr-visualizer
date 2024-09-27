@@ -231,46 +231,86 @@ class VisualizationRequest {
         this.status = status;
         this.href = href;
     }
+
+    isIntialized = () => {
+        return (this.featureId !== undefined)
+            && (this.status !== undefined)
+            && (this.href !== undefined);
+    }
 }
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchWithTimeout = async (url, options = {}, timeout = 5000) => {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+    });
+    clearTimeout(id);
+    return response;
+};
+
+const visualize = async () => {
+    let visualizationRequest = await requestVisualization()
+
+}
 
 const requestVisualization = async () => {
     showSpinner();
 
     const featureId = document.querySelector("#availableFeaturesSelect").value;
 
+    let visualizationRequest = new VisualizationRequest(undefined, undefined, undefined);
+
     try {
-        let visualizationRequest;
+        let url = `${backendHost}/api/request_visualization`
         do {
-            const response = await fetch(`${backendHost}/api/request_visualization`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    feature_id: featureId,
-                }),
-            });
+            try {
+                const response = await fetchWithTimeout(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        feature_id: featureId,
+                    }),
+                }, 30000); // TODO timeout after 30 sec. Enough?
 
-            const data = await response.json();
-            visualizationRequest = new VisualizationRequest(
-                data.feature_id,
-                data.status,
-                data.href
-            );
+                const data = await response.json();
+                visualizationRequest = new VisualizationRequest(
+                    data.feature_id,
+                    data.status,
+                    data.href
+                );
 
-            if (visualizationRequest.status !== "completed") {
-                console.log(visualizationRequest)
-                await delay(5000);
+                if (visualizationRequest.status !== "completed") {
+                    console.log(visualizationRequest);
+                    await delay(5000);
+                }
+
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    console.error('Request timed out!');
+                } else {
+                    throw error;
+                }
             }
+
         } while (visualizationRequest.status !== "completed");
     } catch (error) {
         console.error('Error:', error);
     } finally {
         hideSpinner();
     }
-}
+
+    if (visualizationRequest.isIntialized() !== true){
+        throw new Error("Request is not initialized!") // todo proper exception
+    }
+
+    return visualizationRequest;
+};
 
 const transposeCoordinates = (coordinatesArray) => {
     let newCoordinatesArray = [];
