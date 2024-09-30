@@ -6,6 +6,7 @@
     <title>Visualization</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
     <link rel="stylesheet" href="index.css"/>
+    <link rel="stylesheet" href="alert.css"/>
     <link rel="stylesheet" href="spinner.css"/>
 </head>
 <body>
@@ -18,6 +19,9 @@
             <div class="spinnerDot"></div>
             <div class="spinnerDot"></div>
         </div>
+    </div>
+
+    <div id="alertsDiv">
     </div>
 
     <div class="flexContainer" id="mainDiv">
@@ -95,8 +99,8 @@
                 <select id="availableFeaturesSelect" onchange="showBorders()"></select>
             </div>
 
-            <div class="controlsElement" id="visualizeFeatureButtonDiv">
-                <button id="visualizeFeatureButton" onclick="visualize()" disabled>Visualize selected feature</button>
+            <div class="controlsElement disabledElement" id="visualizeFeatureButtonDiv">
+                <button id="visualizeFeatureButton" onclick="visualize()">Visualize selected feature</button>
             </div>
 
             <div class="controlsElement" id="showExampleGeoTiffButtonDiv">

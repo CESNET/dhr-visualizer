@@ -2,14 +2,13 @@ const backendHost = 'http://127.0.0.1:8000';
 const apiRoot = "https://catalogue.dataspace.copernicus.eu";
 
 let leafletMap = L.map('mapDiv').setView([50.05, 14.46], 10);
-
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
     maxZoom: 19,
 }).addTo(leafletMap);
+insertCoordinatesFromMap();
 
-
-var timeFrom = new Date();
+let timeFrom = new Date();
 timeFrom.setUTCMonth(timeFrom.getUTCMonth() - 1);
 timeFrom.setUTCHours(0);
 timeFrom.setUTCMinutes(0);
@@ -25,6 +24,34 @@ timeTo.setUTCSeconds(59);
 
 let timeToInput = document.querySelector("#timeToInput");
 timeToInput.value = timeTo.toISOString().substring(0, 16);
+
+
+function insertCoordinatesFromMap() {
+    let coordinatesNWInput = document.querySelector("#coordinatesNWInput");
+    coordinatesNWInput.value = `${leafletMap.getBounds().getNorthWest().lat.toFixed(4)};${leafletMap.getBounds().getNorthWest().lng.toFixed(4)}`;
+
+    let coordinatesSEInput = document.querySelector("#coordinatesSEInput");
+    coordinatesSEInput.value = `${leafletMap.getBounds().getSouthEast().lat.toFixed(4)};${leafletMap.getBounds().getSouthEast().lng.toFixed(4)}`;
+}
+
+const closeAlert = (alertDiv) => {
+    alertDiv.style.animation = 'slideOut 0.7s forwards';
+    alertDiv.addEventListener('animationend', () => {
+        alertDiv.remove();
+    });
+}
+
+const showAlert = async (headline, message) => {
+    await fetch('alert.html')
+        .then(response => response.text())
+        .then(data => {
+            let alertDOM = new DOMParser().parseFromString(data, 'text/html');
+            alertDOM.getElementById('alertHeadline').innerHTML = headline;
+            alertDOM.getElementById('alertMessage').innerHTML = message;
+
+            document.getElementById('alertsDiv').appendChild(alertDOM.getElementById('alertDiv'));
+        });
+}
 
 /*
 const preparePolygon = (northWestLat, northWestLon, southEastLat, southEastLon) => {
@@ -47,15 +74,15 @@ const prepareBbox = (northWestLat, northWestLon, southEastLat, southEastLon) => 
         southEastLon.toString(),
         southEastLat.toString()
     ];
+
     let bbox = coordArray.join(",");
     return bbox;
 };
 
 const fetchData = async (endpoint) => {
     let features = [];
-    let shouldContinueWhileLoop = true;
 
-    while (shouldContinueWhileLoop) {
+    while (true) {
         let foundNextPage = false;
 
         try {
@@ -72,16 +99,19 @@ const fetchData = async (endpoint) => {
                 }
             }
 
-            shouldContinueWhileLoop = foundNextPage;
+            if (!foundNextPage) {
+                break;
+            }
 
         } catch (error) {
-            console.error("Error fetching data:", error);
-            shouldContinueWhileLoop = false;
+            console.error(`Error fetchig data! Error name: ${error.name}; Error message: ${error.message}`);
+            break;
         }
     }
 
     return features;
 };
+
 
 let features = new Map();
 let spinner = document.querySelector("#spinnerDiv");
@@ -103,14 +133,14 @@ const parseCoordinates = async (coordinatesString) => {
 
     const parts = coordinatesString.split(';');
     if (parts.length !== 2) {
-        alert("Coordinates must be in format [dd.dddd;dd.dddd]");
-        return;
+        await showAlert("Warning!", "Coordinates must be in format [dd.dddd;dd.dddd]");
+        return undefined;
     }
 
     const [latitude, longitude] = parts.map(Number);
     if (isNaN(latitude) || isNaN(longitude)) {
         alert("Coordinates must be valid numbers");
-        return;
+        return undefined;
     }
 
     return [latitude, longitude];
@@ -118,13 +148,14 @@ const parseCoordinates = async (coordinatesString) => {
 
 const fetchFeatures = async () => {
     showSpinner();
+    document.querySelector("#visualizeFeatureButtonDiv").classList.add("disabledElement");
 
     try {
         let timeFrom = new Date(document.querySelector("#timeFromInput").value + ":00Z");
         let timeTo = new Date(document.querySelector("#timeToInput").value + ":00Z");
 
         if (timeTo < timeFrom) {
-            alert("Time to must be after Time from!");
+            await showAlert("Warning!", "Time to must be after Time from!");
             return;
         }
 
@@ -133,7 +164,7 @@ const fetchFeatures = async () => {
         tomorrow.setUTCHours(0, 0, 0, 0);
 
         if ((timeFrom > tomorrow) || (timeTo > tomorrow)) {
-            alert("Date could not be in the future!");
+            await showAlert("Warning!", "Date could not be in the future!");
             return;
         }
 
@@ -148,7 +179,7 @@ const fetchFeatures = async () => {
             if (coordinates) {
                 coordinatesUserInput.push(coordinates);
             } else {
-                break; // Stop the loop if coordinates are not valid
+                return; // Stop the loop if coordinates are not valid
             }
         }
 
@@ -158,7 +189,6 @@ const fetchFeatures = async () => {
             return;
         }
 
-        console.log(coordinatesUserInput);
         /*
         let polygon = preparePolygon(
             leafletMap.getBounds().getNorthWest().lat,
@@ -193,12 +223,12 @@ const fetchFeatures = async () => {
 
         let obtainedFeatures = await fetchData(endpoint.href);
 
-        features = new Map();
-
-        var availableFeaturesSelect = document.querySelector("#availableFeaturesSelect");
+        let availableFeaturesSelect = document.querySelector("#availableFeaturesSelect");
         availableFeaturesSelect.innerHTML = '';
 
         obtainedFeatures.sort((a, b) => a.id.toLowerCase().localeCompare(b.id.toLowerCase()));
+
+        features = new Map();
 
         for (const feature of obtainedFeatures) {
             features.set(feature.id, feature);
@@ -212,9 +242,11 @@ const fetchFeatures = async () => {
 
         showBorders();
 
-        document.querySelector("#visualizeFeatureButton").disabled = false;
+        if (obtainedFeatures.length > 0) {
+            document.querySelector("#visualizeFeatureButtonDiv").classList.remove("disabledElement");
+        }
     } catch (error) {
-        console.error("Error in fetchTiles:  ", error);
+        console.error(`Error fetching tiles!  Error name: ${error.name}; Error message: ${error.message}`);
     } finally {
         hideSpinner();
     }
@@ -232,7 +264,7 @@ class VisualizationRequest {
         this.href = href;
     }
 
-    isIntialized = () => {
+    isInitialized() {
         return (this.featureId !== undefined)
             && (this.status !== undefined)
             && (this.href !== undefined);
@@ -244,13 +276,23 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const fetchWithTimeout = async (url, options = {}, timeout = 5000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
-    const response = await fetch(url, {
-        ...options,
-        signal: controller.signal
-    });
-    clearTimeout(id);
-    return response;
+
+    try {
+        var response = await fetch(url, {
+            ...options,
+            signal: controller.signal
+        });
+        return response;
+
+    } catch (error) {
+        console.error(`Error name: ${error.name}; Error message: ${error.message}`)
+
+        throw error;
+    } finally {
+        clearTimeout(id);
+    }
 };
+
 
 const visualize = async () => {
     let visualizationRequest = await requestVisualization()
@@ -279,6 +321,7 @@ const requestVisualization = async () => {
                 }, 30000); // TODO timeout after 30 sec. Enough?
 
                 const data = await response.json();
+                console.log(data)
                 visualizationRequest = new VisualizationRequest(
                     data.feature_id,
                     data.status,
@@ -292,20 +335,24 @@ const requestVisualization = async () => {
 
             } catch (error) {
                 if (error.name === 'AbortError') {
-                    console.error('Request timed out!');
+                    await showAlert("Warning!", "Request timed out!");
+                } else if (error.message.includes('NetworkError')) {
+                    await showAlert("Warning!", "Network error - connection to backend failed! Please try again later. If this problem persists contact us.");
                 } else {
-                    throw error;
+                    await showAlert("Warning!", "Unknown error! Please check console for more information.");
                 }
+
+                throw error;
             }
 
         } while (visualizationRequest.status !== "completed");
     } catch (error) {
-        console.error('Error:', error);
+        console.error(`Error name: ${error.name}; Error message: ${error.message}`);
     } finally {
         hideSpinner();
     }
 
-    if (visualizationRequest.isIntialized() !== true){
+    if (visualizationRequest.isInitialized() !== true) {
         throw new Error("Request is not initialized!") // todo proper exception
     }
 
@@ -323,14 +370,6 @@ const transposeCoordinates = (coordinatesArray) => {
 }
 
 let showedPolygon = null
-
-const insertCoordinatesFromMap = () => {
-    let coordinatesNWInput = document.querySelector("#coordinatesNWInput");
-    coordinatesNWInput.value = `${leafletMap.getBounds().getNorthWest().lat.toFixed(4)};${leafletMap.getBounds().getNorthWest().lng.toFixed(4)}`;
-
-    let coordinatesSEInput = document.querySelector("#coordinatesSEInput");
-    coordinatesSEInput.value = `${leafletMap.getBounds().getSouthEast().lat.toFixed(4)};${leafletMap.getBounds().getSouthEast().lng.toFixed(4)}`;
-}
 
 const showBorders = () => {
     let featureId = document.querySelector("#availableFeaturesSelect").value;
