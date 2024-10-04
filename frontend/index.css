@@ -85,10 +85,6 @@ html, body {
     text-overflow: ellipsis;
 }
 
-#visualizeFeatureButton:disabled {
-
-}
-
 .mapDiv {
     flex: 4;
     padding: 10px;

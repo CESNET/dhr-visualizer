@@ -1,5 +1,6 @@
 const backendHost = 'http://127.0.0.1:8000';
 const apiRoot = "https://catalogue.dataspace.copernicus.eu";
+const supportEmail = "placeholder@example.com"; //TODO Change email
 
 let leafletMap = L.map('mapDiv').setView([50.05, 14.46], 10);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -24,6 +25,48 @@ timeTo.setUTCSeconds(59);
 
 let timeToInput = document.querySelector("#timeToInput");
 timeToInput.value = timeTo.toISOString().substring(0, 16);
+
+const offeredDatasets = [
+    "SENTINEL-1",
+    "SENTINEL-2",
+    "SENTINEL-3",
+    "SENTINEL-5P",
+    "SENTINEL-6",
+    "SENTINEL-1-RTC",
+]
+
+const prepareDatasetSelect = () => {
+    /*
+        // All possible datasets:
+            const offeredDatasets = [
+            // Copernicus Sentinel Mission
+            "SENTINEL-1",
+            "SENTINEL-2",
+            "SENTINEL-3",
+            "SENTINEL-5P",
+            "SENTINEL-6",
+            "SENTINEL-1-RTC",
+            // Complementary data...
+            "GLOBAL-MOSAICS",
+            "SMOS",
+            "ENVISAT",
+            "LANDSAT-5",
+            "LANDSAT-7",
+            "LANDSAT-8",
+            "COP-DEM",
+            "TERRAAQUA",
+            "S2GLC"
+            ]
+     */
+
+    let datasetsSelect = document.getElementById('datasetsSelect');
+    for (let dataset of offeredDatasets) {
+        let option = document.createElement("option");
+        option.value = dataset;
+        option.innerHTML = dataset;
+        datasetsSelect.appendChild(option);
+    }
+}
 
 
 function insertCoordinatesFromMap() {
@@ -79,7 +122,7 @@ const prepareBbox = (northWestLat, northWestLon, southEastLat, southEastLon) => 
     return bbox;
 };
 
-const fetchData = async (endpoint) => {
+const fetchFeaturesFromCopernicus = async (endpoint) => {
     let features = [];
 
     while (true) {
@@ -146,9 +189,15 @@ const parseCoordinates = async (coordinatesString) => {
     return [latitude, longitude];
 }
 
+const clearAvailableFeaturesSelect = () => {
+    let availableFeaturesSelect = document.getElementById('availableFeaturesSelect');
+    availableFeaturesSelect.innerHTML = '';
+}
+
 const fetchFeatures = async () => {
     showSpinner();
     document.querySelector("#visualizeFeatureButtonDiv").classList.add("disabledElement");
+    clearAvailableFeaturesSelect();
 
     try {
         let timeFrom = new Date(document.querySelector("#timeFromInput").value + ":00Z");
@@ -185,8 +234,8 @@ const fetchFeatures = async () => {
 
         if (coordinatesUserInput.length <= 0) {
             insertCoordinatesFromMap();
-            await fetchFeatures();
-            return;
+            await fetchFeatures(); // Coordinates inserted into input boxes, thus we can load it in second run of this function
+            return; // Features fetched, in second run of fetchFeatures() above. We can exit the first run.
         }
 
         /*
@@ -221,7 +270,9 @@ const fetchFeatures = async () => {
         endpoint.searchParams.set("datetime", [timeFrom.toISOString(), timeTo.toISOString()].join("/"));
         endpoint.searchParams.set("limit", "100");
 
-        let obtainedFeatures = await fetchData(endpoint.href);
+        let obtainedFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
+
+        console.log(obtainedFeatures)
 
         let availableFeaturesSelect = document.querySelector("#availableFeaturesSelect");
         availableFeaturesSelect.innerHTML = '';
@@ -337,7 +388,7 @@ const requestVisualization = async () => {
                 if (error.name === 'AbortError') {
                     await showAlert("Warning!", "Request timed out!");
                 } else if (error.message.includes('NetworkError')) {
-                    await showAlert("Warning!", "Network error - connection to backend failed! Please try again later. If this problem persists contact us.");
+                    await showAlert("Warning!", `Network error - connection to backend failed!   Please try again later. If this problem persists please <a href=\"mailto:${supportEmail}\">contact us</a>.`);
                 } else {
                     await showAlert("Warning!", "Unknown error! Please check console for more information.");
                 }

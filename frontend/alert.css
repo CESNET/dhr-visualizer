@@ -30,7 +30,7 @@
 
 .alert {
     padding: 20px;
-    background-color: #d83329;
+    background-color: #d32f2f;
     color: white;
     margin-bottom: 15px;
     position: relative;
@@ -70,4 +70,8 @@
 
 .alert .alertCloseButton:hover {
     color: black;
+}
+
+.alert a {
+    color: #ffeb3b;
 }

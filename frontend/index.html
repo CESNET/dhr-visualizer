@@ -63,31 +63,8 @@
             </div>
 
             <div class="controlsElement" id="datasetsSelectDiv">
-                <!--
-                datasets = [
-                "SENTINEL-1",
-                "SENTINEL-2",
-                "SENTINEL-3",
-                "SENTINEL-5P",
-                "SENTINEL-6",
-                "SENTINEL-1-RTC",
-                "GLOBAL-MOSAICS",
-                "SMOS",
-                "ENVISAT",
-                "LANDSAT-5",
-                "LANDSAT-7",
-                "LANDSAT-8",
-                "COP-DEM",
-                "TERRAAQUA",
-                "S2GLC"
-                ]
-                -->
-
                 <label for="datasetsSelect">Select dataset</label>
-                <select id="datasetsSelect">
-                    <option value="SENTINEL-1">Sentinel-1</option>
-                    <option value="SENTINEL-2">Sentinel-2</option>
-                </select>
+                <select id="datasetsSelect"></select>
             </div>
 
             <div class="controlsElement" id="fetchFeaturesDiv">
@@ -115,5 +92,6 @@
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
     <script src="index.js"></script>
+    <script>prepareDatasetSelect()</script>
 </body>
 </html>
