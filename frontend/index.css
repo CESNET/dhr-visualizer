@@ -106,7 +106,7 @@ html, body {
 
 .checkbox-group {
     display: flex;
-    justify-content: space-between; /* Space between label and button */
+    justify-content: space-between;
     margin-bottom: 15px;
-    width: 100%; /* Full width of the container */
+    width: 100%;
 }

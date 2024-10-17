@@ -122,12 +122,15 @@ const prepareBbox = (northWestLat, northWestLon, southEastLat, southEastLon) => 
     return bbox;
 };
 
+const preparePolygon = (northWestLat, northWestLon, southEastLat, southEastLon) => {
+    return `POLYGON((${northWestLon} ${northWestLat},${southEastLon} ${northWestLat},` +
+        `${southEastLon} ${southEastLat},${northWestLon} ${southEastLat},${northWestLon} ${northWestLat}))`;
+}
+
 const fetchFeaturesFromCopernicus = async (endpoint) => {
     let features = [];
 
     while (true) {
-        let foundNextPage = false;
-
         try {
             const response = await fetch(endpoint);
             const data = await response.json();
@@ -254,11 +257,18 @@ const fetchFeatures = async () => {
         );
         */
 
-        let bbox = prepareBbox(
-            coordinatesUserInput[0][0],
-            coordinatesUserInput[0][1],
-            coordinatesUserInput[1][0],
-            coordinatesUserInput[1][1]
+        // let bbox = prepareBbox(
+        //     coordinatesUserInput[0][0],
+        //     coordinatesUserInput[0][1],
+        //     coordinatesUserInput[1][0],
+        //     coordinatesUserInput[1][1]
+        // );
+
+        let polygon = preparePolygon(
+            leafletMap.getBounds().getNorthWest().lat,
+            leafletMap.getBounds().getNorthWest().lng,
+            leafletMap.getBounds().getSouthEast().lat,
+            leafletMap.getBounds().getSouthEast().lng
         );
 
         const selectedDatasources = document.querySelectorAll('input[name="dataset"]:checked');
@@ -270,12 +280,16 @@ const fetchFeatures = async () => {
         // endpoint.searchParams.set("bbox", bbox);
         // endpoint.searchParams.set("datetime", [timeFrom.toISOString(), timeTo.toISOString()].join("/"));
         // endpoint.searchParams.set("limit", "100");
-
+        console.log(polygon);
         let filterCondition = datasetValues
             .map(source => `Collection/Name eq '${source}'`)
             .join(' or ');
-        let endpoint = `${apiRoot}?$filter=${filterCondition}`;
-        let obtainedFeatures = await fetchFeaturesFromCopernicus(endpoint);
+        let endpoint = new URL(`?$filter=${filterCondition} and ContentDate/Start gt ${timeFrom.toISOString()}` +
+                            ` and ContentDate/Start lt ${timeTo.toISOString()}`, apiRoot);
+        // todo - add polygon. beware the closing ) might not get correctly encoded.
+        console.log(endpoint.href);
+
+        let obtainedFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
 
 
         let availableFeaturesSelect = document.querySelector("#availableFeaturesSelect");
@@ -477,3 +491,16 @@ const showExampleGeoTiff = async () => {
             });
         });
 }
+
+document.querySelectorAll('.filter-button').forEach(button => {
+  button.addEventListener('click', function () {
+    const mission = this.getAttribute('data-mission');
+    const filterPanel = document.getElementById(`additional-filters-${mission}`);
+
+    if (filterPanel.style.display === 'none' || filterPanel.style.display === '') {
+      filterPanel.style.display = 'block';
+    } else {
+      filterPanel.style.display = 'none';
+    }
+  });
+});
