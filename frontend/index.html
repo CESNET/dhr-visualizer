@@ -10,128 +10,326 @@
     <link rel="stylesheet" href="spinner.css"/>
 </head>
 <body>
-    <div id="spinnerDiv">
+    <div id="spinner-div">
         <div class="spinner" id="spinner">
-            <div class="spinnerDot"></div>
-            <div class="spinnerDot"></div>
-            <div class="spinnerDot"></div>
-            <div class="spinnerDot"></div>
-            <div class="spinnerDot"></div>
-            <div class="spinnerDot"></div>
+            <div class="spinner-dot"></div>
+            <div class="spinner-dot"></div>
+            <div class="spinner-dot"></div>
+            <div class="spinner-dot"></div>
+            <div class="spinner-dot"></div>
+            <div class="spinner-dot"></div>
         </div>
     </div>
 
-    <div id="alertsDiv">
+    <div id="alerts-div">
     </div>
 
-    <div class="flexContainer" id="mainDiv">
-        <div class="controlsDiv" id="controlsDiv">
-            <div class="controlsElement controlsBox" id="timeDiv">
-                <div class="controlsElement" id="timeFromDiv">
-                    <label for="timeFromInput">Time from (UTC)</label>
-                    <input type="datetime-local" id="timeFromInput">
+    <div class="flex-container" id="main-div">
+        <div class="controls-div" id="controls-div">
+            <div class="controls-element controls-box" id="time-div">
+                <div class="controls-element" id="time-from-div">
+                    <label for="time-from-input">Time from (UTC)</label>
+                    <input type="datetime-local" id="time-from-input">
                 </div>
 
-                <div class="controlsElement" id="timeToDiv">
-                    <label for="timeToInput">Time to (UTC)</label>
-                    <input type="datetime-local" id="timeToInput">
+                <div class="controls-element" id="time-to-div">
+                    <label for="time-to-input">Time to (UTC)</label>
+                    <input type="datetime-local" id="time-to-input">
                 </div>
             </div>
 
-            <div class="controlsElement controlsBox" id="coordinatesDiv">
-                <div class="controlsElement" id="coordinatesNWInputDiv">
-                    <label for="coordinatesNWInput">North-west corner: </label>
-                    <input type="text" class="coordinateUserInput" id="coordinatesNWInput"
+            <div class="controls-element controls-box" id="coordinates-div">
+                <div class="controls-element" id="coordinates-nw-input-div">
+                    <label for="coordinates-nw-input">North-west corner: </label>
+                    <input type="text" class="coordinate-user-input" id="coordinates-nw-input"
                            placeholder="Latitude;Longitude">
                 </div>
 
-                <div class="controlsElement" id="coordinatesSEInputDiv">
-                    <label for="coordinatesSEInput">South-east corner: </label>
-                    <input type="text" class="coordinateUserInput" id="coordinatesSEInput"
+                <div class="controls-element" id="coordinates-se-input-div">
+                    <label for="coordinates-se-input">South-east corner: </label>
+                    <input type="text" class="coordinate-user-input" id="coordinates-se-input"
                            placeholder="Latitude;Longitude">
                 </div>
 
-                <div class="controlsElement" id="coordinatesFromMapButtonDiv">
-                    <button id="coordinatesFromMapButton" onclick="insertCoordinatesFromMap()">Insert coordinates of map
-                        corners
+                <div class="controls-element" id="coordinates-from-map-button-div">
+                    <button id="coordinates-from-map-button" onclick="insertCoordinatesFromMap()">
+                        Insert coordinates of map corners
                     </button>
                 </div>
 
-                <div class="controlsElement" id="coordinatesClearButtonDiv">
-                    <button id="coordinatesClearButton" onclick="clearCoordinates()">Clear coordinates</button>
+                <div class="controls-element" id="coordinates-clear-button-div">
+                    <button id="coordinates-clear-button" onclick="clearCoordinates()">Clear coordinates</button>
                 </div>
             </div>
 
-                    <!--
-            <div class="controlsElement controlsBox" id="datasetsInteraction">
-                <div class="controlsElement" id="datasetsSelectDiv">
-                    <label for="datasetsSelect">Select dataset</label>
-                    <select id="datasetsSelect"></select>
+            <!--
+            <div class="controls-element controls-box" id="datasets-interaction">
+                <div class="controls-element" id="datasets-select-div">
+                    <label for="datasets-select">Select dataset</label>
+                    <select id="datasets-select"></select>
                 </div>
-          -->
-          
-            <div id="mission-filters">
-                <h3>Data sources</h3>
+            </div>
+            -->
 
-                <div class="checkbox-group">
-                    <input type="checkbox" id="sentinel1" name="dataset" value=SENTINEL-1>
-                    <label for="sentinel1">Sentinel 1</label>
-                    <button class="filter-button" data-mission="sentinel1">Filter -></button>
+            <div class="controls-element controls-box" id="mission-filters-div">
+                <div class="label-like">Data sources</div>
+
+                <!-- Filter buttons got event listeners assigned in index.js -->
+
+                <!--
+                ---------------------------------------------------------
+                SENTINEL 1 FILTERING
+                ---------------------------------------------------------
+                -->
+
+                <div class="controls-element mission-filter" id="mission-filters-sentinel-1-div">
+                    <div class="checkbox-div">
+                        <input type="checkbox" class="mission-filter-checkbox" id="mission-filter-checkbox-sentinel-1"
+                               name="dataset" value="SENTINEL-1"
+                               onclick="toggleSentinel1AdditionalCheckboxes()">
+                        <label for="mission-filter-checkbox-sentinel-1">Sentinel 1</label>
+                        <button class="mission-filter-button" id="mission-filter-button-sentinel-1" value="sentinel-1">
+                            Open filter
+                        </button>
+                    </div>
+
+                    <div class="additional-filters" id="mission-additional-filters-sentinel-1">
+                        <div class="label-like">Additional filters for Sentinel 1</div>
+                        <div class="filter">
+                            <div class="filter-category-label">Levels</div>
+                            <div class="filter-options">
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-1-level-0-checkbox" value="sentinel-1-level-0"
+                                           onclick="toggleSentinel1Checkbox()">
+                                    <label for="sentinel-1-level-0-checkbox">Level 0</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-1-level-1-checkbox" value="sentinel-1-level-1"
+                                           onclick="toggleSentinel1Checkbox()">
+                                    <label for="sentinel-1-level-1-checkbox">Level 1</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-1-level-2-checkbox" value="sentinel-1-level-2"
+                                           onclick="toggleSentinel1Checkbox()">
+                                    <label for="sentinel-1-level-2-checkbox">Level 2</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter">
+                            <div class="filter-category-label">Sensing types</div>
+                            <div class="filter-options">
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-1-iw-checkbox" value="sentinel-1-iw"
+                                           onclick="toggleSentinel1Checkbox()">
+                                    <label for="sentinel-1-iw-checkbox">IW</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-1-ew-checkbox" value="sentinel-1-ew"
+                                           onclick="toggleSentinel1Checkbox()">
+                                    <label for="sentinel-1-ew-checkbox">EW</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-1-sm-checkbox" value="sentinel-1-sm"
+                                           onclick="toggleSentinel1Checkbox()">
+                                    <label for="sentinel-1-sm-checkbox">SM</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-1-wv-checkbox" value="sentinel-1-wv"
+                                           onclick="toggleSentinel1Checkbox()">
+                                    <label for="sentinel-1-wv-checkbox">WV</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter">
+                            <div class="filter-category-label">Data types</div>
+                            <div class="filter-options">
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-1-raw-checkbox" value="sentinel-1-raw"
+                                           onclick="toggleSentinel1Checkbox()">
+                                    <label for="sentinel-1-raw-checkbox">RAW</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-1-slc-checkbox" value="sentinel-1-slc"
+                                           onclick="toggleSentinel1Checkbox()">
+                                    <label for="sentinel-1-slc-checkbox">SLC</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-1-grd-checkbox" value="sentinel-1-grd"
+                                           onclick="toggleSentinel1Checkbox()">
+                                    <label for="sentinel-1-grd-checkbox">GRD</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-1-ocn-checkbox" value="sentinel-1-ocn"
+                                           onclick="toggleSentinel1Checkbox()">
+                                    <label for="sentinel-1-ocn-checkbox">OCN</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="additional-filters" id="additional-filters-sentinel1" style="display: none;">
-                  <p>Additional filters for Sentinel 1:</p>
-                  <input type="checkbox" id="option1" name="option1" value="option1">
-                  <label for="option1">Option 1</label><br>
-                  <input type="checkbox" id="option2" name="option2" value="option2">
-                  <label for="option2">Option 2</label>
+                <!--
+                ---------------------------------------------------------
+                SENTINEL 2   FILTERING
+                ---------------------------------------------------------
+                -->
+
+                <div class="controls-element mission-filter" id="mission-filters-sentinel-2-div">
+                    <div class="checkbox-div">
+                        <input type="checkbox" class="mission-filter-checkbox" id="mission-filter-checkbox-sentinel-2"
+                               name="dataset" value="SENTINEL-2"
+                               onclick="toggleSentinel2AdditionalCheckboxes()">
+                        <label for="mission-filter-checkbox-sentinel-2">Sentinel 2</label>
+                        <button class="mission-filter-button" id="mission-filter-button-sentinel-2" value="sentinel-2">
+                            Open filter
+                        </button>
+                    </div>
+
+
+                    <div class="additional-filters" id="mission-additional-filters-sentinel-2">
+                        <div class="label-like">Additional filters for Sentinel 2</div>
+                        <div class="filter">
+                            <div class="filter-category-label">Levels</div>
+                            <div class="filter-options">
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-level-0-checkbox" value="sentinel-2-level-0"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-level-0-checkbox">Level 0</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-level-1-checkbox" value="sentinel-2-level-1"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-level-1-checkbox">Level 1</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-level-2-checkbox" value="sentinel-2-level-2"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-level-2-checkbox">Level 2</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter">
+                            <div class="filter-category-label">Bands</div>
+                            <div class="filter-options">
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-b1-checkbox" value="sentinel-2-b1"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-b1-checkbox">B1</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-b2-checkbox" value="sentinel-2-b2"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-b2-checkbox">B2</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-b3-checkbox" value="sentinel-2-b3"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-b3-checkbox">B3</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-b4-checkbox" value="sentinel-2-b4"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-b4-checkbox">B4</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-b5-checkbox" value="sentinel-2-b5"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-b5-checkbox">B5</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-b6-checkbox" value="sentinel-2-b6"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-b6-checkbox">B6</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-b7-checkbox" value="sentinel-2-b7"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-b7-checkbox">B7</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-b8-checkbox" value="sentinel-2-b8"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-b8-checkbox">B8</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-b8a-checkbox" value="sentinel-2-b8a"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-b8a-checkbox">B8a</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-b9-checkbox" value="sentinel-2-b9"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-b9-checkbox">B9</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-b10-checkbox" value="sentinel-2-b10"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-b10-checkbox">B10</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-b11-checkbox" value="sentinel-2-b11"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-b11-checkbox">B11</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-b12-checkbox" value="sentinel-2-b12"
+                                           onclick="toggleSentinel2Checkbox()">
+                                    <label for="sentinel-2-b12-checkbox">B12</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="checkbox-group">
-                    <input type="checkbox" id="sentinel2" name="dataset" value=SENTINEL-2>
-                    <label for="sentinel2">Sentinel 2</label>
-                    <button class="filter-button" data-mission="sentinel2">Filter -></button>
+                <!--
+                <div class="checkbox-div" id="mission-filter-sentinel-3-div">
+                    <input type="checkbox" class="mission-filter-checkbox" id="mission-filter-checkbox-sentinel-3">
+                    <label for="mission-filter-checkbox-sentinel-3">Sentinel 3</label>
+                    <button class="mission-filter-button" id="mission-filter-button-sentinel-3" value="sentinel-3">
+                        Filter ->
+                    </button>
                 </div>
 
-                <div class="checkbox-group">
-                    <input type="checkbox" id="sentinel3" name="dataset" value=SENTINEL-3>
-                    <label for="sentinel3">Sentinel 3</label>
-                    <button class="filter-button" data-mission="sentinel3">Filter -></button>
+                <div class="checkbox-div" id="mission-filter-sentinel-5p-div">
+                    <input type="checkbox" class="mission-filter-checkbox" id="mission-filter-checkbox-sentinel-5p">
+                    <label for="mission-filter-checkbox-sentinel-5p">Sentinel 5P</label>
+                    <button class="mission-filter-button" id="mission-filter-button-sentinel-5p" value="sentinel-5P">
+                        Filter ->
+                    </button>
+                </div>
+                -->
+            </div>
+
+            <div>
+                <div class="controls-element" id="fetch-features-fiv">
+                    <button id="fetch-features-button" onclick="fetchFeatures()">Fetch features</button>
                 </div>
 
-                <div class="checkbox-group">
-                    <input type="checkbox" id="sentinel5p" name="dataset" value=SENTINEL-5P>
-                    <label for="sentinel5p">Sentinel 5P</label>
-                    <button class="filter-button" data-mission="sentinel5p">Filter -></button>
+                <div class="controls-element" id="available-features-div">
+                    <label for="available-features-select">Available features</label>
+                    <select id="available-features-select" onchange="showBorders()"></select>
+                </div>
+
+                <div class="controls-element disabeled-element" id="visualize-feature-button-div">
+                    <button id="visualize-feature-button" onclick="visualize()">Visualize selected feature</button>
                 </div>
             </div>
 
-                <div class="controlsElement" id="fetchFeaturesDiv">
-                    <button id="fetchFeaturesButton" onclick="fetchFeatures()">Fetch features</button>
-                </div>
-
-                <div class="controlsElement" id="availableFeaturesDiv">
-                    <label for="availableFeaturesSelect">Available features</label>
-                    <select id="availableFeaturesSelect" onchange="showBorders()"></select>
-                </div>
-
-                <div class="controlsElement disabledElement" id="visualizeFeatureButtonDiv">
-                    <button id="visualizeFeatureButton" onclick="visualize()">Visualize selected feature</button>
-                </div>
-            </div>
-
-            <div class="controlsElement" id="showExampleGeoTiffButtonDiv">
+            <div class="controls-element" id="show-example-geo-tiff-button-div">
                 <button id="showExampleGeoTiffButton" onclick="showExampleGeoTiff()">Show Example GeoTiff</button>
             </div>
         </div>
 
-        <div class="mapDiv" id="mapDiv"></div>
+        <div class="map-div" id="map-div"></div>
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
     <script src="index.js"></script>
-<!--    <script>prepareDatasetSelect()</script>-->
+    <!--<script>prepareDatasetSelect()</script>-->
 </body>
 </html>
