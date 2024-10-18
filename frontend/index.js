@@ -1,5 +1,5 @@
 const backendHost = 'http://127.0.0.1:8000';
-const apiRoot = "https://catalogue.dataspace.copernicus.eu";
+const apiRoot = "https://catalogue.dataspace.copernicus.eu/odata/v1/Products";
 const supportEmail = "placeholder@example.com"; //TODO Change email
 
 let leafletMap = L.map('mapDiv').setView([50.05, 14.46], 10);
@@ -55,13 +55,13 @@ const prepareDatasetSelect = () => {
             ]
      */
 
-    let datasetsSelect = document.getElementById('datasetsSelect');
-    for (let dataset of offeredDatasets) {
-        let option = document.createElement("option");
-        option.value = dataset;
-        option.innerHTML = dataset;
-        datasetsSelect.appendChild(option);
-    }
+    // let datasetsSelect = document.getElementById('datasetsSelect');
+    // for (let dataset of offeredDatasets) {
+    //     let option = document.createElement("option");
+    //     option.value = dataset;
+    //     option.innerHTML = dataset;
+    //     datasetsSelect.appendChild(option);
+    // }
 }
 
 
@@ -118,27 +118,28 @@ const prepareBbox = (northWestLat, northWestLon, southEastLat, southEastLon) => 
     return bbox;
 };
 
+const preparePolygon = (northWestLat, northWestLon, southEastLat, southEastLon) => {
+    return `POLYGON((${northWestLon} ${northWestLat},${southEastLon} ${northWestLat},` +
+        `${southEastLon} ${southEastLat},${northWestLon} ${southEastLat},${northWestLon} ${northWestLat}))`;
+}
+
 const fetchFeaturesFromCopernicus = async (endpoint) => {
     let features = [];
 
     while (true) {
-        let foundNextPage = false;
-
         try {
             const response = await fetch(endpoint);
             const data = await response.json();
+            console.log(data);
 
-            features = features.concat(data.features);
+            features = features.concat(data.value);
 
-            for (const link of data.links) {
-                if (link.rel === "next") {
-                    endpoint = link.href;
-                    foundNextPage = true;
-                    break;
-                }
+            if (! '@odata.nextLink' in data) {
+                break;
             }
 
-            if (!foundNextPage) {
+            if (features.length >= 100) {
+                // let's not load the whole collection
                 break;
             }
 
@@ -253,37 +254,54 @@ const fetchFeatures = async () => {
         );
         */
 
-        let bbox = prepareBbox(
-            coordinatesUserInput[0][0],
-            coordinatesUserInput[0][1],
-            coordinatesUserInput[1][0],
-            coordinatesUserInput[1][1]
+        // let bbox = prepareBbox(
+        //     coordinatesUserInput[0][0],
+        //     coordinatesUserInput[0][1],
+        //     coordinatesUserInput[1][0],
+        //     coordinatesUserInput[1][1]
+        // );
+
+        let polygon = preparePolygon(
+            leafletMap.getBounds().getNorthWest().lat,
+            leafletMap.getBounds().getNorthWest().lng,
+            leafletMap.getBounds().getSouthEast().lat,
+            leafletMap.getBounds().getSouthEast().lng
         );
 
-        let dataset = document.querySelector("#datasetsSelect").value;
+        const selectedDatasources = document.querySelectorAll('input[name="dataset"]:checked');
+        const datasetValues = Array.from(selectedDatasources).map(checkbox => checkbox.value);
+        console.log(datasetValues);
 
-        let endpoint = new URL(["stac", "collections", dataset, "items"].join("/"), apiRoot);
-        endpoint.searchParams.set("bbox", bbox);
-        endpoint.searchParams.set("datetime", [timeFrom.toISOString(), timeTo.toISOString()].join("/"));
-        endpoint.searchParams.set("limit", "100");
+
+        // let endpoint = new URL(["stac", "collections", dataset, "items"].join(""), apiRoot);
+        // endpoint.searchParams.set("bbox", bbox);
+        // endpoint.searchParams.set("datetime", [timeFrom.toISOString(), timeTo.toISOString()].join("/"));
+        // endpoint.searchParams.set("limit", "100");
+        console.log(polygon);
+        let filterCondition = datasetValues
+            .map(source => `Collection/Name eq '${source}'`)
+            .join(' or ');
+        let endpoint = new URL(`?$filter=${filterCondition} and ContentDate/Start gt ${timeFrom.toISOString()}` +
+                            ` and ContentDate/Start lt ${timeTo.toISOString()}`, apiRoot);
+        // todo - add polygon. beware the closing ) might not get correctly encoded.
+        console.log(endpoint.href);
 
         let obtainedFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
 
-        console.log(obtainedFeatures)
 
         let availableFeaturesSelect = document.querySelector("#availableFeaturesSelect");
         availableFeaturesSelect.innerHTML = '';
 
-        obtainedFeatures.sort((a, b) => a.id.toLowerCase().localeCompare(b.id.toLowerCase()));
+        obtainedFeatures.sort((a, b) => a.Id.toLowerCase().localeCompare(b.Id.toLowerCase()));
 
         features = new Map();
 
         for (const feature of obtainedFeatures) {
-            features.set(feature.id, feature);
+            features.set(feature.Id, feature);
 
             let option = document.createElement("option");
-            option.value = feature.id;
-            option.textContent = feature.id;
+            option.value = feature.Name;
+            option.textContent = feature.Name;
 
             availableFeaturesSelect.appendChild(option);
         }
@@ -470,3 +488,16 @@ const showExampleGeoTiff = async () => {
             });
         });
 }
+
+document.querySelectorAll('.filter-button').forEach(button => {
+  button.addEventListener('click', function () {
+    const mission = this.getAttribute('data-mission');
+    const filterPanel = document.getElementById(`additional-filters-${mission}`);
+
+    if (filterPanel.style.display === 'none' || filterPanel.style.display === '') {
+      filterPanel.style.display = 'block';
+    } else {
+      filterPanel.style.display = 'none';
+    }
+  });
+});

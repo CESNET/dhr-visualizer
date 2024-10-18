@@ -62,11 +62,49 @@
                 </div>
             </div>
 
+                    <!--
             <div class="controlsElement controlsBox" id="datasetsInteraction">
                 <div class="controlsElement" id="datasetsSelectDiv">
                     <label for="datasetsSelect">Select dataset</label>
                     <select id="datasetsSelect"></select>
                 </div>
+          -->
+          
+            <div id="mission-filters">
+                <h3>Data sources</h3>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="sentinel1" name="dataset" value=SENTINEL-1>
+                    <label for="sentinel1">Sentinel 1</label>
+                    <button class="filter-button" data-mission="sentinel1">Filter -></button>
+                </div>
+
+                <div class="additional-filters" id="additional-filters-sentinel1" style="display: none;">
+                  <p>Additional filters for Sentinel 1:</p>
+                  <input type="checkbox" id="option1" name="option1" value="option1">
+                  <label for="option1">Option 1</label><br>
+                  <input type="checkbox" id="option2" name="option2" value="option2">
+                  <label for="option2">Option 2</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="sentinel2" name="dataset" value=SENTINEL-2>
+                    <label for="sentinel2">Sentinel 2</label>
+                    <button class="filter-button" data-mission="sentinel2">Filter -></button>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="sentinel3" name="dataset" value=SENTINEL-3>
+                    <label for="sentinel3">Sentinel 3</label>
+                    <button class="filter-button" data-mission="sentinel3">Filter -></button>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="sentinel5p" name="dataset" value=SENTINEL-5P>
+                    <label for="sentinel5p">Sentinel 5P</label>
+                    <button class="filter-button" data-mission="sentinel5p">Filter -></button>
+                </div>
+            </div>
 
                 <div class="controlsElement" id="fetchFeaturesDiv">
                     <button id="fetchFeaturesButton" onclick="fetchFeatures()">Fetch features</button>
@@ -94,6 +132,6 @@
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
     <script src="index.js"></script>
-    <script>prepareDatasetSelect()</script>
+<!--    <script>prepareDatasetSelect()</script>-->
 </body>
 </html>
