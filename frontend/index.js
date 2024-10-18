@@ -26,14 +26,10 @@ timeTo.setUTCSeconds(59);
 let timeToInput = document.querySelector("#timeToInput");
 timeToInput.value = timeTo.toISOString().substring(0, 16);
 
-// const offeredDatasets = [
-//     "SENTINEL-1",
-//     "SENTINEL-2",
-//     "SENTINEL-3",
-//     "SENTINEL-5P",
-//     "SENTINEL-6",
-//     "SENTINEL-1-RTC",
-// ]
+const offeredDatasets = [
+    "SENTINEL-1",
+    "SENTINEL-2"
+];
 
 const prepareDatasetSelect = () => {
     /*
@@ -201,6 +197,7 @@ const fetchFeatures = async () => {
     clearAvailableFeaturesSelect();
 
     try {
+        // TODO Ošetřit když není zadaná nějaká složka data
         let timeFrom = new Date(document.querySelector("#timeFromInput").value + ":00Z");
         let timeTo = new Date(document.querySelector("#timeToInput").value + ":00Z");
 

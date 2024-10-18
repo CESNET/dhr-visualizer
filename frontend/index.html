@@ -26,7 +26,7 @@
 
     <div class="flexContainer" id="mainDiv">
         <div class="controlsDiv" id="controlsDiv">
-            <div class="controlsElement" id="timeDiv">
+            <div class="controlsElement controlsBox" id="timeDiv">
                 <div class="controlsElement" id="timeFromDiv">
                     <label for="timeFromInput">Time from (UTC)</label>
                     <input type="datetime-local" id="timeFromInput">
@@ -38,7 +38,7 @@
                 </div>
             </div>
 
-            <div class="controlsElement" id="coordinatesDiv">
+            <div class="controlsElement controlsBox" id="coordinatesDiv">
                 <div class="controlsElement" id="coordinatesNWInputDiv">
                     <label for="coordinatesNWInput">North-west corner: </label>
                     <input type="text" class="coordinateUserInput" id="coordinatesNWInput"
@@ -62,6 +62,14 @@
                 </div>
             </div>
 
+                    <!--
+            <div class="controlsElement controlsBox" id="datasetsInteraction">
+                <div class="controlsElement" id="datasetsSelectDiv">
+                    <label for="datasetsSelect">Select dataset</label>
+                    <select id="datasetsSelect"></select>
+                </div>
+          -->
+          
             <div id="mission-filters">
                 <h3>Data sources</h3>
 
@@ -98,17 +106,18 @@
                 </div>
             </div>
 
-            <div class="controlsElement" id="fetchFeaturesDiv">
-                <button id="fetchFeaturesButton" onclick="fetchFeatures()">Fetch features</button>
-            </div>
+                <div class="controlsElement" id="fetchFeaturesDiv">
+                    <button id="fetchFeaturesButton" onclick="fetchFeatures()">Fetch features</button>
+                </div>
 
-            <div class="controlsElement" id="availableFeaturesDiv">
-                <label for="availableFeaturesSelect">Available features</label>
-                <select id="availableFeaturesSelect" onchange="showBorders()"></select>
-            </div>
+                <div class="controlsElement" id="availableFeaturesDiv">
+                    <label for="availableFeaturesSelect">Available features</label>
+                    <select id="availableFeaturesSelect" onchange="showBorders()"></select>
+                </div>
 
-            <div class="controlsElement disabledElement" id="visualizeFeatureButtonDiv">
-                <button id="visualizeFeatureButton" onclick="visualize()">Visualize selected feature</button>
+                <div class="controlsElement disabledElement" id="visualizeFeatureButtonDiv">
+                    <button id="visualizeFeatureButton" onclick="visualize()">Visualize selected feature</button>
+                </div>
             </div>
 
             <div class="controlsElement" id="showExampleGeoTiffButtonDiv">
