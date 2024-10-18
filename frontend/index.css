@@ -6,7 +6,7 @@ html, body {
     font-family: Arial, sans-serif;
 }
 
-#spinnerDiv {
+#spinner-div {
     width: 100%;
     height: 100%;
     top: 0;
@@ -20,13 +20,13 @@ html, body {
     display: none;
 }
 
-.flexContainer {
+.flex-container {
     position: relative;
     display: flex;
     height: 100%;
 }
 
-.controlsDiv {
+.controls-div {
     flex: 1;
     flex-direction: column;
     margin: 10px;
@@ -37,38 +37,43 @@ html, body {
     overflow-y: auto;
 }
 
-.controlsElement {
+.controls-element {
     width: 100%;
     margin-bottom: 15px;
     display: flex;
     flex-direction: column;
 }
 
-.controlsBox {
+.controls-box {
     border-bottom: 1px solid #000000;
 }
 
-.controlsBox:last-child {
+.controls-box:last-child {
     border-bottom: none;
 }
 
-.controlsElement label {
+.controls-element .label-like {
     margin-bottom: 5px;
     font-weight: bold;
 }
 
-.controlsElement input, .controlsElement select, .controlsElement button {
+.controls-element label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.controls-element input, .controls-element select, .controls-element button {
     padding: 8px;
     border: 1px solid #c0c0c0;
     border-radius: 4px;
     font-size: 14px;
 }
 
-.controlsElement select {
+.controls-element select {
     cursor: pointer;
 }
 
-.controlsElement button {
+.controls-element button {
     cursor: pointer;
     background-color: #007bff;
     color: #fff;
@@ -76,30 +81,31 @@ html, body {
     transition: background-color 0.3s;
 }
 
-.controlsElement button:hover {
+.controls-element button:hover {
     background-color: #0056b3;
 }
 
-.disabledElement button {
+.disabeled-element button {
     background-color: #cccccc;
     color: #666666;
     cursor: not-allowed;
     pointer-events: none;
 }
 
-#availableFeaturesSelect {
+#available-features-select {
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.mapDiv {
+.map-div {
     flex: 4;
     padding: 10px;
     margin: 10px 10px 10px 0;
 }
 
+/*
 .filter-button {
     background-color: #007BFF;
     color: white;
@@ -112,10 +118,51 @@ html, body {
 .filter-button:hover {
     background-color: #0056b3;
 }
+ */
 
-.checkbox-group {
+.checkbox-div {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 15px;
     width: 100%;
+    position: relative;
+}
+
+.checkbox-div label {
+    font-weight: normal;
+    align-content: center;
+    margin: 0;
+}
+
+.mission-filter-button {
+    width: 100px;
+}
+
+.additional-filters {
+    display: none;
+    width: 100%;
+    background-color: #ede7db;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    padding: 0;
+    border-radius: 4px;
+    margin-top: 15px;
+    z-index: 1000;
+}
+
+.additional-filters label {
+    font-weight: normal;
+}
+
+.additional-filters.active {
+    display: inline;
+    padding: 10px;
+}
+
+.additional-filters > .filter{
+    margin-bottom: 10px;
+}
+
+.additional-filters > .filter:last-of-type{
+    margin-bottom: 0;
 }
