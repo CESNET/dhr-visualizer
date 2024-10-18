@@ -34,6 +34,7 @@ html, body {
     background-color: #f4f4f4;
     border: 1px solid #ddd;
     box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .controlsElement {
@@ -41,6 +42,14 @@ html, body {
     margin-bottom: 15px;
     display: flex;
     flex-direction: column;
+}
+
+.controlsBox {
+    border-bottom: 1px solid #000000;
+}
+
+.controlsBox:last-child {
+    border-bottom: none;
 }
 
 .controlsElement label {
