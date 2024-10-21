@@ -238,36 +238,11 @@ const fetchFeatures = async () => {
             return; // Features fetched, in second run of fetchFeatures() above. We can exit the first run.
         }
 
-        /*
         let polygon = preparePolygon(
-            leafletMap.getBounds().getNorthWest().lat,
-            leafletMap.getBounds().getNorthWest().lng,
-            leafletMap.getBounds().getSouthEast().lat,
-            leafletMap.getBounds().getSouthEast().lng
-        );
-         */
-
-        /*
-        let bbox = prepareBbox(
-            leafletMap.getBounds().getNorthWest().lat,
-            leafletMap.getBounds().getNorthWest().lng,
-            leafletMap.getBounds().getSouthEast().lat,
-            leafletMap.getBounds().getSouthEast().lng
-        );
-        */
-
-        // let bbox = prepareBbox(
-        //     coordinatesUserInput[0][0],
-        //     coordinatesUserInput[0][1],
-        //     coordinatesUserInput[1][0],
-        //     coordinatesUserInput[1][1]
-        // );
-
-        let polygon = preparePolygon(
-            leafletMap.getBounds().getNorthWest().lat,
-            leafletMap.getBounds().getNorthWest().lng,
-            leafletMap.getBounds().getSouthEast().lat,
-            leafletMap.getBounds().getSouthEast().lng
+            coordinatesUserInput[0][0],
+            coordinatesUserInput[0][1],
+            coordinatesUserInput[1][0],
+            coordinatesUserInput[1][1]
         );
 
         const selectedDatasources = document.querySelectorAll('input[name="dataset"]:checked');
@@ -309,7 +284,6 @@ const fetchFeatures = async () => {
             availableFeaturesSelect.appendChild(option);
         }
 
-        //TODO tady to pada - OData vrací jinak informace o souradnicich
         showBorders();
 
         if (obtainedFeatures.length > 0) {
