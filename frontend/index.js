@@ -283,9 +283,9 @@ const fetchFeatures = async () => {
         let filterCondition = datasetValues
             .map(source => `Collection/Name eq '${source}'`)
             .join(' or ');
-        let endpoint = new URL(`?$filter=${filterCondition} and ContentDate/Start gt ${timeFrom.toISOString()}` +
-            ` and ContentDate/Start lt ${timeTo.toISOString()}`, apiRoot);
-        // todo - add polygon. beware the closing ) might not get correctly encoded.
+        let endpoint = new URL(`?$filter=OData.CSC.Intersects(area=geography'SRID=4326;${polygon}') and`
+                            + ` ${filterCondition} and ContentDate/Start gt ${timeFrom.toISOString()}`
+                            + ` and ContentDate/Start lt ${timeTo.toISOString()}`, apiRoot);
         console.log(endpoint.href);
 
         let obtainedFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
@@ -303,7 +303,7 @@ const fetchFeatures = async () => {
             features.set(feature.Id, feature);
 
             let option = document.createElement("option");
-            option.value = feature.Name;
+            option.value = feature.Id;
             option.textContent = feature.Name;
 
             availableFeaturesSelect.appendChild(option);
@@ -442,7 +442,7 @@ let showedPolygon = null;
 
 const showBorders = () => {
     let featureId = document.querySelector("#available-features-select").value;
-    let coordinates = transposeCoordinates(features.get(featureId).geometry.coordinates[0]);
+    let coordinates = transposeCoordinates(features.get(featureId).GeoFootprint.coordinates[0]);
 
     if (showedPolygon) {
         showedPolygon.remove()
