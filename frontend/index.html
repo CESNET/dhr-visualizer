@@ -304,16 +304,16 @@
             </div>
 
             <div>
-                <div class="controls-element" id="fetch-features-fiv">
+                <div class="controls-element" id="fetch-features-div">
                     <button id="fetch-features-button" onclick="fetchFeatures()">Fetch features</button>
                 </div>
 
                 <div class="controls-element" id="available-features-div">
                     <label for="available-features-select">Available features</label>
-                    <select id="available-features-select" onchange="showBorders()"></select>
+                    <select id="available-features-select" class="disabled-element" onchange="showBorders()"></select>
                 </div>
 
-                <div class="controls-element disabeled-element" id="visualize-feature-button-div">
+                <div class="controls-element disabled-element" id="visualize-feature-button-div">
                     <button id="visualize-feature-button" onclick="visualize()">Visualize selected feature</button>
                 </div>
             </div>

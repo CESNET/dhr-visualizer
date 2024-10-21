@@ -1,6 +1,40 @@
 const backendHost = 'http://127.0.0.1:8000';
-const apiRoot = "https://catalogue.dataspace.copernicus.eu/odata/v1/Products";
+const apiRootUrl = "https://catalogue.dataspace.copernicus.eu/odata/v1/Products";
 const supportEmail = "placeholder@example.com"; //TODO Change email
+
+const offeredDatasets = [
+    "sentinel-1",
+    "sentinel-2"//,
+    //"sentinel-3", //todo zatím jen S1 a S2
+    //"sentinel-5P" //todo zatím jen S1 a S2
+];
+
+// // All possible datasets:
+// const offeredDatasets = [
+// // Copernicus Sentinel Mission
+// "SENTINEL-1",
+// "SENTINEL-2",
+// "SENTINEL-3",
+// "SENTINEL-5P",
+// "SENTINEL-6",
+// "SENTINEL-1-RTC",
+// // Complementary data...
+// "GLOBAL-MOSAICS",
+// "SMOS",
+// "ENVISAT",
+// "LANDSAT-5",
+// "LANDSAT-7",
+// "LANDSAT-8",
+// "COP-DEM",
+// "TERRAAQUA",
+// "S2GLC"
+// ]
+
+/**********************************************************************************************************************/
+
+/***************************************
+ SETUP
+ **************************************/
 
 let leafletMap = L.map('map-div').setView([50.05, 14.46], 10);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -9,9 +43,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(leafletMap);
 insertCoordinatesFromMap();
 
+
 let timeFrom = new Date();
-timeFrom.setUTCMonth(timeFrom.getUTCMonth() - 1);
-timeFrom.setUTCHours(0);
+timeFrom.setUTCHours(timeFrom.getUTCHours() - 24);
 timeFrom.setUTCMinutes(0);
 timeFrom.setUTCSeconds(0);
 
@@ -26,46 +60,9 @@ timeTo.setUTCSeconds(59);
 let timeToInput = document.querySelector("#time-to-input");
 timeToInput.value = timeTo.toISOString().substring(0, 16);
 
-const offeredDatasets = [
-    "sentinel-1",
-    "sentinel-2",
-    "sentinel-3",
-    "sentinel-5P"
-];
-
-/*
-const prepareDatasetSelect = () => {
-    // // All possible datasets:
-    // const offeredDatasets = [
-    // // Copernicus Sentinel Mission
-    // "SENTINEL-1",
-    // "SENTINEL-2",
-    // "SENTINEL-3",
-    // "SENTINEL-5P",
-    // "SENTINEL-6",
-    // "SENTINEL-1-RTC",
-    // // Complementary data...
-    // "GLOBAL-MOSAICS",
-    // "SMOS",
-    // "ENVISAT",
-    // "LANDSAT-5",
-    // "LANDSAT-7",
-    // "LANDSAT-8",
-    // "COP-DEM",
-    // "TERRAAQUA",
-    // "S2GLC"
-    // ]
-
-    let datasetsSelect = document.getElementById('datasetsSelect');
-    for (let dataset of offeredDatasets) {
-        let option = document.createElement("option");
-        option.value = dataset;
-        option.innerHTML = dataset;
-        datasetsSelect.appendChild(option);
-    }
-}
-*/
-
+/***************************************
+ LOGIC
+ **************************************/
 
 function insertCoordinatesFromMap() {
     let coordinatesNWInput = document.querySelector("#coordinates-nw-input");
@@ -76,7 +73,7 @@ function insertCoordinatesFromMap() {
 }
 
 const closeAlert = (alertDiv) => {
-    alertDiv.style.animation = 'slideOut 0.7s forwards';
+    alertDiv.style.animation = 'slide-out 0.7s forwards';
     alertDiv.addEventListener('animationend', () => {
         alertDiv.remove();
     });
@@ -87,7 +84,7 @@ const showAlert = async (headline, message) => {
         .then(response => response.text())
         .then(data => {
             let alertDOM = new DOMParser().parseFromString(data, 'text/html');
-            alertDOM.getElementById('alert-hadline').innerHTML = headline;
+            alertDOM.getElementById('alert-headline').innerHTML = headline;
             alertDOM.getElementById('alert-message').innerHTML = message;
 
             document.getElementById('alerts-div').appendChild(alertDOM.getElementById('alert-div'));
@@ -126,6 +123,7 @@ const preparePolygon = (northWestLat, northWestLon, southEastLat, southEastLon) 
 }
 
 const fetchFeaturesFromCopernicus = async (endpoint) => {
+    console.log(endpoint)
     let features = [];
 
     while (true) {
@@ -136,14 +134,15 @@ const fetchFeaturesFromCopernicus = async (endpoint) => {
 
             features = features.concat(data.value);
 
-            if (!'@odata.nextLink' in data) {
-                break;
-            }
-
             if (features.length >= 100) {
                 // let's not load the whole collection
                 break;
             }
+            if (!('@odata.nextLink' in data)) {
+                break;
+            }
+
+            endpoint = data['@odata.nextLink'];
 
         } catch (error) {
             console.error(`Error fetchig data! Error name: ${error.name}; Error message: ${error.message}`);
@@ -246,24 +245,46 @@ const fetchFeatures = async () => {
         );
 
         const selectedDatasources = document.querySelectorAll('input[name="dataset"]:checked');
-        const datasetValues = Array.from(selectedDatasources).map(checkbox => checkbox.value);
-        console.log(datasetValues);
+        const datasetsValues = Array.from(selectedDatasources).map(checkbox => checkbox.value);
+        //console.log(datasetsValues);
+        if (datasetsValues.length <= 0) {
+            await showAlert("Warning!", "Please choose datasource.");
+            return;
+        }
 
-
-        // let endpoint = new URL(["stac", "collections", dataset, "items"].join(""), apiRoot);
+        // let endpoint = new URL(["stac", "collections", dataset, "items"].join(""), apiRootUrl);
         // endpoint.searchParams.set("bbox", bbox);
         // endpoint.searchParams.set("datetime", [timeFrom.toISOString(), timeTo.toISOString()].join("/"));
         // endpoint.searchParams.set("limit", "100");
-        console.log(polygon);
-        let filterCondition = datasetValues
+
+        //console.log(polygon);
+
+        let obtainedFeatures = [];
+        for (let dataset in datasetsValues) {
+            console.log(datasetsValues[dataset]);
+            const endpoint = new URL(
+                `?$filter=OData.CSC.Intersects(area=geography'SRID=4326;${polygon}') and`
+                + ` Collection/Name eq '${datasetsValues[dataset]}' and ContentDate/Start ge ${timeFrom.toISOString()}`
+                + ` and ContentDate/Start le ${timeTo.toISOString()}`,
+                apiRootUrl
+            );
+
+            let currentFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
+            obtainedFeatures = obtainedFeatures.concat(currentFeatures);
+        }
+
+        /*
+        let filterCondition = datasetsValues
             .map(source => `Collection/Name eq '${source}'`)
             .join(' or ');
+
         let endpoint = new URL(`?$filter=OData.CSC.Intersects(area=geography'SRID=4326;${polygon}') and`
-                            + ` ${filterCondition} and ContentDate/Start gt ${timeFrom.toISOString()}`
-                            + ` and ContentDate/Start lt ${timeTo.toISOString()}`, apiRoot);
+            + ` (${filterCondition}) and ContentDate/Start ge ${timeFrom.toISOString()}`
+            + ` and ContentDate/Start le ${timeTo.toISOString()}`, apiRootUrl);
         console.log(endpoint.href);
 
         let obtainedFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
+        */
 
         let availableFeaturesSelect = document.querySelector("#available-features-select");
         availableFeaturesSelect.innerHTML = '';
@@ -272,15 +293,12 @@ const fetchFeatures = async () => {
 
         features = new Map();
 
-        console.log(obtainedFeatures);
-
         for (const feature of obtainedFeatures) {
             features.set(feature.Id, feature);
 
             let option = document.createElement("option");
             option.value = feature.Id;
             option.textContent = feature.Name;
-
             availableFeaturesSelect.appendChild(option);
         }
 
@@ -380,7 +398,7 @@ const requestVisualization = async () => {
                 if (error.name === 'AbortError') {
                     await showAlert("Warning!", "Request timed out!");
                 } else if (error.message.includes('NetworkError')) {
-                    await showAlert("Warning!", `Network error - connection to backend failed! Please try again later. If this problem persists please <a href=\"mailto:${supportEmail}\">contact us</a>.`);
+                    await showAlert("Warning!", `Network error - connection to backend failed! Please try again later. <br>If this problem persists please <a href=\"mailto:${supportEmail}\">contact us</a>.`);
                 } else {
                     await showAlert("Warning!", "Unknown error! Please check console for more information.");
                 }
