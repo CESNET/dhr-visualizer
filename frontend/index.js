@@ -3,10 +3,10 @@ const apiRootUrl = "https://catalogue.dataspace.copernicus.eu/odata/v1/Products"
 const supportEmail = "placeholder@example.com"; //TODO Change email
 
 const offeredDatasets = [
-    "sentinel-1",
-    "sentinel-2"//,
-    //"sentinel-3", //todo zatím jen S1 a S2
-    //"sentinel-5P" //todo zatím jen S1 a S2
+    "SENTINEL-1",
+    "SENTINEL-2"//,
+    //"SENTINEL-3", //todo zatím jen S1 a S2
+    //"SENTINEL-5P" //todo zatím jen S1 a S2
 ];
 
 // // All possible datasets:
@@ -105,6 +105,7 @@ const preparePolygon = (northWestLat, northWestLon, southEastLat, southEastLon) 
 };
 */
 
+/*
 const prepareBbox = (northWestLat, northWestLon, southEastLat, southEastLon) => {
     let coordArray = [
         northWestLon.toString(),
@@ -116,6 +117,7 @@ const prepareBbox = (northWestLat, northWestLon, southEastLat, southEastLon) => 
     let bbox = coordArray.join(",");
     return bbox;
 };
+*/
 
 const preparePolygon = (northWestLat, northWestLon, southEastLat, southEastLon) => {
     return `POLYGON((${northWestLon} ${northWestLat},${southEastLon} ${northWestLat},` +
@@ -174,7 +176,7 @@ const parseCoordinates = async (coordinatesString) => {
 
     const parts = coordinatesString.split(';');
     if (parts.length !== 2) {
-        await showAlert("Warning!", "Coordinates must be in format [dd.dddd;dd.dddd]");
+        await showAlert("Warning", "Coordinates must be in format [dd.dddd;dd.dddd]");
         return undefined;
     }
 
@@ -203,7 +205,7 @@ const fetchFeatures = async () => {
         let timeTo = new Date(document.querySelector("#time-to-input").value + ":00Z");
 
         if (timeTo < timeFrom) {
-            await showAlert("Warning!", "Time to must be after Time from!");
+            await showAlert("Warning", "Time to must be after Time from!");
             return;
         }
 
@@ -212,7 +214,7 @@ const fetchFeatures = async () => {
         tomorrow.setUTCHours(0, 0, 0, 0);
 
         if ((timeFrom > tomorrow) || (timeTo > tomorrow)) {
-            await showAlert("Warning!", "Date could not be in the future!");
+            await showAlert("Warning", "Date could not be in the future!");
             return;
         }
 
@@ -244,11 +246,11 @@ const fetchFeatures = async () => {
             coordinatesUserInput[1][1]
         );
 
-        const selectedDatasources = document.querySelectorAll('input[name="dataset"]:checked');
-        const datasetsValues = Array.from(selectedDatasources).map(checkbox => checkbox.value);
-        //console.log(datasetsValues);
-        if (datasetsValues.length <= 0) {
-            await showAlert("Warning!", "Please choose datasource.");
+        const datasetsSelectedNodes = document.querySelectorAll('input[name="dataset"]:checked');
+        const datasetsSelected = Array.from(datasetsSelectedNodes).map(checkbox => checkbox.value);
+        //console.log(datasetsSelected);
+        if (datasetsSelected.length <= 0) {
+            await showAlert("Warning", "Please choose dataset.");
             return;
         }
 
@@ -259,22 +261,52 @@ const fetchFeatures = async () => {
 
         //console.log(polygon);
 
+        let endpoint = undefined;
         let obtainedFeatures = [];
-        for (let dataset in datasetsValues) {
-            console.log(datasetsValues[dataset]);
-            const endpoint = new URL(
-                `?$filter=OData.CSC.Intersects(area=geography'SRID=4326;${polygon}') and`
-                + ` Collection/Name eq '${datasetsValues[dataset]}' and ContentDate/Start ge ${timeFrom.toISOString()}`
-                + ` and ContentDate/Start le ${timeTo.toISOString()}`,
-                apiRootUrl
-            );
+        for (let dataset in datasetsSelected) {
+            switch (datasetsSelected[dataset]) {
+                case "SENTINEL-1":
+                    const levelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-levels"]:checked');
+                    const levelsSelected = Array.from(levelsSelectedNodes).map(checkbox => checkbox.value);
+                    const sensingTypesSelectedNodes = document.querySelectorAll('input[name="sentinel-1-sensing-types"]:checked');
+                    const sensingTypesSelected = Array.from(sensingTypesSelectedNodes).map(checkbox => checkbox.value);
+                    const dataTypesSelectedNodes = document.querySelectorAll('input[name="sentinel-1-data-types"]:checked');
+                    const dataTypesSelected = Array.from(dataTypesSelectedNodes).map(checkbox => checkbox.value);
+
+                    if (levelsSelected.length <= 0 || sensingTypesSelected.length <= 0 || dataTypesSelected.length <= 0) {
+                        showAlert("Warning", "Not enough parameters specified!");
+                    }
+
+                    //todo
+                    endpoint = new URL(
+                        `?$filter=OData.CSC.Intersects(area=geography'SRID=4326;${polygon}') and`
+                        + ` Collection/Name eq '${datasetsSelected[dataset]}' and ContentDate/Start ge ${timeFrom.toISOString()}`
+                        + ` and ContentDate/Start le ${timeTo.toISOString()}`,
+                        apiRootUrl
+                    );
+
+                    break;
+                case "SENTINEL-2":
+                    break;
+                case "SENTINEL-3":
+                //TODO do budoucna přidělat zpracování S3 a S5P
+                //break;
+                case "SENTINEL-5P":
+                //TODO do budoucna přidělat zpracování S3 a S5P
+                //break;
+                default:
+                    showAlert("Warning", "Unexpected datasource chosen!");
+                    return;
+            }
+
+
 
             let currentFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
             obtainedFeatures = obtainedFeatures.concat(currentFeatures);
         }
 
         /*
-        let filterCondition = datasetsValues
+        let filterCondition = datasetsSelected
             .map(source => `Collection/Name eq '${source}'`)
             .join(' or ');
 
@@ -396,11 +428,11 @@ const requestVisualization = async () => {
 
             } catch (error) {
                 if (error.name === 'AbortError') {
-                    await showAlert("Warning!", "Request timed out!");
+                    await showAlert("Warning", "Request timed out!");
                 } else if (error.message.includes('NetworkError')) {
-                    await showAlert("Warning!", `Network error - connection to backend failed! Please try again later. <br>If this problem persists please <a href=\"mailto:${supportEmail}\">contact us</a>.`);
+                    await showAlert("Warning", `Network error - connection to backend failed! Please try again later. <br>If this problem persists please <a href=\"mailto:${supportEmail}\">contact us</a>.`);
                 } else {
-                    await showAlert("Warning!", "Unknown error! Please check console for more information.");
+                    await showAlert("Warning", "Unknown error! Please check console for more information.");
                 }
 
                 throw error;
@@ -514,10 +546,19 @@ const toggleMissionFiltersDiv = async (filterButton) => {
 }
 
 const toggleSentinel1Checkbox = () => {
-    document.querySelector("#mission-filter-checkbox-sentinel-1").checked = true;
+    if (
+        document.querySelectorAll('input[name="sentinel-1-levels"]:checked').length <= 0
+        && document.querySelectorAll('input[name="sentinel-1-sensing-types"]:checked').length <= 0
+        && document.querySelectorAll('input[name="sentinel-1-data-types"]:checked').length <= 0
+    ) {
+        document.querySelector("#mission-filter-checkbox-sentinel-1").checked = false;
+    } else {
+        document.querySelector("#mission-filter-checkbox-sentinel-1").checked = true;
+    }
 }
 
 const toggleSentinel2Checkbox = () => {
+    //todo - same as in toggleSentinel1Checkbox()
     document.querySelector("#mission-filter-checkbox-sentinel-2").checked = true;
 }
 
