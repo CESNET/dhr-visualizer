@@ -2,6 +2,13 @@ const backendHost = 'http://127.0.0.1:8000';
 const apiRootUrl = "https://catalogue.dataspace.copernicus.eu/odata/v1/Products";
 const supportEmail = "placeholder@example.com"; //TODO Change email
 
+const leafletInitCoords = [50.05, 14.46]; //TODO find users location
+const leafletInitZoom = 10;
+
+const timeFromHourCorrection = (7 * 24); //This amount of hours will be subtracted from today midnight
+
+const maxLoadedFeatures = 100;
+
 const offeredDatasets = [
     "SENTINEL-1",
     "SENTINEL-2"//,
@@ -36,7 +43,7 @@ const offeredDatasets = [
  SETUP
  **************************************/
 
-let leafletMap = L.map('map-div').setView([50.05, 14.46], 10);
+let leafletMap = L.map('map-div').setView(leafletInitCoords, leafletInitZoom);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
     maxZoom: 19,
@@ -45,7 +52,8 @@ insertCoordinatesFromMap();
 
 
 let timeFrom = new Date();
-timeFrom.setUTCHours(timeFrom.getUTCHours() - 24);
+timeFrom.setUTCHours(0);
+timeFrom.setUTCHours(timeFrom.getUTCHours() - timeFromHourCorrection);
 timeFrom.setUTCMinutes(0);
 timeFrom.setUTCSeconds(0);
 
@@ -125,7 +133,7 @@ const preparePolygon = (northWestLat, northWestLon, southEastLat, southEastLon) 
 }
 
 const fetchFeaturesFromCopernicus = async (endpoint) => {
-    console.log(endpoint)
+    //console.log(endpoint)
     let features = [];
 
     while (true) {
@@ -136,8 +144,8 @@ const fetchFeaturesFromCopernicus = async (endpoint) => {
 
             features = features.concat(data.value);
 
-            if (features.length >= 100) {
-                // let's not load the whole collection
+            if (features.length >= maxLoadedFeatures) {
+                // Let's not load the whole collection
                 break;
             }
             if (!('@odata.nextLink' in data)) {
@@ -248,80 +256,133 @@ const fetchFeatures = async () => {
 
         const datasetsSelectedNodes = document.querySelectorAll('input[name="dataset"]:checked');
         const datasetsSelected = Array.from(datasetsSelectedNodes).map(checkbox => checkbox.value);
-        //console.log(datasetsSelected);
         if (datasetsSelected.length <= 0) {
             await showAlert("Warning", "Please choose dataset.");
             return;
         }
 
-        // let endpoint = new URL(["stac", "collections", dataset, "items"].join(""), apiRootUrl);
-        // endpoint.searchParams.set("bbox", bbox);
-        // endpoint.searchParams.set("datetime", [timeFrom.toISOString(), timeTo.toISOString()].join("/"));
-        // endpoint.searchParams.set("limit", "100");
-
-        //console.log(polygon);
-
-        let endpoint = undefined;
+        let filters = undefined;
         let obtainedFeatures = [];
         for (let dataset in datasetsSelected) {
             switch (datasetsSelected[dataset]) {
-                case "SENTINEL-1":
+                case "SENTINEL-1": {
                     const levelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-levels"]:checked');
                     const levelsSelected = Array.from(levelsSelectedNodes).map(checkbox => checkbox.value);
                     const sensingTypesSelectedNodes = document.querySelectorAll('input[name="sentinel-1-sensing-types"]:checked');
                     const sensingTypesSelected = Array.from(sensingTypesSelectedNodes).map(checkbox => checkbox.value);
-                    const dataTypesSelectedNodes = document.querySelectorAll('input[name="sentinel-1-data-types"]:checked');
-                    const dataTypesSelected = Array.from(dataTypesSelectedNodes).map(checkbox => checkbox.value);
+                    const productTypesSelectedNodes = document.querySelectorAll('input[name="sentinel-1-product-types"]:checked');
+                    const productTypesSelected = Array.from(productTypesSelectedNodes).map(checkbox => checkbox.value);
 
-                    if (levelsSelected.length <= 0 || sensingTypesSelected.length <= 0 || dataTypesSelected.length <= 0) {
+                    if (levelsSelected.length <= 0 || sensingTypesSelected.length <= 0 || productTypesSelected.length <= 0) {
                         showAlert("Warning", "Not enough parameters specified!");
                     }
 
-                    //todo
-                    endpoint = new URL(
-                        `?$filter=OData.CSC.Intersects(area=geography'SRID=4326;${polygon}') and`
-                        + ` Collection/Name eq '${datasetsSelected[dataset]}' and ContentDate/Start ge ${timeFrom.toISOString()}`
-                        + ` and ContentDate/Start le ${timeTo.toISOString()}`,
-                        apiRootUrl
-                    );
+                    let filters = `OData.CSC.Intersects(area=geography'SRID=4326;${polygon}')`;
+                    filters += ` and Collection/Name eq '${datasetsSelected[dataset]}'`;
+
+                    let levels = undefined;
+                    if (levelsSelected.length > 0) {
+                        levels = `(${levelsSelected.map(
+                            level => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'processingLevel' and att/OData.CSC.StringAttribute/Value eq '${level}')`
+                        ).join(' or ')})`;
+                    }
+
+                    let sensingTypes = undefined;
+                    if (sensingTypesSelected.length > 0) {
+                        sensingTypes = `(${sensingTypesSelected.map(
+                            sensingType => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'swathIdentifier' and att/OData.CSC.StringAttribute/Value eq '${sensingType}')`
+                        ).join(' or ')})`;
+                    }
+
+                    let productTypes = undefined;
+                    if (productTypesSelected.length > 0) {
+                        productTypes = `(${productTypesSelected.map(
+                            productType => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq '${productType}')`
+                        ).join(' or ')})`;
+                    }
+
+                    filters += ` and (${levels} or ${sensingTypes} or ${productTypes})`;
+
+                    filters += ` and (ContentDate/Start ge ${timeFrom.toISOString()} and ContentDate/Start le ${timeTo.toISOString()})`;
+
+                    const endpoint = new URL(`?$filter=(${filters})`, apiRootUrl);
+
+                    let currentFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
+                    obtainedFeatures = obtainedFeatures.concat(currentFeatures);
 
                     break;
-                case "SENTINEL-2":
+                }
+
+                case "SENTINEL-2": {
+                    //TODO NOT WORKING!
+                    const levelsSelectedNodes = document.querySelectorAll('input[name="sentinel-2-levels"]:checked');
+                    const levelsSelected = Array.from(levelsSelectedNodes).map(checkbox => checkbox.value);
+                    const bandsSelectedNodes = document.querySelectorAll('input[name="sentinel-2-bands"]:checked');
+                    const bandsSelected = Array.from(bandsSelectedNodes).map(checkbox => checkbox.value);
+
+                    if (levelsSelected.length <= 0 || bandsSelected.length <= 0) {
+                        showAlert("Warning", "Not enough parameters specified!");
+                    }
+
+                    let filters = `OData.CSC.Intersects(area=geography'SRID=4326;${polygon}')`;
+                    filters += ` and Collection/Name eq '${datasetsSelected[dataset]}'`;
+
+                    let levels = undefined;
+                    if (levelsSelected.length > 0) {
+                        levels = `(${levelsSelected.map(
+                            level => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'processingLevel' and att/OData.CSC.StringAttribute/Value eq '${level}')`
+                        ).join(' or ')})`;
+                    }
+
+                    /*
+                    // Asi nejde vyhledávat
+                    let bands = undefined;
+                    if (bandsSelected.length > 0) {
+                        bands = `(${bandsSelected.map(
+                            sensingType => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'swathIdentifier' and att/OData.CSC.StringAttribute/Value eq '${sensingType}')`
+                        ).join(' or ')})`;
+                    }
+
+                    filters += ` and (${levels} or ${bands})`;
+                    */
+
+                    filters += `and (${levels})`;
+
+                    filters += ` and (ContentDate/Start ge ${timeFrom.toISOString()} and ContentDate/Start le ${timeTo.toISOString()})`;
+
+                    const endpoint = new URL(`?$filter=(${filters})`, apiRootUrl);
+
+                    let currentFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
+                    obtainedFeatures = obtainedFeatures.concat(currentFeatures);
+
                     break;
-                case "SENTINEL-3":
-                //TODO do budoucna přidělat zpracování S3 a S5P
-                //break;
-                case "SENTINEL-5P":
-                //TODO do budoucna přidělat zpracování S3 a S5P
-                //break;
-                default:
-                    showAlert("Warning", "Unexpected datasource chosen!");
+                }
+
+                case "SENTINEL-3": {
+                    //TODO do budoucna přidělat zpracování S3 a S5P
+                    //break;
+                }
+
+                case "SENTINEL-5P": {
+                    //TODO do budoucna přidělat zpracování S3 a S5P
+                    //break;
+                }
+
+                default: {
+                    await showAlert("Warning", "Unexpected datasource chosen!");
                     return;
+                }
             }
 
+            console.log(obtainedFeatures);
 
 
-            let currentFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
-            obtainedFeatures = obtainedFeatures.concat(currentFeatures);
         }
-
-        /*
-        let filterCondition = datasetsSelected
-            .map(source => `Collection/Name eq '${source}'`)
-            .join(' or ');
-
-        let endpoint = new URL(`?$filter=OData.CSC.Intersects(area=geography'SRID=4326;${polygon}') and`
-            + ` (${filterCondition}) and ContentDate/Start ge ${timeFrom.toISOString()}`
-            + ` and ContentDate/Start le ${timeTo.toISOString()}`, apiRootUrl);
-        console.log(endpoint.href);
-
-        let obtainedFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
-        */
 
         let availableFeaturesSelect = document.querySelector("#available-features-select");
         availableFeaturesSelect.innerHTML = '';
 
-        obtainedFeatures.sort((a, b) => a.Id.toLowerCase().localeCompare(b.Id.toLowerCase()));
+        obtainedFeatures.sort((a, b) => a.Name.toLowerCase().localeCompare(b.Name.toLowerCase()));
 
         features = new Map();
 
