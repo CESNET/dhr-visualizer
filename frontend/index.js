@@ -520,6 +520,7 @@ const requestVisualization = async () => {
 
         } while (visualizationRequest.status !== "completed");
     } catch (error) {
+        await showAlert("Error", `Internal application error occurred! Please check console for more information.`, true);
         console.error(`Error name: ${error.name}; Error message: ${error.message}`);
     } finally {
         hideSpinner();
