@@ -72,7 +72,7 @@
             -->
 
             <div class="controls-element controls-box" id="mission-filters-div">
-                <div class="label-like">Data sources</div>
+                <div class="label-like">Datasets</div>
 
                 <!-- Filter buttons got event listeners assigned in index.js -->
 
@@ -88,7 +88,7 @@
                                name="dataset" value="SENTINEL-1"
                                onclick="toggleSentinel1AdditionalCheckboxes()">
                         <label for="mission-filter-checkbox-sentinel-1">Sentinel 1</label>
-                        <button class="mission-filter-button" id="mission-filter-button-sentinel-1" value="sentinel-1">
+                        <button class="mission-filter-button" id="mission-filter-button-sentinel-1" value="SENTINEL-1">
                             Open filter
                         </button>
                     </div>
@@ -99,18 +99,18 @@
                             <div class="filter-category-label">Levels</div>
                             <div class="filter-options">
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-1-level-0-checkbox" value="sentinel-1-level-0"
-                                           onclick="toggleSentinel1Checkbox()">
+                                    <input type="checkbox" id="sentinel-1-level-0-checkbox" value="LEVEL0"
+                                           name="sentinel-1-levels" onclick="toggleSentinel1Checkbox()">
                                     <label for="sentinel-1-level-0-checkbox">Level 0</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-1-level-1-checkbox" value="sentinel-1-level-1"
-                                           onclick="toggleSentinel1Checkbox()">
+                                    <input type="checkbox" id="sentinel-1-level-1-checkbox" value="LEVEL1"
+                                           name="sentinel-1-levels" onclick="toggleSentinel1Checkbox()">
                                     <label for="sentinel-1-level-1-checkbox">Level 1</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-1-level-2-checkbox" value="sentinel-1-level-2"
-                                           onclick="toggleSentinel1Checkbox()">
+                                    <input type="checkbox" id="sentinel-1-level-2-checkbox" value="LEVEL2"
+                                           name="sentinel-1-levels" onclick="toggleSentinel1Checkbox()">
                                     <label for="sentinel-1-level-2-checkbox">Level 2</label>
                                 </div>
                             </div>
@@ -120,49 +120,49 @@
                             <div class="filter-category-label">Sensing types</div>
                             <div class="filter-options">
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-1-iw-checkbox" value="sentinel-1-iw"
-                                           onclick="toggleSentinel1Checkbox()">
+                                    <input type="checkbox" id="sentinel-1-iw-checkbox" value="IW"
+                                           name="sentinel-1-sensing-types" onclick="toggleSentinel1Checkbox()">
                                     <label for="sentinel-1-iw-checkbox">IW</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-1-ew-checkbox" value="sentinel-1-ew"
-                                           onclick="toggleSentinel1Checkbox()">
+                                    <input type="checkbox" id="sentinel-1-ew-checkbox" value="EW"
+                                           name="sentinel-1-sensing-types" onclick="toggleSentinel1Checkbox()">
                                     <label for="sentinel-1-ew-checkbox">EW</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-1-sm-checkbox" value="sentinel-1-sm"
-                                           onclick="toggleSentinel1Checkbox()">
+                                    <input type="checkbox" id="sentinel-1-sm-checkbox" value="SM"
+                                           name="sentinel-1-sensing-types" onclick="toggleSentinel1Checkbox()">
                                     <label for="sentinel-1-sm-checkbox">SM</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-1-wv-checkbox" value="sentinel-1-wv"
-                                           onclick="toggleSentinel1Checkbox()">
+                                    <input type="checkbox" id="sentinel-1-wv-checkbox" value="WV"
+                                           name="sentinel-1-sensing-types" onclick="toggleSentinel1Checkbox()">
                                     <label for="sentinel-1-wv-checkbox">WV</label>
                                 </div>
                             </div>
                         </div>
 
                         <div class="filter">
-                            <div class="filter-category-label">Data types</div>
+                            <div class="filter-category-label">Product types</div>
                             <div class="filter-options">
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-1-raw-checkbox" value="sentinel-1-raw"
-                                           onclick="toggleSentinel1Checkbox()">
+                                    <input type="checkbox" id="sentinel-1-raw-checkbox" value="RAW"
+                                           name="sentinel-1-product-types" onclick="toggleSentinel1Checkbox()">
                                     <label for="sentinel-1-raw-checkbox">RAW</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-1-slc-checkbox" value="sentinel-1-slc"
-                                           onclick="toggleSentinel1Checkbox()">
+                                    <input type="checkbox" id="sentinel-1-slc-checkbox" value="SLC"
+                                           name="sentinel-1-product-types" onclick="toggleSentinel1Checkbox()">
                                     <label for="sentinel-1-slc-checkbox">SLC</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-1-grd-checkbox" value="sentinel-1-grd"
-                                           onclick="toggleSentinel1Checkbox()">
+                                    <input type="checkbox" id="sentinel-1-grd-checkbox" value="GRD"
+                                           name="sentinel-1-product-types" onclick="toggleSentinel1Checkbox()">
                                     <label for="sentinel-1-grd-checkbox">GRD</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-1-ocn-checkbox" value="sentinel-1-ocn"
-                                           onclick="toggleSentinel1Checkbox()">
+                                    <input type="checkbox" id="sentinel-1-ocn-checkbox" value="OCN"
+                                           name="sentinel-1-product-types" onclick="toggleSentinel1Checkbox()">
                                     <label for="sentinel-1-ocn-checkbox">OCN</label>
                                 </div>
                             </div>
@@ -182,7 +182,7 @@
                                name="dataset" value="SENTINEL-2"
                                onclick="toggleSentinel2AdditionalCheckboxes()">
                         <label for="mission-filter-checkbox-sentinel-2">Sentinel 2</label>
-                        <button class="mission-filter-button" id="mission-filter-button-sentinel-2" value="sentinel-2">
+                        <button class="mission-filter-button" id="mission-filter-button-sentinel-2" value="SENTINEL-2">
                             Open filter
                         </button>
                     </div>
@@ -194,18 +194,18 @@
                             <div class="filter-category-label">Levels</div>
                             <div class="filter-options">
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-level-0-checkbox" value="sentinel-2-level-0"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-level-0-checkbox" value="LEVEL0"
+                                           name="sentinel-2-levels" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-level-0-checkbox">Level 0</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-level-1-checkbox" value="sentinel-2-level-1"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-level-1-checkbox" value="LEVEL1"
+                                           name="sentinel-2-levels" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-level-1-checkbox">Level 1</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-level-2-checkbox" value="sentinel-2-level-2"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-level-2-checkbox" value="LEVEL2"
+                                           name="sentinel-2-levels" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-level-2-checkbox">Level 2</label>
                                 </div>
                             </div>
@@ -215,68 +215,68 @@
                             <div class="filter-category-label">Bands</div>
                             <div class="filter-options">
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-b1-checkbox" value="sentinel-2-b1"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-b1-checkbox" value="B1"
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b1-checkbox">B1</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-b2-checkbox" value="sentinel-2-b2"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-b2-checkbox" value="B2"
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b2-checkbox">B2</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-b3-checkbox" value="sentinel-2-b3"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-b3-checkbox" value="B3"
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b3-checkbox">B3</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-b4-checkbox" value="sentinel-2-b4"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-b4-checkbox" value="B4"
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b4-checkbox">B4</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-b5-checkbox" value="sentinel-2-b5"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-b5-checkbox" value="B5"
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b5-checkbox">B5</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-b6-checkbox" value="sentinel-2-b6"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-b6-checkbox" value="B6"
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b6-checkbox">B6</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-b7-checkbox" value="sentinel-2-b7"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-b7-checkbox" value="B7"
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b7-checkbox">B7</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-b8-checkbox" value="sentinel-2-b8"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-b8-checkbox" value="B8"
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b8-checkbox">B8</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-b8a-checkbox" value="sentinel-2-b8a"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-b8a-checkbox" value="B8a"
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b8a-checkbox">B8a</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-b9-checkbox" value="sentinel-2-b9"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-b9-checkbox" value="B9"
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b9-checkbox">B9</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-b10-checkbox" value="sentinel-2-b10"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-b10-checkbox" value="B10"
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b10-checkbox">B10</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-b11-checkbox" value="sentinel-2-b11"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-b11-checkbox" value="B11"
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b11-checkbox">B11</label>
                                 </div>
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-b12-checkbox" value="sentinel-2-b12"
-                                           onclick="toggleSentinel2Checkbox()">
+                                    <input type="checkbox" id="sentinel-2-b12-checkbox" value="B12"
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b12-checkbox">B12</label>
                                 </div>
                             </div>
@@ -304,16 +304,16 @@
             </div>
 
             <div>
-                <div class="controls-element" id="fetch-features-fiv">
+                <div class="controls-element" id="fetch-features-div">
                     <button id="fetch-features-button" onclick="fetchFeatures()">Fetch features</button>
                 </div>
 
                 <div class="controls-element" id="available-features-div">
                     <label for="available-features-select">Available features</label>
-                    <select id="available-features-select" onchange="showBorders()"></select>
+                    <select id="available-features-select" class="disabled-element" onchange="showBorders()"></select>
                 </div>
 
-                <div class="controls-element disabeled-element" id="visualize-feature-button-div">
+                <div class="controls-element disabled-element" id="visualize-feature-button-div">
                     <button id="visualize-feature-button" onclick="visualize()">Visualize selected feature</button>
                 </div>
             </div>

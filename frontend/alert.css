@@ -17,7 +17,7 @@
 }
 
 #alerts-div {
-    z-index: 1000;
+    z-index: 999;
     display: flex;
     position: absolute;
     flex-direction: column;
