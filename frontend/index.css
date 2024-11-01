@@ -6,6 +6,21 @@ html, body {
     font-family: Arial, sans-serif;
 }
 
+/* Pointer cursor for all checkboxes */
+input[type='checkbox'] {
+    cursor: pointer;
+}
+
+/* Pointer cursor for all labels which are assigned for checkboxes */
+input[type="checkbox"] + label {
+    cursor: pointer;
+}
+
+/* Pointer cursor for all selects */
+select {
+    cursor: pointer;
+}
+
 #spinner-div {
     width: 100%;
     height: 100%;
@@ -67,10 +82,6 @@ html, body {
     border: 1px solid #c0c0c0;
     border-radius: 4px;
     font-size: 14px;
-}
-
-.controls-element select {
-    cursor: pointer;
 }
 
 .controls-element button {
@@ -153,37 +164,4 @@ html, body {
 
 .additional-filters > .filter:last-of-type{
     margin-bottom: 0;
-}
-
-/* Adding custom select */
-.select-like {
-    position: relative;
-    display: inline-block;
-    width: 100%;
-}
-
-.select-like-selected {
-    padding: 10px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-}
-
-.select-like-dropdown-options {
-    display: none;
-    position: absolute;
-    background-color: white;
-    border: 1px solid #ccc;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 999;
-    width: 100%;
-}
-
-.select-like-dropdown-option {
-    padding: 10px;
-    cursor: pointer;
-}
-
-.select-like-dropdown-option:hover {
-    background-color: #f1f1f1;
 }
