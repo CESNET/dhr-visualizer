@@ -143,7 +143,7 @@ const fetchFeaturesFromCopernicus = async (endpoint) => {
         try {
             const response = await fetch(endpoint);
             const data = await response.json();
-            console.log(data);
+            //console.log(data);
 
             features = features.concat(data.value);
 
@@ -167,7 +167,8 @@ const fetchFeaturesFromCopernicus = async (endpoint) => {
 };
 
 
-let features = new Map();
+let featuresGlobal = new Map();
+let filtersGlobal = new Map();
 let spinner = document.querySelector("#spinner-div");
 
 const showSpinner = () => {
@@ -203,12 +204,13 @@ const parseCoordinates = async (coordinatesString) => {
 const clearAvailableFeaturesSelect = () => {
     let availableFeaturesSelect = document.getElementById('available-features-select');
     availableFeaturesSelect.innerHTML = '';
+    disableUIElements();
 }
 
 const fetchFeatures = async () => {
     showSpinner();
-    document.querySelector("#visualize-feature-button-div").classList.add("disabled-element");
     clearAvailableFeaturesSelect();
+    disableUIElements();
 
     try {
         // TODO Ošetřit když není zadaná nějaká složka data
@@ -253,7 +255,7 @@ const fetchFeatures = async () => {
         let polygon = preparePolygon(
             coordinatesUserInput[0][0],
             coordinatesUserInput[0][1],
-            coordinatesUserInput[1][0],
+                coordinatesUserInput[1][0],
             coordinatesUserInput[1][1]
         );
 
@@ -264,9 +266,11 @@ const fetchFeatures = async () => {
             return;
         }
 
-        let filters = [];
+        filtersGlobal = new Map();
         let obtainedFeatures = [];
         for (let dataset in datasetsSelected) {
+            let filters = [];
+
             const datasetFilter = `Collection/Name eq '${datasetsSelected[dataset]}'`;
 
             switch (datasetsSelected[dataset]) {
@@ -285,51 +289,39 @@ const fetchFeatures = async () => {
                         await showAlert("Warning", "Not enough parameters specified!", false);
                     }
 
-                    for (let level of levelsSelected) {
-                        let levelFilter = `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'processingLevel' and att/OData.CSC.StringAttribute/Value eq '${level}')`;
-                        for (let sensingType of sensingTypesSelected) {
-                            let sensingTypeFilter = `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'swathIdentifier' and att/OData.CSC.StringAttribute/Value eq '${sensingType}')`;
-                            for (let productType of productTypesSelected) {
-                                let productTypeFilter = `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq '${productType}')`;
+                    let selectedFilters = new Map();
 
-                                filters.push(`${datasetFilter} and (${levelFilter} and ${sensingTypeFilter} and ${productTypeFilter})`);
-                                //filters.push(`${datasetFilter}`);
-                            }
-                        }
-                    }
-
-                    //filters += ` and (${advancedFilters.join(' or ')})`;
-
-                    /*
-                    let levels = undefined;
+                    selectedFilters.set('levels', levelsSelected);
+                    let levelsApiCall = undefined;
                     if (levelsSelected.length > 0) {
-                        levels = `(${levelsSelected.map(
+                        levelsApiCall = `(${levelsSelected.map(
                             level => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'processingLevel' and att/OData.CSC.StringAttribute/Value eq '${level}')`
                         ).join(' or ')})`;
                     }
 
-                    let sensingTypes = undefined;
+                    selectedFilters.set('sensingTypes', sensingTypesSelected);
+                    let sensingTypesApiCall = undefined;
                     if (sensingTypesSelected.length > 0) {
-                        sensingTypes = `(${sensingTypesSelected.map(
-                            sensingType => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'swathIdentifier' and att/OData.CSC.StringAttribute/Value eq '${sensingType}')`
+                        sensingTypesApiCall = `(${sensingTypesSelected.map(
+                            sensingType => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'operationalMode' and att/OData.CSC.StringAttribute/Value eq '${sensingType}')`
                         ).join(' or ')})`;
                     }
 
-                    let productTypes = undefined;
+                    selectedFilters.set('productTypes', productTypesSelected);
+                    let productTypesApiCall = undefined;
                     if (productTypesSelected.length > 0) {
-                        productTypes = `(${productTypesSelected.map(
+                        productTypesApiCall = `(${productTypesSelected.map(
                             productType => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq '${productType}')`
                         ).join(' or ')})`;
                     }
 
-                    filters += ` and (${levels} and ${sensingTypes} and ${productTypes})`;
-                    */
+                    filtersGlobal.set(datasetsSelected[dataset], selectedFilters)
+                    filters += `${datasetFilter} and (${levelsApiCall} and ${sensingTypesApiCall} and ${productTypesApiCall})`;
 
                     break;
                 }
 
                 case "SENTINEL-2": {
-                    //TODO NOT WORKING!
                     const levelsSelectedNodes = document.querySelectorAll('input[name="sentinel-2-levels"]:checked');
                     const levelsSelected = Array.from(levelsSelectedNodes).map(checkbox => checkbox.value);
 
@@ -340,12 +332,21 @@ const fetchFeatures = async () => {
                         await showAlert("Warning", "Not enough parameters specified!", false);
                     }
 
-                    for (let level of levelsSelected) {
-                        let levelFilter = `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'processingLevel' and att/OData.CSC.StringAttribute/Value eq '${level}')`;
+                    let selectedFilters = new Map();
 
-                        filters.push(`${datasetFilter} and (${levelFilter})`);
-                        //filters.push(`${datasetFilter}`);
+                    selectedFilters.set('levels', levelsSelected);
+                    let levelsApiCall = undefined;
+                    if (levelsSelected.length > 0) {
+                        levelsApiCall = `(${levelsSelected.map(
+                            level => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq '${level}')`
+                        ).join(' or ')})`;
                     }
+
+                    selectedFilters.set('bands', bandsSelected);
+                    // Bands not filtered in API call
+
+                    filtersGlobal.set(datasetsSelected[dataset], selectedFilters)
+                    filters += `${datasetFilter} and (${levelsApiCall})`;
 
                     break;
                 }
@@ -365,32 +366,43 @@ const fetchFeatures = async () => {
                     return;
                 }
             }
-        }
 
-        for (let filter of filters) {
-            console.log(filter);
 
             let filtersQuery = `OData.CSC.Intersects(area=geography'SRID=4326;${polygon}')`;
-            filtersQuery += ` and ${filter}`;
+            filtersQuery += ` and ${filters}`;
             filtersQuery += ` and (ContentDate/Start ge ${timeFrom.toISOString()} and ContentDate/Start le ${timeTo.toISOString()})`;
 
             const endpoint = new URL(`?$filter=(${filtersQuery})`, apiRootUrl);
 
-            console.log(endpoint.href);
             let currentFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
+            for (let currentFeature of currentFeatures) {
+                currentFeature['Platform'] = datasetsSelected[dataset];
+            }
+
             obtainedFeatures = obtainedFeatures.concat(currentFeatures);
         }
 
         let availableFeaturesSelect = document.querySelector("#available-features-select");
         availableFeaturesSelect.innerHTML = '';
 
-        obtainedFeatures.sort((a, b) => a.Name.toLowerCase().localeCompare(b.Name.toLowerCase()));
-        console.log(obtainedFeatures)
+        const obtainedFeaturesMap = new Map();
+        obtainedFeatures.forEach(obtainedFeature => {
+            obtainedFeaturesMap.set(obtainedFeature.Id, obtainedFeature);
+        });
 
-        features = new Map();
+        const featuresIds = new Set(obtainedFeatures.map(item => item.Id));
 
-        for (const feature of obtainedFeatures) {
-            features.set(feature.Id, feature);
+        let finalFeatures = [];
+        for (let featureId of featuresIds) {
+            finalFeatures.push(obtainedFeaturesMap.get(featureId));
+        }
+
+        finalFeatures.sort((a, b) => a.Name.toLowerCase().localeCompare(b.Name.toLowerCase()));
+
+        featuresGlobal = new Map();
+
+        for (const feature of finalFeatures) {
+            featuresGlobal.set(feature.Id, feature);
 
             let option = document.createElement("option");
             option.value = feature.Id;
@@ -475,6 +487,9 @@ const visualize = async () => {
 const requestVisualization = async () => {
     showSpinner();
 
+    console.log(featuresGlobal);
+    console.log(filtersGlobal);
+
     const featureId = document.querySelector("#available-features-select").value;
 
     let visualizationRequest = new VisualizationRequest(undefined, undefined, undefined);
@@ -520,6 +535,7 @@ const requestVisualization = async () => {
 
         } while (visualizationRequest.status !== "completed");
     } catch (error) {
+        await showAlert("Error", `Internal application error occurred! Please check console for more information.`, true);
         console.error(`Error name: ${error.name}; Error message: ${error.message}`);
     } finally {
         hideSpinner();
@@ -554,7 +570,7 @@ const showBorders = () => {
         return;
     }
 
-    let coordinates = transposeCoordinates(features.get(featureId).GeoFootprint.coordinates[0]);
+    let coordinates = transposeCoordinates(featuresGlobal.get(featureId).GeoFootprint.coordinates[0]);
 
     showedPolygon = L.polygon(coordinates, {
         color: 'black', //obrys
