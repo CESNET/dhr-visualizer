@@ -255,7 +255,7 @@ const fetchFeatures = async () => {
         let polygon = preparePolygon(
             coordinatesUserInput[0][0],
             coordinatesUserInput[0][1],
-                coordinatesUserInput[1][0],
+            coordinatesUserInput[1][0],
             coordinatesUserInput[1][1]
         );
 
@@ -299,7 +299,7 @@ const fetchFeatures = async () => {
                         ).join(' or ')})`;
                     }
 
-                    selectedFilters.set('sensingTypes', sensingTypesSelected);
+                    selectedFilters.set('sensing_types', sensingTypesSelected);
                     let sensingTypesApiCall = undefined;
                     if (sensingTypesSelected.length > 0) {
                         sensingTypesApiCall = `(${sensingTypesSelected.map(
@@ -307,7 +307,7 @@ const fetchFeatures = async () => {
                         ).join(' or ')})`;
                     }
 
-                    selectedFilters.set('productTypes', productTypesSelected);
+                    selectedFilters.set('product_types', productTypesSelected);
                     let productTypesApiCall = undefined;
                     if (productTypesSelected.length > 0) {
                         productTypesApiCall = `(${productTypesSelected.map(
@@ -343,7 +343,7 @@ const fetchFeatures = async () => {
                     }
 
                     selectedFilters.set('bands', bandsSelected);
-                    // Bands not filtered in API call
+                    // Bands not filtered in Copernicus API call
 
                     filtersGlobal.set(datasetsSelected[dataset], selectedFilters)
                     filters += `${datasetFilter} and (${levelsApiCall})`;
@@ -376,7 +376,7 @@ const fetchFeatures = async () => {
 
             let currentFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
             for (let currentFeature of currentFeatures) {
-                currentFeature['Platform'] = datasetsSelected[dataset];
+                currentFeature['platform'] = datasetsSelected[dataset];
             }
 
             obtainedFeatures = obtainedFeatures.concat(currentFeatures);
@@ -491,6 +491,21 @@ const requestVisualization = async () => {
     console.log(filtersGlobal);
 
     const featureId = document.querySelector("#available-features-select").value;
+    const platform = featuresGlobal.get(featureId).platform;
+    const filters = Object.fromEntries(filtersGlobal.get(platform));
+
+    const method = 'POST';
+    const headers = {
+        'Content-Type': 'application/json',
+    }
+    const bodyJson = JSON.stringify(
+        {
+            feature_id: featureId,
+            platform: featuresGlobal[featureId].platform,
+            filters: filters
+        }
+    );
+    const timeout = 30 * 1000; // 1 sec = 1 000 milisec // TODO timeout after 30 sec. Enough?
 
     let visualizationRequest = new VisualizationRequest(undefined, undefined, undefined);
 
@@ -499,14 +514,10 @@ const requestVisualization = async () => {
         do {
             try {
                 const response = await fetchWithTimeout(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        feature_id: featureId,
-                    }),
-                }, 30000); // TODO timeout after 30 sec. Enough?
+                    method: method,
+                    headers: headers,
+                    body: bodyJson,
+                }, timeout);
 
                 const data = await response.json();
                 console.log(data)
@@ -542,7 +553,7 @@ const requestVisualization = async () => {
     }
 
     if (visualizationRequest.isInitialized() !== true) {
-        throw new Error("Request is not initialized!") // todo proper exception
+        throw new Error("Request is not initialized!"); // todo proper exception
     }
 
     return visualizationRequest;
