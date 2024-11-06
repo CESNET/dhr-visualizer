@@ -94,8 +94,10 @@ class ReqeustedFeature(BaseModel):
 
 
 @app.post("/api/request_visualization")
-async def request_visualization(background_tasks: BackgroundTasks,
-                                requested_feature: ReqeustedFeature = ReqeustedFeature()):
+async def request_visualization(
+        background_tasks: BackgroundTasks, requested_feature: ReqeustedFeature = ReqeustedFeature()
+):
+    print("asdf")
     if requested_feature.feature_id not in db:
         db[requested_feature.feature_id] = {
             "feature_id": requested_feature.feature_id,
