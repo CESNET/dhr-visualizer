@@ -1,10 +1,13 @@
 import uvicorn
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel
+from typing import Dict, Any
 
 from fastapi.middleware.cors import CORSMiddleware
 
 from pathlib import Path
+
+from enum import Enum
 
 from dataspace_stac import DataspaceSTAC
 from s3_connector import S3Connector
@@ -22,11 +25,27 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+
+class RequestStatus(Enum):
+    ACCEPTED = "accepted"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
+class DatabaseEntries():
+    FEATURE_ID = "feature_id"
+    STATUS = "status"
+    HREF = "href"
+
+
 db = {}  # TODO Database needed
 
 
 class ReqeustedFeature(BaseModel):
     feature_id: str = None
+    platform: str = None
+    filters: Dict[str, Any] = None
     _feature_dir: Path = None
 
     def __del__(self):
@@ -62,15 +81,26 @@ class ReqeustedFeature(BaseModel):
 
         return self._feature_dir
 
-    def _update_db(self, status=None):
+    def _update_db(self, status=None, href=None):
         if status is None:
-            raise Exception  # Propper exception
+            if db[self.feature_id][DatabaseEntries.STATUS]:
+                status = db[self.feature_id][DatabaseEntries.STATUS]
+            else:
+                status = RequestStatus.FAILED
 
-        db[self.feature_id] = {
-            "feature_id": self.feature_id,
-            "status": status,
-            "href": f"http://cesnet.cz/tile/{self.feature_id}"
-        }
+        if href is None:
+            if db[self.feature_id][DatabaseEntries.HREF]:
+                href = db[self.feature_id][DatabaseEntries.HREF]
+            else:
+                href = ""
+
+        db[self.feature_id].update(
+            {
+                DatabaseEntries.FEATURE_ID: self.feature_id,
+                DatabaseEntries.STATUS: status,
+                DatabaseEntries.HREF: href
+            }
+        )
 
     def start_map_tile_generation(self):
         # Todo Generovat tilu
@@ -81,32 +111,38 @@ class ReqeustedFeature(BaseModel):
 
         Na stav se bude ptát peridociky forntend voláním /api/check_visualization_status
         """
+
         if self.feature_id is None:
             raise RequestedFeatureIDNotSpecified()
 
-        self._update_db(status="processing")
+        self._update_db(status=RequestStatus.PROCESSING)
 
+        # TODO _feature_dir udělat jako Tempfile.tempdir ...nebo jak přesně se ta knihovna jmenuje
+        # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
         self._feature_dir = self._download_feature()
         print(f"Feature downloaded into {str(self._feature_dir)}")
         # v self._feature_dir nyní staženy data dané feature, destruktor self.__del__ složku smaže
 
-        self._update_db(status="completed")
+        self._update_db(status=RequestStatus.COMPLETED)
 
 
 @app.post("/api/request_visualization")
 async def request_visualization(
         background_tasks: BackgroundTasks, requested_feature: ReqeustedFeature = ReqeustedFeature()
 ):
-    print("asdf")
     if requested_feature.feature_id not in db:
         db[requested_feature.feature_id] = {
-            "feature_id": requested_feature.feature_id,
-            "status": "accepted",
-            "href": ""
+            DatabaseEntries.FEATURE_ID: requested_feature.feature_id,
+            DatabaseEntries.STATUS: RequestStatus.ACCEPTED,
+            DatabaseEntries.HREF: ""
         }
         background_tasks.add_task(requested_feature.start_map_tile_generation)
 
-    return db[requested_feature.feature_id]
+    return_entry = db[requested_feature.feature_id]
+    if return_entry[DatabaseEntries.STATUS] == RequestStatus.FAILED:
+        db.pop(requested_feature.feature_id)
+
+    return return_entry
 
 
 if __name__ == "__main__":

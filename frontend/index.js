@@ -169,6 +169,7 @@ const fetchFeaturesFromCopernicus = async (endpoint) => {
 
 let featuresGlobal = new Map();
 let filtersGlobal = new Map();
+
 let spinner = document.querySelector("#spinner-div");
 
 const showSpinner = () => {
@@ -333,7 +334,6 @@ const fetchFeatures = async () => {
                     */
 
                     filtersGlobal.set(datasetsSelected[dataset], selectedFilters);
-                    console.log(filtersGlobal);
                     filters += `${datasetFilter} and (${levelsApiCall} and ${sensingTypesApiCall} and ${productTypesApiCall})`; //and ${polarisationChannelsApiCall})`;
 
                     break;
@@ -505,8 +505,9 @@ const visualize = async () => {
 const requestVisualization = async () => {
     showSpinner();
 
-    console.log(featuresGlobal);
-    console.log(filtersGlobal);
+    const repeatRequestAfter = 5 * 1000 // millisecs
+    const totalTimeout = 120 // secs // TODO timeout of backend processing after 120 sec. Enough?
+    const backendReplyTimeout = 30 * 1000;  // 1 sec = 1 000 millisecs // TODO timeout of backend call after 30 sec. Enough?
 
     const featureId = document.querySelector("#available-features-select").value;
     const platform = featuresGlobal.get(featureId).platform;
@@ -519,53 +520,61 @@ const requestVisualization = async () => {
     const bodyJson = JSON.stringify(
         {
             feature_id: featureId,
-            platform: featuresGlobal[featureId].platform,
+            platform: platform,
             filters: filters
         }
     );
-    const timeout = 30 * 1000; // 1 sec = 1 000 milisec // TODO timeout after 30 sec. Enough?
 
     let visualizationRequest = new VisualizationRequest(undefined, undefined, undefined);
 
     try {
         let url = `${backendHost}/api/request_visualization`
+        console.log(url);
+
+        let timeEnd = new Date()
+        timeEnd.setUTCSeconds(timeFrom.getUTCSeconds() + totalTimeout);
+
         do {
-            try {
-                const response = await fetchWithTimeout(url, {
-                    method: method,
-                    headers: headers,
-                    body: bodyJson,
-                }, timeout);
+            const response = await fetchWithTimeout(url, {
+                method: method,
+                headers: headers,
+                body: bodyJson,
+            }, backendReplyTimeout);
 
-                const data = await response.json();
-                console.log(data)
-                visualizationRequest = new VisualizationRequest(
-                    data.feature_id,
-                    data.status,
-                    data.href
-                );
+            const data = await response.json();
+            visualizationRequest = new VisualizationRequest(
+                data.feature_id,
+                data.status,
+                data.href
+            );
 
-                if (visualizationRequest.status !== "completed") {
-                    console.log(visualizationRequest);
-                    await delay(5000);
-                }
-
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    await showAlert("Warning", "Request timed out!", false);
-                } else if (error.message.includes('NetworkError')) {
-                    await showAlert("Warning", `Network error - connection to backend failed! Please try again later.`, true);
-                } else {
-                    await showAlert("Warning", "Unknown error! Please check console for more information.", true);
-                }
-
-                throw error;
+            console.log(visualizationRequest);
+            //todo tyhle status message by to chtělo jako nějakej enum
+            if (visualizationRequest.status === "failed") {
+                e = new Error("Backend visualization request failed!");
+                e.name='VisualizationFailedError'
+                throw e;
             }
 
+            if (visualizationRequest.status !== "completed") {
+                if (new Date() > timeEnd) {
+                    e = new Error();
+                    e.name = 'AbortError';
+                    throw e;
+                }
+                await delay(repeatRequestAfter);
+            }
         } while (visualizationRequest.status !== "completed");
+
     } catch (error) {
-        await showAlert("Error", `Internal application error occurred! Please check console for more information.`, true);
-        console.error(`Error name: ${error.name}; Error message: ${error.message}`);
+        if (error.name === 'AbortError') {
+            await showAlert("Warning", "Request timed out!", false);
+        } else if (error.message.includes('NetworkError')) {
+            await showAlert("Warning", `Network error - connection to backend failed! Please try again later.`, true);
+        } else {
+            await showAlert("Error", `Internal application error occurred! Please check console for more information.`, true);
+            console.error(`Error name: ${error.name}; Error message: ${error.message}`);
+        }
     } finally {
         hideSpinner();
     }
