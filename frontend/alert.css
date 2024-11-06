@@ -1,4 +1,4 @@
-@keyframes slideIn {
+@keyframes slide-in {
     from {
         transform: translateX(150%);
     }
@@ -7,7 +7,7 @@
     }
 }
 
-@keyframes slideOut {
+@keyframes slide-out {
     from {
         transform: translateX(0);
     }
@@ -16,8 +16,8 @@
     }
 }
 
-#alertsDiv {
-    z-index: 1000;
+#alerts-div {
+    z-index: 999;
     display: flex;
     position: absolute;
     flex-direction: column;
@@ -42,22 +42,22 @@
     overflow: auto;
     word-wrap: break-word;
     white-space: normal;
-    animation: slideIn 0.7s forwards;
+    animation: slide-in 0.7s forwards;
 }
 
-.alertText {
+.alert-text {
     float: left;
 }
 
-.alertHeadline {
+.alert-headline {
     font-weight: bold;
 }
 
-.alertMessage {
+.alert-message {
     margin-top: 10px;
 }
 
-.alert .alertCloseButton {
+.alert .alert-close-button {
     margin-left: 15px;
     color: white;
     font-weight: bold;
@@ -68,7 +68,7 @@
     transition: background-color 0.3s;
 }
 
-.alert .alertCloseButton:hover {
+.alert .alert-close-button:hover {
     color: black;
 }
 

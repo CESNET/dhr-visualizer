@@ -1,21 +1,63 @@
 const backendHost = 'http://127.0.0.1:8000';
-const apiRoot = "https://catalogue.dataspace.copernicus.eu";
+const apiRootUrl = "https://catalogue.dataspace.copernicus.eu/odata/v1/Products";
 const supportEmail = "placeholder@example.com"; //TODO Change email
 
-let leafletMap = L.map('mapDiv').setView([50.05, 14.46], 10);
+const leafletInitCoords = [50.05, 14.46]; //TODO find users location
+const leafletInitZoom = 10;
+
+const timeFromHourCorrection = (7 * 24); //This amount of hours will be subtracted from today midnight
+
+const maxLoadedFeatures = 100;
+
+const offeredDatasets = [
+    "SENTINEL-1",
+    "SENTINEL-2"//,
+    //"SENTINEL-3", //todo zatím jen S1 a S2
+    //"SENTINEL-5P" //todo zatím jen S1 a S2
+];
+
+// // All possible datasets:
+// const offeredDatasets = [
+// // Copernicus Sentinel Mission
+// "SENTINEL-1",
+// "SENTINEL-2",
+// "SENTINEL-3",
+// "SENTINEL-5P",
+// "SENTINEL-6",
+// "SENTINEL-1-RTC",
+// // Complementary data...
+// "GLOBAL-MOSAICS",
+// "SMOS",
+// "ENVISAT",
+// "LANDSAT-5",
+// "LANDSAT-7",
+// "LANDSAT-8",
+// "COP-DEM",
+// "TERRAAQUA",
+// "S2GLC"
+// ]
+
+/**********************************************************************************************************************/
+
+/***************************************
+ SETUP
+ **************************************/
+
+let leafletMap = L.map('map-div').setView(leafletInitCoords, leafletInitZoom);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
     maxZoom: 19,
 }).addTo(leafletMap);
 insertCoordinatesFromMap();
 
+
 let timeFrom = new Date();
-timeFrom.setUTCMonth(timeFrom.getUTCMonth() - 1);
 timeFrom.setUTCHours(0);
+timeFrom.setUTCHours(timeFrom.getUTCHours() - timeFromHourCorrection);
 timeFrom.setUTCMinutes(0);
 timeFrom.setUTCSeconds(0);
 
-let timeFromInput = document.querySelector("#timeFromInput");
+let timeFromInput = document.querySelector("#time-from-input");
 timeFromInput.value = timeFrom.toISOString().substring(0, 16);
 
 let timeTo = new Date();
@@ -23,76 +65,40 @@ timeTo.setUTCHours(23);
 timeTo.setUTCMinutes(59);
 timeTo.setUTCSeconds(59);
 
-let timeToInput = document.querySelector("#timeToInput");
+let timeToInput = document.querySelector("#time-to-input");
 timeToInput.value = timeTo.toISOString().substring(0, 16);
 
-const offeredDatasets = [
-    "SENTINEL-1",
-    "SENTINEL-2",
-    "SENTINEL-3",
-    "SENTINEL-5P",
-    "SENTINEL-6",
-    "SENTINEL-1-RTC",
-]
-
-const prepareDatasetSelect = () => {
-    /*
-        // All possible datasets:
-            const offeredDatasets = [
-            // Copernicus Sentinel Mission
-            "SENTINEL-1",
-            "SENTINEL-2",
-            "SENTINEL-3",
-            "SENTINEL-5P",
-            "SENTINEL-6",
-            "SENTINEL-1-RTC",
-            // Complementary data...
-            "GLOBAL-MOSAICS",
-            "SMOS",
-            "ENVISAT",
-            "LANDSAT-5",
-            "LANDSAT-7",
-            "LANDSAT-8",
-            "COP-DEM",
-            "TERRAAQUA",
-            "S2GLC"
-            ]
-     */
-
-    let datasetsSelect = document.getElementById('datasetsSelect');
-    for (let dataset of offeredDatasets) {
-        let option = document.createElement("option");
-        option.value = dataset;
-        option.innerHTML = dataset;
-        datasetsSelect.appendChild(option);
-    }
-}
-
+/***************************************
+ LOGIC
+ **************************************/
 
 function insertCoordinatesFromMap() {
-    let coordinatesNWInput = document.querySelector("#coordinatesNWInput");
+    let coordinatesNWInput = document.querySelector("#coordinates-nw-input");
     coordinatesNWInput.value = `${leafletMap.getBounds().getNorthWest().lat.toFixed(4)};${leafletMap.getBounds().getNorthWest().lng.toFixed(4)}`;
 
-    let coordinatesSEInput = document.querySelector("#coordinatesSEInput");
+    let coordinatesSEInput = document.querySelector("#coordinates-se-input");
     coordinatesSEInput.value = `${leafletMap.getBounds().getSouthEast().lat.toFixed(4)};${leafletMap.getBounds().getSouthEast().lng.toFixed(4)}`;
 }
 
 const closeAlert = (alertDiv) => {
-    alertDiv.style.animation = 'slideOut 0.7s forwards';
+    alertDiv.style.animation = 'slide-out 0.7s forwards';
     alertDiv.addEventListener('animationend', () => {
         alertDiv.remove();
     });
 }
 
-const showAlert = async (headline, message) => {
+const showAlert = async (headline, message, appendContact) => {
+    if (appendContact) {
+        message += `<br>If this problem persists feel free to <a href=\"mailto:${supportEmail}\">contact us</a>.`;
+    }
     await fetch('alert.html')
         .then(response => response.text())
         .then(data => {
             let alertDOM = new DOMParser().parseFromString(data, 'text/html');
-            alertDOM.getElementById('alertHeadline').innerHTML = headline;
-            alertDOM.getElementById('alertMessage').innerHTML = message;
+            alertDOM.getElementById('alert-headline').innerHTML = headline;
+            alertDOM.getElementById('alert-message').innerHTML = message;
 
-            document.getElementById('alertsDiv').appendChild(alertDOM.getElementById('alertDiv'));
+            document.getElementById('alerts-div').appendChild(alertDOM.getElementById('alert-div'));
         });
 }
 
@@ -110,6 +116,7 @@ const preparePolygon = (northWestLat, northWestLon, southEastLat, southEastLon) 
 };
 */
 
+/*
 const prepareBbox = (northWestLat, northWestLon, southEastLat, southEastLon) => {
     let coordArray = [
         northWestLon.toString(),
@@ -121,30 +128,34 @@ const prepareBbox = (northWestLat, northWestLon, southEastLat, southEastLon) => 
     let bbox = coordArray.join(",");
     return bbox;
 };
+*/
+
+const preparePolygon = (northWestLat, northWestLon, southEastLat, southEastLon) => {
+    return `POLYGON((${northWestLon} ${northWestLat},${southEastLon} ${northWestLat},` +
+        `${southEastLon} ${southEastLat},${northWestLon} ${southEastLat},${northWestLon} ${northWestLat}))`;
+}
 
 const fetchFeaturesFromCopernicus = async (endpoint) => {
+    //console.log(endpoint)
     let features = [];
 
     while (true) {
-        let foundNextPage = false;
-
         try {
             const response = await fetch(endpoint);
             const data = await response.json();
+            //console.log(data);
 
-            features = features.concat(data.features);
+            features = features.concat(data.value);
 
-            for (const link of data.links) {
-                if (link.rel === "next") {
-                    endpoint = link.href;
-                    foundNextPage = true;
-                    break;
-                }
-            }
-
-            if (!foundNextPage) {
+            if (features.length >= maxLoadedFeatures) {
+                // Let's not load the whole collection
                 break;
             }
+            if (!('@odata.nextLink' in data)) {
+                break;
+            }
+
+            endpoint = data['@odata.nextLink'];
 
         } catch (error) {
             console.error(`Error fetchig data! Error name: ${error.name}; Error message: ${error.message}`);
@@ -156,8 +167,9 @@ const fetchFeaturesFromCopernicus = async (endpoint) => {
 };
 
 
-let features = new Map();
-let spinner = document.querySelector("#spinnerDiv");
+let featuresGlobal = new Map();
+let filtersGlobal = new Map();
+let spinner = document.querySelector("#spinner-div");
 
 const showSpinner = () => {
     spinner.style.display = "block";
@@ -176,7 +188,7 @@ const parseCoordinates = async (coordinatesString) => {
 
     const parts = coordinatesString.split(';');
     if (parts.length !== 2) {
-        await showAlert("Warning!", "Coordinates must be in format [dd.dddd;dd.dddd]");
+        await showAlert("Warning", "Coordinates must be in format [dd.dddd;dd.dddd]", false);
         return undefined;
     }
 
@@ -190,21 +202,23 @@ const parseCoordinates = async (coordinatesString) => {
 }
 
 const clearAvailableFeaturesSelect = () => {
-    let availableFeaturesSelect = document.getElementById('availableFeaturesSelect');
+    let availableFeaturesSelect = document.getElementById('available-features-select');
     availableFeaturesSelect.innerHTML = '';
+    disableUIElements();
 }
 
 const fetchFeatures = async () => {
     showSpinner();
-    document.querySelector("#visualizeFeatureButtonDiv").classList.add("disabledElement");
     clearAvailableFeaturesSelect();
+    disableUIElements();
 
     try {
-        let timeFrom = new Date(document.querySelector("#timeFromInput").value + ":00Z");
-        let timeTo = new Date(document.querySelector("#timeToInput").value + ":00Z");
+        // TODO Ošetřit když není zadaná nějaká složka data
+        let timeFrom = new Date(document.querySelector("#time-from-input").value + ":00Z");
+        let timeTo = new Date(document.querySelector("#time-to-input").value + ":00Z");
 
         if (timeTo < timeFrom) {
-            await showAlert("Warning!", "Time to must be after Time from!");
+            await showAlert("Warning", "Time to must be after Time from!", false);
             return;
         }
 
@@ -213,11 +227,11 @@ const fetchFeatures = async () => {
         tomorrow.setUTCHours(0, 0, 0, 0);
 
         if ((timeFrom > tomorrow) || (timeTo > tomorrow)) {
-            await showAlert("Warning!", "Date could not be in the future!");
+            await showAlert("Warning", "Date could not be in the future!", false);
             return;
         }
 
-        const coordinatesUserInputElements = document.getElementsByClassName("coordinateUserInput")
+        const coordinatesUserInputElements = document.getElementsByClassName("coordinate-user-input")
         let coordinatesUserInput = []
         for (let coordinatesElement of coordinatesUserInputElements) {
             if (coordinatesElement.value === "") {
@@ -238,74 +252,213 @@ const fetchFeatures = async () => {
             return; // Features fetched, in second run of fetchFeatures() above. We can exit the first run.
         }
 
-        /*
         let polygon = preparePolygon(
-            leafletMap.getBounds().getNorthWest().lat,
-            leafletMap.getBounds().getNorthWest().lng,
-            leafletMap.getBounds().getSouthEast().lat,
-            leafletMap.getBounds().getSouthEast().lng
-        );
-         */
-
-        /*
-        let bbox = prepareBbox(
-            leafletMap.getBounds().getNorthWest().lat,
-            leafletMap.getBounds().getNorthWest().lng,
-            leafletMap.getBounds().getSouthEast().lat,
-            leafletMap.getBounds().getSouthEast().lng
-        );
-        */
-
-        let bbox = prepareBbox(
             coordinatesUserInput[0][0],
             coordinatesUserInput[0][1],
             coordinatesUserInput[1][0],
             coordinatesUserInput[1][1]
         );
 
-        let dataset = document.querySelector("#datasetsSelect").value;
+        const datasetsSelectedNodes = document.querySelectorAll('input[name="dataset"]:checked');
+        const datasetsSelected = Array.from(datasetsSelectedNodes).map(checkbox => checkbox.value);
+        if (datasetsSelected.length <= 0) {
+            await showAlert("Warning", "Please choose dataset.", false);
+            return;
+        }
 
-        let endpoint = new URL(["stac", "collections", dataset, "items"].join("/"), apiRoot);
-        endpoint.searchParams.set("bbox", bbox);
-        endpoint.searchParams.set("datetime", [timeFrom.toISOString(), timeTo.toISOString()].join("/"));
-        endpoint.searchParams.set("limit", "100");
+        filtersGlobal = new Map();
+        let obtainedFeatures = [];
+        for (let dataset in datasetsSelected) {
+            let filters = [];
 
-        let obtainedFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
+            const datasetFilter = `Collection/Name eq '${datasetsSelected[dataset]}'`;
 
-        console.log(obtainedFeatures)
+            switch (datasetsSelected[dataset]) {
+                case "SENTINEL-1": {
+                    //TODO NOT WORKING!
+                    const levelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-levels"]:checked');
+                    const levelsSelected = Array.from(levelsSelectedNodes).map(checkbox => checkbox.value);
 
-        let availableFeaturesSelect = document.querySelector("#availableFeaturesSelect");
+                    const sensingTypesSelectedNodes = document.querySelectorAll('input[name="sentinel-1-sensing-types"]:checked');
+                    const sensingTypesSelected = Array.from(sensingTypesSelectedNodes).map(checkbox => checkbox.value);
+
+                    const productTypesSelectedNodes = document.querySelectorAll('input[name="sentinel-1-product-types"]:checked');
+                    const productTypesSelected = Array.from(productTypesSelectedNodes).map(checkbox => checkbox.value);
+
+                    const polarisationChannelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-polarisation-channels"]:checked');
+                    const polarisationChannelsSelected = Array.from(polarisationChannelsSelectedNodes).map(checkbox => checkbox.value);
+                    const combinePolarisationChannelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-combine-polarisation-channels"]:checked');
+                    const combinePolarisationChannelsSelected = Array.from(combinePolarisationChannelsSelectedNodes).map(checkbox => checkbox.value);
+
+                    if (levelsSelected.length <= 0 || sensingTypesSelected.length <= 0 || productTypesSelected.length <= 0) {
+                        await showAlert("Warning", "Not enough parameters specified!", false);
+                    }
+
+                    let selectedFilters = new Map();
+
+                    selectedFilters.set('levels', levelsSelected);
+                    let levelsApiCall = undefined;
+                    if (levelsSelected.length > 0) {
+                        levelsApiCall = `(${levelsSelected.map(
+                            level => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'processingLevel' and att/OData.CSC.StringAttribute/Value eq '${level}')`
+                        ).join(' or ')})`;
+                    }
+
+                    selectedFilters.set('sensing_types', sensingTypesSelected);
+                    let sensingTypesApiCall = undefined;
+                    if (sensingTypesSelected.length > 0) {
+                        sensingTypesApiCall = `(${sensingTypesSelected.map(
+                            sensingType => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'operationalMode' and att/OData.CSC.StringAttribute/Value eq '${sensingType}')`
+                        ).join(' or ')})`;
+                    }
+
+                    selectedFilters.set('product_types', productTypesSelected);
+                    let productTypesApiCall = undefined;
+                    if (productTypesSelected.length > 0) {
+                        productTypesApiCall = `(${productTypesSelected.map(
+                            productType => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq '${productType}')`
+                        ).join(' or ')})`;
+                    }
+
+                    selectedFilters.set('polarisation_channels', polarisationChannelsSelected);
+                    selectedFilters.set('polarisation_channels_combine', combinePolarisationChannelsSelected);
+                    /*
+                    // It seems like it is not possible to search OData using polarisationChannels
+                    let polarisationChannelsApiCall = undefined;
+                    if (polarisationChannelsSelected.length > 0) {
+                        polarisationChannelsApiCall = `(${polarisationChannelsSelected.map(
+                            polarisationChannel => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'polarisationChannels' and att/OData.CSC.StringAttribute/Value eq '${polarisationChannel}')`
+                        ).join(' or ')})`;
+                    }
+                    */
+
+                    filtersGlobal.set(datasetsSelected[dataset], selectedFilters);
+                    console.log(filtersGlobal);
+                    filters += `${datasetFilter} and (${levelsApiCall} and ${sensingTypesApiCall} and ${productTypesApiCall})`; //and ${polarisationChannelsApiCall})`;
+
+                    break;
+                }
+
+                case "SENTINEL-2": {
+                    const levelsSelectedNodes = document.querySelectorAll('input[name="sentinel-2-levels"]:checked');
+                    const levelsSelected = Array.from(levelsSelectedNodes).map(checkbox => checkbox.value);
+
+                    const bandsSelectedNodes = document.querySelectorAll('input[name="sentinel-2-bands"]:checked');
+                    const bandsSelected = Array.from(bandsSelectedNodes).map(checkbox => checkbox.value);
+
+                    if (levelsSelected.length <= 0 || bandsSelected.length <= 0) {
+                        await showAlert("Warning", "Not enough parameters specified!", false);
+                    }
+
+                    let selectedFilters = new Map();
+
+                    selectedFilters.set('levels', levelsSelected);
+                    let levelsApiCall = undefined;
+                    if (levelsSelected.length > 0) {
+                        levelsApiCall = `(${levelsSelected.map(
+                            level => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq '${level}')`
+                        ).join(' or ')})`;
+                    }
+
+                    selectedFilters.set('bands', bandsSelected);
+                    // Bands not filtered in Copernicus API call
+
+                    filtersGlobal.set(datasetsSelected[dataset], selectedFilters)
+                    filters += `${datasetFilter} and (${levelsApiCall})`;
+
+                    break;
+                }
+
+                case "SENTINEL-3": {
+                    //TODO do budoucna přidělat zpracování S3 a S5P
+                    break;
+                }
+
+                case "SENTINEL-5P": {
+                    //TODO do budoucna přidělat zpracování S3 a S5P
+                    break;
+                }
+
+                default: {
+                    await showAlert("Warning", "Unexpected datasource chosen!", false);
+                    return;
+                }
+            }
+
+
+            let filtersQuery = `OData.CSC.Intersects(area=geography'SRID=4326;${polygon}')`;
+            filtersQuery += ` and ${filters}`;
+            filtersQuery += ` and (ContentDate/Start ge ${timeFrom.toISOString()} and ContentDate/Start le ${timeTo.toISOString()})`;
+
+            const endpoint = new URL(`?$filter=(${filtersQuery})`, apiRootUrl);
+
+            let currentFeatures = await fetchFeaturesFromCopernicus(endpoint.href);
+            for (let currentFeature of currentFeatures) {
+                currentFeature['platform'] = datasetsSelected[dataset];
+            }
+
+            obtainedFeatures = obtainedFeatures.concat(currentFeatures);
+        }
+
+        let availableFeaturesSelect = document.querySelector("#available-features-select");
         availableFeaturesSelect.innerHTML = '';
 
-        obtainedFeatures.sort((a, b) => a.id.toLowerCase().localeCompare(b.id.toLowerCase()));
+        const obtainedFeaturesMap = new Map();
+        obtainedFeatures.forEach(obtainedFeature => {
+            obtainedFeaturesMap.set(obtainedFeature.Id, obtainedFeature);
+        });
 
-        features = new Map();
+        const featuresIds = new Set(obtainedFeatures.map(item => item.Id));
 
-        for (const feature of obtainedFeatures) {
-            features.set(feature.id, feature);
+        let finalFeatures = [];
+        for (let featureId of featuresIds) {
+            finalFeatures.push(obtainedFeaturesMap.get(featureId));
+        }
+
+        finalFeatures.sort((a, b) => a.Name.toLowerCase().localeCompare(b.Name.toLowerCase()));
+
+        featuresGlobal = new Map();
+
+        for (const feature of finalFeatures) {
+            featuresGlobal.set(feature.Id, feature);
 
             let option = document.createElement("option");
-            option.value = feature.id;
-            option.textContent = feature.id;
-
+            option.value = feature.Id;
+            option.textContent = feature.Name;
             availableFeaturesSelect.appendChild(option);
         }
 
         showBorders();
 
         if (obtainedFeatures.length > 0) {
-            document.querySelector("#visualizeFeatureButtonDiv").classList.remove("disabledElement");
+            enableUIElements()
+        } else {
+            enableUIElements()
+            await showAlert("Warning", "No features found for selected filters!", false);
         }
+
     } catch (error) {
+        await showAlert('Error', `Internal application error occurred. Please check console for further information.`, true);
         console.error(`Error fetching tiles!  Error name: ${error.name}; Error message: ${error.message}`);
     } finally {
         hideSpinner();
     }
 };
 
+const disableUIElements = () => {
+    document.querySelector("#visualize-feature-button-div").classList.add("disabled-element");
+    document.querySelector("#available-features-select-div").classList.add("disabled-element");
+}
+
+const enableUIElements = () => {
+    document.querySelector("#visualize-feature-button-div").classList.remove("disabled-element");
+    document.querySelector("#available-features-select-div").classList.remove("disabled-element");
+}
+
+
 const clearCoordinates = () => {
-    document.querySelector("#coordinatesNWInput").value = ""
-    document.querySelector("#coordinatesSEInput").value = ""
+    document.querySelector("#coordinates-nw-input").value = ""
+    document.querySelector("#coordinates-se-input").value = ""
 }
 
 class VisualizationRequest {
@@ -329,11 +482,10 @@ const fetchWithTimeout = async (url, options = {}, timeout = 5000) => {
     const id = setTimeout(() => controller.abort(), timeout);
 
     try {
-        var response = await fetch(url, {
+        return await fetch(url, {
             ...options,
             signal: controller.signal
         });
-        return response;
 
     } catch (error) {
         console.error(`Error name: ${error.name}; Error message: ${error.message}`)
@@ -353,7 +505,25 @@ const visualize = async () => {
 const requestVisualization = async () => {
     showSpinner();
 
-    const featureId = document.querySelector("#availableFeaturesSelect").value;
+    console.log(featuresGlobal);
+    console.log(filtersGlobal);
+
+    const featureId = document.querySelector("#available-features-select").value;
+    const platform = featuresGlobal.get(featureId).platform;
+    const filters = Object.fromEntries(filtersGlobal.get(platform));
+
+    const method = 'POST';
+    const headers = {
+        'Content-Type': 'application/json',
+    }
+    const bodyJson = JSON.stringify(
+        {
+            feature_id: featureId,
+            platform: featuresGlobal[featureId].platform,
+            filters: filters
+        }
+    );
+    const timeout = 30 * 1000; // 1 sec = 1 000 milisec // TODO timeout after 30 sec. Enough?
 
     let visualizationRequest = new VisualizationRequest(undefined, undefined, undefined);
 
@@ -362,14 +532,10 @@ const requestVisualization = async () => {
         do {
             try {
                 const response = await fetchWithTimeout(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        feature_id: featureId,
-                    }),
-                }, 30000); // TODO timeout after 30 sec. Enough?
+                    method: method,
+                    headers: headers,
+                    body: bodyJson,
+                }, timeout);
 
                 const data = await response.json();
                 console.log(data)
@@ -386,11 +552,11 @@ const requestVisualization = async () => {
 
             } catch (error) {
                 if (error.name === 'AbortError') {
-                    await showAlert("Warning!", "Request timed out!");
+                    await showAlert("Warning", "Request timed out!", false);
                 } else if (error.message.includes('NetworkError')) {
-                    await showAlert("Warning!", `Network error - connection to backend failed!   Please try again later. If this problem persists please <a href=\"mailto:${supportEmail}\">contact us</a>.`);
+                    await showAlert("Warning", `Network error - connection to backend failed! Please try again later.`, true);
                 } else {
-                    await showAlert("Warning!", "Unknown error! Please check console for more information.");
+                    await showAlert("Warning", "Unknown error! Please check console for more information.", true);
                 }
 
                 throw error;
@@ -398,13 +564,14 @@ const requestVisualization = async () => {
 
         } while (visualizationRequest.status !== "completed");
     } catch (error) {
+        await showAlert("Error", `Internal application error occurred! Please check console for more information.`, true);
         console.error(`Error name: ${error.name}; Error message: ${error.message}`);
     } finally {
         hideSpinner();
     }
 
     if (visualizationRequest.isInitialized() !== true) {
-        throw new Error("Request is not initialized!") // todo proper exception
+        throw new Error("Request is not initialized!"); // todo proper exception
     }
 
     return visualizationRequest;
@@ -420,15 +587,19 @@ const transposeCoordinates = (coordinatesArray) => {
     return newCoordinatesArray;
 }
 
-let showedPolygon = null
+let showedPolygon = null;
 
 const showBorders = () => {
-    let featureId = document.querySelector("#availableFeaturesSelect").value;
-    let coordinates = transposeCoordinates(features.get(featureId).geometry.coordinates[0]);
-
     if (showedPolygon) {
         showedPolygon.remove()
     }
+
+    let featureId = document.querySelector("#available-features-select").value;
+    if (!featureId) {
+        return;
+    }
+
+    let coordinates = transposeCoordinates(featuresGlobal.get(featureId).GeoFootprint.coordinates[0]);
 
     showedPolygon = L.polygon(coordinates, {
         color: 'black', //obrys
@@ -472,4 +643,111 @@ const showExampleGeoTiff = async () => {
                 spinner.style.display = "none";
             });
         });
+}
+
+document.querySelectorAll(".mission-filter-button").forEach((filterButton) => {
+    filterButton.addEventListener("click", async function () {
+        await toggleMissionFiltersDiv(filterButton);
+    });
+});
+
+const toggleMissionFiltersDiv = async (filterButton) => {
+    const mission = filterButton.value;
+    const missionAdditionalFiltersDivId = `mission-additional-filters-${mission.toLowerCase()}`;
+
+    const missionAdditionalFiltersActiveStatus = document.querySelector(`#${missionAdditionalFiltersDivId}`).classList.contains("active")
+
+    document.querySelectorAll(".additional-filters").forEach((additionalFilter) => {
+        additionalFilter.classList.remove("active");
+    })
+    document.querySelectorAll(".mission-filter-button").forEach((button) => {
+        button.innerHTML = "Open filter"
+    });
+
+    if (offeredDatasets.includes(mission)) {
+        if (!missionAdditionalFiltersActiveStatus) {
+            document.querySelector(`#${missionAdditionalFiltersDivId}`).classList.add("active");
+            filterButton.innerHTML = "Close filter"
+        }
+    } else {
+        await showAlert("Unknown mission!", `Unexpected mission selected`, false);
+    }
+}
+
+const toggleSentinel1HHHV = () => {
+    if (document.querySelector("#sentinel-1-combine-hhhv-checkbox").checked) {
+        document.querySelector("#sentinel-1-hh-checkbox").checked = true;
+        document.querySelector("#sentinel-1-hv-checkbox").checked = true;
+    }
+}
+
+const toggleSentinel1VVVH = () => {
+    if (document.querySelector("#sentinel-1-combine-vvvh-checkbox").checked) {
+        document.querySelector("#sentinel-1-vv-checkbox").checked = true;
+        document.querySelector("#sentinel-1-vh-checkbox").checked = true;
+    }
+}
+
+const toggleSentinel1CombineHHHV = () => {
+    if (document.querySelector("#sentinel-1-combine-hhhv-checkbox").checked) {
+        if (
+            !document.querySelector("#sentinel-1-hh-checkbox").checked ||
+            !document.querySelector("#sentinel-1-hv-checkbox").checked
+        ) {
+            document.querySelector("#sentinel-1-combine-hhhv-checkbox").checked = false;
+        }
+    }
+}
+
+const toggleSentinel1CombineVVVH = () => {
+    if (document.querySelector("#sentinel-1-combine-vvvh-checkbox").checked) {
+        if (
+            !document.querySelector("#sentinel-1-vv-checkbox").checked ||
+            !document.querySelector("#sentinel-1-vh-checkbox").checked
+        ) {
+            document.querySelector("#sentinel-1-combine-vvvh-checkbox").checked = false;
+        }
+    }
+}
+
+const toggleSentinel1Checkbox = () => {
+    if (
+        document.querySelectorAll('input[name="sentinel-1-levels"]:checked').length <= 0
+        && document.querySelectorAll('input[name="sentinel-1-sensing-types"]:checked').length <= 0
+        && document.querySelectorAll('input[name="sentinel-1-data-types"]:checked').length <= 0
+    ) {
+        document.querySelector("#mission-filter-checkbox-sentinel-1").checked = false;
+    } else {
+        document.querySelector("#mission-filter-checkbox-sentinel-1").checked = true;
+    }
+}
+
+const toggleSentinel2Checkbox = () => {
+    //todo - same as in toggleSentinel1Checkbox()
+    document.querySelector("#mission-filter-checkbox-sentinel-2").checked = true;
+}
+
+const toggleSentinel1AdditionalCheckboxes = () => {
+    if (!document.querySelector("#mission-filter-checkbox-sentinel-1").checked) {
+        document.querySelectorAll("#mission-filters-sentinel-1-div input[type=checkbox]").forEach((checkbox) => {
+
+            checkbox.checked = false;
+        })
+    } else {
+        document.querySelectorAll("#mission-filters-sentinel-1-div input[type=checkbox]").forEach((checkbox) => {
+            checkbox.checked = true;
+        })
+    }
+}
+
+const toggleSentinel2AdditionalCheckboxes = () => {
+    if (!document.querySelector("#mission-filter-checkbox-sentinel-2").checked) {
+        document.querySelectorAll("#mission-filters-sentinel-2-div input[type=checkbox]").forEach((checkbox) => {
+            checkbox.checked = false;
+        })
+    } else {
+        document.querySelectorAll("#mission-filters-sentinel-2-div input[type=checkbox]").forEach((checkbox) => {
+            checkbox.checked = true;
+        })
+    }
 }
