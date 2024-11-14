@@ -78,7 +78,7 @@ class RequestedFeature():
         self.processing_status = RequestStatuses.COMPLETED
 
     def _get_s3_path(self) -> str:
-        dataspace_stac = DataspaceSTAC(feature_id=self._feature_id)  # TODO add logger
+        dataspace_stac = DataspaceSTAC(feature_id=self._feature_id)
         return dataspace_stac.get_s3_path()
 
     def _download_feature(self) -> Path:

@@ -1,5 +1,6 @@
 import os
 import logging
+import re
 import tempfile
 
 import boto3
@@ -59,7 +60,14 @@ class S3Connector:
                 return None
 
             for file in files:
+                if (
+                        re.search('preview', file.key)
+                        or re.search('.+-report-.+\.pdf', file.key)
+                ):
+                    continue
+
                 download_path = Path(download_to_directory, file.key.replace(f"{bucket_key}/", ''))
+
                 download_path.parents[0].mkdir(parents=True, exist_ok=True)
 
                 print(f"Downloading contents of key {bucket_key} into {str(download_path)}.")
