@@ -288,8 +288,8 @@ const fetchFeatures = async () => {
 
                     const polarisationChannelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-polarisation-channels"]:checked');
                     const polarisationChannelsSelected = Array.from(polarisationChannelsSelectedNodes).map(checkbox => checkbox.value);
-                    const combinePolarisationChannelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-combine-polarisation-channels"]:checked');
-                    const combinePolarisationChannelsSelected = Array.from(combinePolarisationChannelsSelectedNodes).map(checkbox => checkbox.value);
+                    const combinedPolarisationChannelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-combined-polarisation-channels"]:checked');
+                    const combinedPolarisationChannelsSelected = Array.from(combinedPolarisationChannelsSelectedNodes).map(checkbox => checkbox.value);
 
                     if (levelsSelected.length <= 0 || sensingTypesSelected.length <= 0 || productTypesSelected.length <= 0) {
                         await showAlert("Warning", "Not enough parameters specified!", false);
@@ -322,7 +322,7 @@ const fetchFeatures = async () => {
                     }
 
                     selectedFilters.set('polarisation_channels', polarisationChannelsSelected);
-                    selectedFilters.set('polarisation_channels_combine', combinePolarisationChannelsSelected);
+                    selectedFilters.set('polarisation_channels_combined', combinedPolarisationChannelsSelected);
                     /*
                     // It seems like it is not possible to search OData using polarisationChannels
                     let polarisationChannelsApiCall = undefined;
@@ -684,37 +684,37 @@ const toggleMissionFiltersDiv = async (filterButton) => {
 }
 
 const toggleSentinel1HHHV = () => {
-    if (document.querySelector("#sentinel-1-combine-hhhv-checkbox").checked) {
+    if (document.querySelector("#sentinel-1-combined-hhhv-checkbox").checked) {
         document.querySelector("#sentinel-1-hh-checkbox").checked = true;
         document.querySelector("#sentinel-1-hv-checkbox").checked = true;
     }
 }
 
 const toggleSentinel1VVVH = () => {
-    if (document.querySelector("#sentinel-1-combine-vvvh-checkbox").checked) {
+    if (document.querySelector("#sentinel-1-combined-vvvh-checkbox").checked) {
         document.querySelector("#sentinel-1-vv-checkbox").checked = true;
         document.querySelector("#sentinel-1-vh-checkbox").checked = true;
     }
 }
 
-const toggleSentinel1CombineHHHV = () => {
-    if (document.querySelector("#sentinel-1-combine-hhhv-checkbox").checked) {
+const toggleSentinel1CombinedHHHV = () => {
+    if (document.querySelector("#sentinel-1-combined-hhhv-checkbox").checked) {
         if (
             !document.querySelector("#sentinel-1-hh-checkbox").checked ||
             !document.querySelector("#sentinel-1-hv-checkbox").checked
         ) {
-            document.querySelector("#sentinel-1-combine-hhhv-checkbox").checked = false;
+            document.querySelector("#sentinel-1-combined-hhhv-checkbox").checked = false;
         }
     }
 }
 
-const toggleSentinel1CombineVVVH = () => {
-    if (document.querySelector("#sentinel-1-combine-vvvh-checkbox").checked) {
+const toggleSentinel1CombinedVVVH = () => {
+    if (document.querySelector("#sentinel-1-combined-vvvh-checkbox").checked) {
         if (
             !document.querySelector("#sentinel-1-vv-checkbox").checked ||
             !document.querySelector("#sentinel-1-vh-checkbox").checked
         ) {
-            document.querySelector("#sentinel-1-combine-vvvh-checkbox").checked = false;
+            document.querySelector("#sentinel-1-combined-vvvh-checkbox").checked = false;
         }
     }
 }

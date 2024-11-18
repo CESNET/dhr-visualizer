@@ -1,4 +1,6 @@
 import logging
+import re
+
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Dict, Any
@@ -6,9 +8,9 @@ from typing import Dict, Any
 from dataspace_stac import DataspaceSTAC
 from s3_connector import S3Connector
 
-from exceptions.requested_feature import *
-
 from enums import RequestStatuses
+
+from exceptions.requested_feature import *
 
 
 class RequestedFeature():
@@ -17,6 +19,8 @@ class RequestedFeature():
     _feature_id: str = None
     _platform: str = None
     _filters: Dict[str, Any] = None
+
+    _filters_polarisation_channels_availability = None  # Todo stav tohohle po S3 filtrování nějak vracet frontendu, na frontendu pak vypsat alert
 
     _status: RequestStatuses = RequestStatuses.NON_EXISTING
     _href: str = None  # TODO možná url, Path, nebo tak něco..?
@@ -39,6 +43,13 @@ class RequestedFeature():
 
         if filters is not None:
             self._filters = filters
+
+        self._filters_polarisation_channels_availability = {
+            'VV': False,
+            'VH': False,
+            'HH': False,
+            'HV': False
+        }
 
         self._workdir = TemporaryDirectory()
 
@@ -70,7 +81,7 @@ class RequestedFeature():
 
         self._download_feature()
 
-        print(f"Feature downloaded into {str(self._feature_dir)}")
+        print(f"Feature downloaded into {str(self._workdir.name)}")
         # v self._feature_dir nyní staženy data dané feature, destruktor self.__del__ složku smaže
 
         # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
@@ -81,21 +92,57 @@ class RequestedFeature():
         dataspace_stac = DataspaceSTAC(feature_id=self._feature_id)
         return dataspace_stac.get_s3_path()
 
-    def _download_feature(self) -> Path:
-        # TODO Need to create STAC search for given feature_id
-        # https://documentation.dataspace.copernicus.eu/APIs/STAC.html
-        # and then get 'S3Path' (s3 bucket_key) for this feature.
+    def _prepare_channel_filter_array(self) -> list:
+        polarisation_filter = []
+        for channels_combine in self._filters['polarisation_channels_combined']:
+            channels = channels_combine.split('+')
+            polarisation_filter = polarisation_filter + channels
 
+        for channel_separate in self._filters['polarisation_channels']:
+            if channel_separate not in polarisation_filter:
+                polarisation_filter.append(channel_separate)
+
+        polarisation_filter = [channel.lower() for channel in polarisation_filter]
+        return polarisation_filter
+
+    def _filter_available_s3_files(self, available_files=None):
+        if available_files is None:
+            available_files = []
+
+        polarisation_filter = self._prepare_channel_filter_array()
+
+        filtered_files = []
+
+        for available_file in available_files:
+            if (
+                    re.search('/preview/', available_file)
+                    or re.search('.+-report-.+\.pdf', available_file)
+            ):
+                continue
+
+            if (
+                    re.search('/support/', available_file)
+                    or re.search('manifest.safe', available_file)
+            ):
+                filtered_files.append(available_file)
+
+            for polarisation_channel in polarisation_filter:
+                if re.search(f'.+-{polarisation_channel}-.+', available_file):
+                    filtered_files.append(available_file)
+                    self._filters_polarisation_channels_availability[polarisation_channel.upper()] = True
+
+        return filtered_files
+
+    def _download_feature(self):
         bucket_key = self._get_s3_path()
-        print(bucket_key)
 
         if '/eodata/' in bucket_key:
             bucket_key = bucket_key.replace('/eodata/', '')
 
-        _s3_eodata = S3Connector(provider='eodata')
-        self._feature_dir = _s3_eodata.download_file(bucket_key=bucket_key)
+        s3_eodata_connector = S3Connector(provider='eodata')
 
-        if self._feature_dir is None:
-            raise RequestedFeatureS3DownloadFailed(feature_id=self._feature_id)
+        all_available_files = s3_eodata_connector.get_file_list(bucket_key=bucket_key)
+        filtered_files = self._filter_available_s3_files(available_files=all_available_files)
 
-        return self._feature_dir
+        for file in filtered_files:
+            s3_eodata_connector.download_file(bucket_key=file, root_output_directory=Path(self._workdir.name))

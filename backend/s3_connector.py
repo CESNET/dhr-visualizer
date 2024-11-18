@@ -1,7 +1,6 @@
 import os
 import logging
 import re
-import tempfile
 
 import boto3
 
@@ -33,78 +32,65 @@ class S3Connector:
         )
         self._bucket = self._s3.Bucket(provider_config['host_bucket'])
 
-        self._download_dir = Path(tempfile.TemporaryDirectory().name)
-        # TODO delete tempdirectory, but in main/RequestedFeature
+    def get_file_list(self, bucket_key=None) -> list | None:
+        files = self._bucket.objects.filter(Prefix=bucket_key)
 
-    def download_file(self, bucket_key=None) -> Path | None:
+        try:
+            if not list(files):
+                raise FileNotFoundError(f"Could not find any files for {bucket_key}")
+        except botocore_exceptions.ClientError as e:
+            self._logger.error(f"Cannot get file list for key={bucket_key}; Exception: {e}")
+            return None
+
+        return [file.key for file in files]
+
+    def download_file(self, bucket_key: str = None, root_output_directory: Path = None) -> Path | None:
         """
         Downloads a file from S3 and returns it as a Path object
         :param bucket_key: The S3 key to download the file from
+        :param root_output_directory: Directory to which our key will be downloaded
         :return: The path to the downloaded file, None if the download failed.
         """
-        print(f"Downloading key: {bucket_key}")
 
         if bucket_key is None:
             raise Exception("Bucket key must be specified!")
 
-        download_to_directory = Path(self._download_dir, bucket_key.split('/')[-1])
+        regex_split = re.split(r"(.+/.*\.SAFE)", bucket_key)
+
+        download_to_directory = Path(root_output_directory, regex_split[1].split('/')[-1])
+        download_path = Path(download_to_directory, regex_split[2].lstrip('/'))
+        print(f"Downloading contents of key {bucket_key} into {str(download_path)}.")  # Todo logging
 
         try:
-            files = self._bucket.objects.filter(Prefix=bucket_key)
+            if download_path.exists():
+                local_filesize = os.path.getsize(download_path)
+                s3_filtered_file = list(self._bucket.objects.all().filter(Prefix=bucket_key))
 
-            try:
-                if not list(files):
-                    raise FileNotFoundError(f"Could not find any files for {bucket_key}")
-            except botocore_exceptions.ClientError as e:
-                self._logger.error(f"Cannot download key={bucket_key}; Exception: {e}")
-                return None
+                if len(s3_filtered_file) > 1:
+                    raise Exception("Too many files filtered!")
 
-            for file in files:
-                if (
-                        re.search('preview', file.key)
-                        or re.search('.+-report-.+\.pdf', file.key)
-                ):
-                    continue
+                bucket_filesize = s3_filtered_file[0].size
 
-                download_path = Path(download_to_directory, file.key.replace(f"{bucket_key}/", ''))
+                if local_filesize == bucket_filesize:
+                    print(f"File {str(download_path)} already exists. Continue.")  # Todo logging
+                    return download_path
 
-                download_path.parents[0].mkdir(parents=True, exist_ok=True)
+                else:
+                    print(f"File {str(download_path)} already exists, but have different size. Redownloading.") # Todo logging
+                    download_path.unlink()
 
-                print(f"Downloading contents of key {bucket_key} into {str(download_path)}.")
+            download_path.parents[0].mkdir(parents=True, exist_ok=True)
+            download_path.touch(exist_ok=False)
+            self._bucket.download_file(bucket_key, download_path)
 
-                try:
-                    if file.key[-1] == '/':
-                        continue
-                    download_path.touch(exist_ok=False)
-                except FileExistsError:
-                    local_filesize = os.path.getsize(download_path)
+            return download_path
 
-                    s3_filtered_file = self._bucket.objects.all().filter(Prefix=file.key)
-                    if len(list(s3_filtered_file)) > 1:
-                        raise Exception("Too many files filtered!")
 
-                    bucket_filesize = 0
-                    for f in s3_filtered_file:
-                        bucket_filesize = f.size
+        except FileExistsError:
+            self._logger.error(f"File {str(download_path)} already exists and is inaccessible.")
 
-                    if local_filesize == bucket_filesize:
-                        print(f"File {str(download_path)} already exists. Continue.")
-                        continue
-                    else:
-                        print(f"File {str(download_path)} already exists, but have different size. Redownloading.")
-                        download_path.unlink()
-                        download_path.touch(exist_ok=False)
-
-                if not Path(file.key).is_dir():
-                    try:
-                        self._bucket.download_file(file.key, download_path)
-                    except botocore_exceptions.ClientError as e:
-                        self._logger.error(e)
-                        continue
-
-            return download_to_directory
+        except botocore_exceptions.ClientError as e:
+            self._logger.error(e)
 
         except Exception as e:
             self._logger.error(e)
-            print("An error occurred. Please see log/S3Connector.log")
-            exit(-1)
