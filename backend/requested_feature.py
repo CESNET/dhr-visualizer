@@ -1,17 +1,19 @@
 import logging
+
+from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Dict, Any
 
-from dataspace_stac import DataspaceSTAC
+from dataspace_odata import DataspaceOData
 from s3_connector import S3Connector
-
-from exceptions.requested_feature import *
 
 from enums import RequestStatuses
 
+from exceptions.requested_feature import *
 
-class RequestedFeature():
+
+class RequestedFeature(ABC):
     _logger: logging.Logger = None
 
     _feature_id: str = None
@@ -22,7 +24,6 @@ class RequestedFeature():
     _href: str = None  # TODO možná url, Path, nebo tak něco..?
 
     _workdir: TemporaryDirectory = None
-    _feature_dir: Path = None
 
     def __init__(
             self, logger: logging.Logger = logging.getLogger(name=__name__),
@@ -57,7 +58,7 @@ class RequestedFeature():
     def get_href(self) -> str:
         return self._href
 
-    def generate_map_tile(self):
+    def process_feature(self):
         # Todo Generovat tilu
         """
         Stažení tily identifikované pomocí feature_id z copernicus dataspace
@@ -70,32 +71,34 @@ class RequestedFeature():
 
         self._download_feature()
 
-        print(f"Feature downloaded into {str(self._feature_dir)}")
+        print(f"Feature downloaded into {str(self._workdir.name)}")
         # v self._feature_dir nyní staženy data dané feature, destruktor self.__del__ složku smaže
+
+        # TODO Generovat snímky
+        # self._generate_map_tile() # Predpokladam ze bude odlisne pro S1 i S2, tedy asi implementovat v sentinel1_feature.py a sentinel2_feature.py
 
         # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
 
         self.processing_status = RequestStatuses.COMPLETED
 
     def _get_s3_path(self) -> str:
-        dataspace_stac = DataspaceSTAC(feature_id=self._feature_id)  # TODO add logger
+        dataspace_stac = DataspaceOData(feature_id=self._feature_id)
         return dataspace_stac.get_s3_path()
 
-    def _download_feature(self) -> Path:
-        # TODO Need to create STAC search for given feature_id
-        # https://documentation.dataspace.copernicus.eu/APIs/STAC.html
-        # and then get 'S3Path' (s3 bucket_key) for this feature.
+    @abstractmethod
+    def _filter_available_s3_files(self, available_files):
+        pass
 
+    def _download_feature(self):
         bucket_key = self._get_s3_path()
-        print(bucket_key)
 
         if '/eodata/' in bucket_key:
             bucket_key = bucket_key.replace('/eodata/', '')
 
-        _s3_eodata = S3Connector(provider='eodata')
-        self._feature_dir = _s3_eodata.download_file(bucket_key=bucket_key)
+        s3_eodata_connector = S3Connector(provider='eodata')
 
-        if self._feature_dir is None:
-            raise RequestedFeatureS3DownloadFailed(feature_id=self._feature_id)
+        all_available_files = s3_eodata_connector.get_file_list(bucket_key=bucket_key)
+        filtered_files = self._filter_available_s3_files(available_files=all_available_files)
 
-        return self._feature_dir
+        for file in filtered_files:
+            s3_eodata_connector.download_file(bucket_key=file, root_output_directory=Path(self._workdir.name))

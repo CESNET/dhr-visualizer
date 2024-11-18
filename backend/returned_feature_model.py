@@ -1,16 +1,16 @@
+from fastapi import HTTPException
+from pydantic import BaseModel
 from typing import Any
 
-from fastapi import HTTPException
-
-from pydantic import BaseModel
+from enums import RequestStatuses
 
 
 class ReturnedFeatureModel(BaseModel):
     feature_id: str = None
-    status: str = None
+    status: str | RequestStatuses = None
     href: str = None
 
-    def __init__(self, /, feature_id: str = None, status: str = None, href: str = None, **data: Any):
+    def __init__(self, /, feature_id: str = None, status: str | RequestStatuses = None, href: str = None, **data: Any):
         super().__init__(**data)
 
         if feature_id is None:
