@@ -7,14 +7,14 @@ import requests
 
 from urllib.parse import urljoin
 
-from exceptions.dataspace_stac import *
+from exceptions.dataspace_odata import *
 
 
-class DataspaceSTAC:
+class DataspaceOData:
     _logger = None
     _feature_id = None
 
-    _STAC_BASE_URL = "https://catalogue.dataspace.copernicus.eu/odata/v1/"
+    _ODATA_BASE_URL = "https://catalogue.dataspace.copernicus.eu/odata/v1/"
 
     def __init__(
             self,
@@ -22,7 +22,7 @@ class DataspaceSTAC:
             logger=logging.getLogger(__name__)
     ):
         if feature_id is None:
-            raise DataspaceSTACFeatureIdNotProvided()
+            raise DataspaceODataFeatureIdNotProvided()
         self._feature_id = feature_id
 
         self._logger = logger
@@ -41,7 +41,7 @@ class DataspaceSTAC:
         if payload_dict is None:
             payload_dict = {}
 
-        endpoint_full_url = urljoin(self._STAC_BASE_URL, endpoint)
+        endpoint_full_url = urljoin(self._ODATA_BASE_URL, endpoint)
 
         response = self._retry_request(
             endpoint=endpoint_full_url, payload_dict=payload_dict,
@@ -100,7 +100,7 @@ class DataspaceSTAC:
                         )
 
                     case _:
-                        raise DataspaceSTACUnsupportedMethod(method=method)
+                        raise DataspaceODataUnsupportedMethod(method=method)
 
                 return response
 
@@ -111,7 +111,7 @@ class DataspaceSTAC:
                 sleep = (1 + random.random()) * sleep
                 time.sleep(sleep)
 
-        raise DataspaceSTACRequestTimeout(retry=retry, max_retries=max_retries)
+        raise DataspaceODataRequestTimeout(retry=retry, max_retries=max_retries)
 
     def get_s3_path(self) -> str:
         endpoint = f"Products({self._feature_id})"

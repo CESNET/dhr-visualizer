@@ -91,14 +91,20 @@ const showAlert = async (headline, message, appendContact) => {
     if (appendContact) {
         message += `<br>If this problem persists feel free to <a href=\"mailto:${supportEmail}\">contact us</a>.`;
     }
+
     await fetch('alert.html')
         .then(response => response.text())
         .then(data => {
             let alertDOM = new DOMParser().parseFromString(data, 'text/html');
-            alertDOM.getElementById('alert-headline').innerHTML = headline;
-            alertDOM.getElementById('alert-message').innerHTML = message;
+            alertDOM.querySelector('#alert-headline').innerHTML = headline;
+            alertDOM.querySelector('#alert-message').innerHTML = message;
 
-            document.getElementById('alerts-div').appendChild(alertDOM.getElementById('alert-div'));
+            const alertDiv = alertDOM.querySelector('#alert-div')
+            document.querySelector('#alerts-div').appendChild(alertDiv);
+
+            setTimeout(() => {
+                closeAlert(alertDiv)
+            }, 10000)
         });
 }
 
@@ -552,7 +558,7 @@ const requestVisualization = async () => {
             //todo tyhle status message by to chtělo jako nějakej enum
             if (visualizationRequest.status === "failed") {
                 e = new Error("Backend visualization request failed!");
-                e.name='VisualizationFailedError'
+                e.name = 'VisualizationFailedError'
                 throw e;
             }
 

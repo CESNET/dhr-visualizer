@@ -6,10 +6,15 @@ from fastapi import FastAPI, BackgroundTasks, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from enums import *
+
 from dict_database_connector import DictDatabaseConnector
+
 from reqeusted_feature_model import RequestedFeatureModel
-from requested_feature import RequestedFeature
 from returned_feature_model import ReturnedFeatureModel
+
+from requested_feature import RequestedFeature
+from sentinel1_feature import Sentinel1Feature
+from sentinel2_feature import Sentinel2Feature
 
 app = FastAPI()
 
@@ -29,12 +34,22 @@ async def request_visualization(
         requested_feature_model: RequestedFeatureModel = RequestedFeatureModel()
 ):
     if database.get(requested_feature_model.feature_id) is None:
-        requested_feature = RequestedFeature(
-            logger=logger,
-            feature_id=requested_feature_model.feature_id,
-            platform=requested_feature_model.platform,
-            filters=requested_feature_model.filters
-        )
+        requested_feature: RequestedFeature | None = None
+
+        match Platforms(requested_feature_model.platform):
+            case Platforms.SENTINEL_1:
+                requested_feature = Sentinel1Feature(
+                    logger=logger,
+                    feature_id=requested_feature_model.feature_id,
+                    platform=requested_feature_model.platform,
+                    filters=requested_feature_model.filters
+                )
+
+            case Platforms.SENTINEL_2:
+                requested_feature = Sentinel2Feature()
+
+            case _:
+                raise HTTPException(status_code=400, detail="Unknown platform!")
 
         # TODO zmenit praci s DB, je blbost ukladat tam Python object, ze jo...
         database.set(
@@ -42,7 +57,7 @@ async def request_visualization(
             value=requested_feature
         )
 
-        background_tasks.add_task(requested_feature.generate_map_tile)
+        background_tasks.add_task(requested_feature.process_feature)
 
     return_entry = database.get(requested_feature_model.feature_id)
 
