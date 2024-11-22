@@ -46,7 +46,12 @@ async def request_visualization(
                 )
 
             case Platforms.SENTINEL_2:
-                requested_feature = Sentinel2Feature()
+                requested_feature = Sentinel2Feature(
+                    logger=logger,
+                    feature_id=requested_feature_model.feature_id,
+                    platform=requested_feature_model.platform,
+                    filters=requested_feature_model.filters
+                )
 
             case _:
                 raise HTTPException(status_code=400, detail="Unknown platform!")
