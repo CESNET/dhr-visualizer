@@ -62,7 +62,6 @@ class RequestedFeature(ABC):
         return self._href
 
     def process_feature(self):
-        # Todo Generovat tilu
         """
         Stažení tily identifikované pomocí feature_id z copernicus dataspace
         Pravděpodobně z jejich s3 na loklání uložiště. Poté spustit processing dané tily
