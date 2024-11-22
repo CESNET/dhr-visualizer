@@ -7,6 +7,9 @@ from typing import Dict, Any
 
 
 class Sentinel2Feature(RequestedFeature):
+    _all_bands = [
+        'B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B10', 'B11', 'B12'
+    ]
 
     def __init__(
             self, logger: logging.Logger = logging.getLogger(name=__name__),
@@ -19,49 +22,45 @@ class Sentinel2Feature(RequestedFeature):
             filters=filters
         )
 
-    # TODO Same for S2 filtering
-    def _filter_available_s3_files(self, available_files):
-        pass
-
-    """
-    def _prepare_channel_filter_array(self) -> list:
-        polarisation_filter = []
-        for channels_combine in self._filters['polarisation_channels_combined']:
-            channels = channels_combine.split('+')
-            polarisation_filter = polarisation_filter + channels
-
-        for channel_separate in self._filters['polarisation_channels']:
-            if channel_separate not in polarisation_filter:
-                polarisation_filter.append(channel_separate)
-
-        polarisation_filter = [channel.lower() for channel in polarisation_filter]
-        return polarisation_filter
-
     def _filter_available_s3_files(self, available_files=None):
         if available_files is None:
             available_files = []
 
-        polarisation_filter = self._prepare_channel_filter_array()
+        excluded_bands = self._get_filter_unwanted_bands()
 
         filtered_files = []
 
         for available_file in available_files:
             if (
-                    re.search('/preview/', available_file)
-                    or re.search('.+-report-.+\.pdf', available_file)
+                    re.search('/HTML/', available_file)
+                    or re.search('/AUX_DATA/', available_file)
+                    or re.search('/rep_info/', available_file)
+                    or re.search('-ql\.jpg', available_file)
+                    or re.search('_PVI.jp2', available_file)
+
+                    # exclude True Color Image, Scene Classification Layer, Water Vapour and Aerosol Optical Thickness
+                    or re.search(r'_(TCI|SCL|WVP|AOT)_', available_file)
             ):
                 continue
 
-            if (
-                    re.search('/support/', available_file)
-                    or re.search('manifest.safe', available_file)
-            ):
-                filtered_files.append(available_file)
+            match = re.search(r'_(B0[1-9]|B1[0-2]|B8A)([._])', available_file)
+            if match:
+                if match.group()[1:-1] in excluded_bands:
+                    continue
 
-            for polarisation_channel in polarisation_filter:
-                if re.search(f'.+-{polarisation_channel}-.+', available_file):
-                    filtered_files.append(available_file)
-                    self._filters_polarisation_channels_availability[polarisation_channel.upper()] = True
+            filtered_files.append(available_file)
 
         return filtered_files
-        """
+
+    def _get_filter_unwanted_bands(self):
+        band_filter = []
+
+        for band in self._filters['bands']:
+            if band == 'B8A' or band == 'B8a':
+                band_filter.append(band.upper())
+            else:
+                band_filter.append(f'B{int(band[1:]):02}')
+
+        unwanted_bands = list(set(self._all_bands) - set(band_filter))
+
+        return unwanted_bands
