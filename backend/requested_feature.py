@@ -43,8 +43,8 @@ class RequestedFeature(ABC):
 
         self._workdir = TemporaryDirectory()
 
-        self._status = RequestStatuses.ACCEPTED
-        self._logger.info(f"Processing status: {self._status}")
+        self._set_status(status=RequestStatuses.ACCEPTED)
+        self._logger.info(f"Processing status: {self.get_status()}")
 
     def __del__(self):
         self._workdir.cleanup()
@@ -54,6 +54,9 @@ class RequestedFeature(ABC):
 
     def get_status(self) -> RequestStatuses:
         return self._status
+
+    def _set_status(self, status: RequestStatuses):
+        self._status = status
 
     def get_href(self) -> str:
         return self._href
@@ -67,7 +70,7 @@ class RequestedFeature(ABC):
 
         Na stav se bude ptát peridociky forntend voláním /api/check_visualization_status
         """
-        self._status = RequestStatuses.PROCESSING
+        self._set_status(status=RequestStatuses.PROCESSING)
 
         self._download_feature()
 
@@ -79,7 +82,7 @@ class RequestedFeature(ABC):
 
         # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
 
-        self._status = RequestStatuses.COMPLETED
+        self._set_status(status=RequestStatuses.COMPLETED)
 
     def _get_s3_path(self) -> str:
         dataspace_stac = DataspaceOData(feature_id=self._feature_id)
