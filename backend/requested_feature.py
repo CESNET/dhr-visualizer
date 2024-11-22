@@ -79,7 +79,7 @@ class RequestedFeature(ABC):
 
         # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
 
-        self.processing_status = RequestStatuses.COMPLETED
+        self._status = RequestStatuses.COMPLETED
 
     def _get_s3_path(self) -> str:
         dataspace_stac = DataspaceOData(feature_id=self._feature_id)
