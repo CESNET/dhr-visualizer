@@ -1,16 +1,22 @@
 import os
 import logging
+import math
 import re
 
 import boto3
 
 from botocore import exceptions as botocore_exceptions
+from boto3.s3.transfer import TransferConfig
+
 from pathlib import Path
 
 from config.s3_config import s3_config as s3_config
 
 
 class S3Connector:
+    _s3_resource = None
+    _s3_bucket = None
+
     def __init__(
             self,
             provider=None,
@@ -23,17 +29,18 @@ class S3Connector:
 
         provider_config = s3_config[provider]
 
-        self._s3 = boto3.resource(
+        self._s3_resource = boto3.resource(
             service_name='s3',
             endpoint_url=provider_config['host_base'],
             aws_access_key_id=provider_config['access_key'],
             aws_secret_access_key=provider_config['secret_key'],
             region_name=provider_config['region_name']
         )
-        self._bucket = self._s3.Bucket(provider_config['host_bucket'])
+        self._s3_bucket_name = provider_config['host_bucket']
+        self._s3_bucket = self._s3_resource.Bucket(self._s3_bucket_name)
 
     def get_file_list(self, bucket_key=None) -> list | None:
-        files = self._bucket.objects.filter(Prefix=bucket_key)
+        files = self._s3_bucket.objects.filter(Prefix=bucket_key)
 
         try:
             if not list(files):
@@ -62,26 +69,39 @@ class S3Connector:
         print(f"Downloading contents of key {bucket_key} into {str(download_path)}.")  # Todo logging
 
         try:
+            s3_filtered_file = list(self._s3_bucket.objects.all().filter(Prefix=bucket_key))
+            if len(s3_filtered_file) > 1:
+                raise Exception("Too many files filtered!")
+            bucket_filesize = s3_filtered_file[0].size
+
             if download_path.exists():
                 local_filesize = os.path.getsize(download_path)
-                s3_filtered_file = list(self._bucket.objects.all().filter(Prefix=bucket_key))
-
-                if len(s3_filtered_file) > 1:
-                    raise Exception("Too many files filtered!")
-
-                bucket_filesize = s3_filtered_file[0].size
 
                 if local_filesize == bucket_filesize:
                     print(f"File {str(download_path)} already exists. Continue.")  # Todo logging
                     return download_path
 
                 else:
-                    print(f"File {str(download_path)} already exists, but have different size. Redownloading.") # Todo logging
+                    print(
+                        f"File {str(download_path)} already exists, but have different size. Redownloading.")  # Todo logging
                     download_path.unlink()
 
             download_path.parents[0].mkdir(parents=True, exist_ok=True)
+
+            """
             download_path.touch(exist_ok=False)
-            self._bucket.download_file(bucket_key, download_path)
+            self._s3_bucket.download_file(bucket_key, download_path)
+            """
+
+            transfer_config = TransferConfig(
+                multipart_chunksize=1024 * 1024 * 16, # Downloading chunks of 16 MB size...
+                max_concurrency=32, # ...in 32 threads
+            )
+
+            self._s3_resource.Object(self._s3_bucket_name, bucket_key).download_file(
+                download_path,
+                Config=transfer_config
+            )
 
             return download_path
 
