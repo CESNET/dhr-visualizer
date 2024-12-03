@@ -68,6 +68,8 @@ timeTo.setUTCSeconds(59);
 let timeToInput = document.querySelector("#time-to-input");
 timeToInput.value = timeTo.toISOString().substring(0, 16);
 
+sentinel2CloudCoverSliderToValue();
+
 /***************************************
  LOGIC
  **************************************/
@@ -78,6 +80,12 @@ function insertCoordinatesFromMap() {
 
     let coordinatesSEInput = document.querySelector("#coordinates-se-input");
     coordinatesSEInput.value = `${leafletMap.getBounds().getSouthEast().lat.toFixed(4)};${leafletMap.getBounds().getSouthEast().lng.toFixed(4)}`;
+}
+
+function sentinel2CloudCoverSliderToValue() {
+    let sentinel2CloudCoverSlider = document.querySelector("#sentinel-2-cloud-cover-range");
+    let sentinel2CloudCoverValue = document.querySelector("#sentinel-2-cloud-cover-value");
+    sentinel2CloudCoverValue.value = sentinel2CloudCoverSlider.value;
 }
 
 const closeAlert = (alertDiv) => {
@@ -282,7 +290,10 @@ const fetchFeatures = async () => {
 
             switch (datasetsSelected[dataset]) {
                 case "SENTINEL-1": {
+
+
                     //TODO NOT WORKING!
+                    // 2024_12_03 hele je tu tohle todočko, ale přijde mi, že to cleá pracuje... Asi jsem ho zapomněl smazat
                     const levelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-levels"]:checked');
                     const levelsSelected = Array.from(levelsSelectedNodes).map(checkbox => checkbox.value);
 
@@ -346,6 +357,8 @@ const fetchFeatures = async () => {
                 }
 
                 case "SENTINEL-2": {
+                    const cloudCover = document.querySelector('#sentinel-2-cloud-cover-value').value;
+
                     const levelsSelectedNodes = document.querySelectorAll('input[name="sentinel-2-levels"]:checked');
                     const levelsSelected = Array.from(levelsSelectedNodes).map(checkbox => checkbox.value);
 
@@ -357,6 +370,10 @@ const fetchFeatures = async () => {
                     }
 
                     let selectedFilters = new Map();
+
+                    selectedFilters.set('cloud_cover', cloudCover);
+                    let cloudCoverApiCall = `Attributes/OData.CSC.DoubleAttribute/any(att:att/Name eq 'cloudCover' and att/OData.CSC.DoubleAttribute/Value le ${cloudCover}.00)`;
+
 
                     selectedFilters.set('levels', levelsSelected);
                     let levelsApiCall = undefined;
@@ -370,7 +387,7 @@ const fetchFeatures = async () => {
                     // Bands not filtered in Copernicus API call
 
                     filtersGlobal.set(datasetsSelected[dataset], selectedFilters)
-                    filters += `${datasetFilter} and (${levelsApiCall})`;
+                    filters += `${datasetFilter} and (${cloudCoverApiCall} and ${levelsApiCall})`;
 
                     break;
                 }
