@@ -61,7 +61,7 @@ class RequestedFeature(ABC):
     def get_href(self) -> str:
         return self._href
 
-    def process_feature(self):
+    async def process_feature(self):
         """
         Stažení tily identifikované pomocí feature_id z copernicus dataspace
         Pravděpodobně z jejich s3 na loklání uložiště. Poté spustit processing dané tily
@@ -73,7 +73,7 @@ class RequestedFeature(ABC):
 
         self._download_feature()
 
-        print(f"Feature downloaded into {str(self._workdir.name)}")
+        print(f"RequestedFeature {self._feature_id} downloaded into {str(self._workdir.name)}")  # TODO proper logging
         # v self._feature_dir nyní staženy data dané feature, destruktor self.__del__ složku smaže
 
         # TODO Generovat snímky
