@@ -44,7 +44,7 @@ const offeredDatasets = [
  **************************************/
 
 let leafletMap = L.map('map-div').setView(leafletInitCoords, leafletInitZoom);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
     maxZoom: 19,
 }).addTo(leafletMap);
