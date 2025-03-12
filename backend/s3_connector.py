@@ -1,6 +1,5 @@
 import os
 import logging
-import math
 import re
 
 import boto3
@@ -10,8 +9,6 @@ from boto3.s3.transfer import TransferConfig
 
 from pathlib import Path
 
-from config.s3_config import s3_config as s3_config
-
 
 class S3Connector:
     _s3_resource = None
@@ -19,15 +16,15 @@ class S3Connector:
 
     def __init__(
             self,
-            provider=None,
+            config=None,
             logger=logging.getLogger(__name__)
     ):
-        if provider is None:
-            raise ValueError('provider must be provided')
+        if config is None:
+            raise ValueError('config must be provided')
 
         self._logger = logger
 
-        provider_config = s3_config[provider]
+        provider_config = config
 
         self._s3_resource = boto3.resource(
             service_name='s3',
@@ -89,15 +86,16 @@ class S3Connector:
             download_path.parents[0].mkdir(parents=True, exist_ok=True)
 
             """
+            # Singlethreaded download...
             download_path.touch(exist_ok=False)
             self._s3_bucket.download_file(bucket_key, download_path)
             """
 
+            # ...or multitrheaded download.
             transfer_config = TransferConfig(
                 multipart_chunksize=1024 * 1024 * 16, # Downloading chunks of 16 MB size...
                 max_concurrency=32, # ...in 32 threads
             )
-
             self._s3_resource.Object(self._s3_bucket_name, bucket_key).download_file(
                 download_path,
                 Config=transfer_config

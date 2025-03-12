@@ -8,6 +8,7 @@ from typing import Dict, Any
 from dataspace_odata import DataspaceOData
 from s3_connector import S3Connector
 
+from config import variables_secret
 from enums import RequestStatuses
 
 from exceptions.requested_feature import *
@@ -97,7 +98,7 @@ class RequestedFeature(ABC):
         if '/eodata/' in bucket_key:
             bucket_key = bucket_key.replace('/eodata/', '')
 
-        s3_eodata_connector = S3Connector(provider='eodata')
+        s3_eodata_connector = S3Connector(variables_secret.DATASPACE_S3_EODATA)
 
         all_available_files = s3_eodata_connector.get_file_list(bucket_key=bucket_key)
         filtered_files = self._filter_available_s3_files(available_files=all_available_files)

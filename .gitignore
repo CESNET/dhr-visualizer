@@ -164,8 +164,8 @@ cython_debug/
 # Frontend example tiffs
 frontend/example_tiffs
 
-# S3 credentials
-backend/config/s3_config.py
+# Secrets
+backend/config/variables_secret.py
 
 # Example TIFs
 *example*.tif*
