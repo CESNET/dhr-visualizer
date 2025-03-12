@@ -290,17 +290,20 @@
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-b2-checkbox" value="B2"
-                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-bands"
+                                           onclick="toggleSentinel2Checkbox(); toggleSentinel2RGBCheckbox();">
                                     <label for="sentinel-2-b2-checkbox">B2 - Blue (10 m)</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-b3-checkbox" value="B3"
-                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-bands"
+                                           onclick="toggleSentinel2Checkbox(); toggleSentinel2RGBCheckbox();">
                                     <label for="sentinel-2-b3-checkbox">B3 - Green (10 m)</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-b4-checkbox" value="B4"
-                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-bands"
+                                           onclick="toggleSentinel2Checkbox(); toggleSentinel2RGBCheckbox();">
                                     <label for="sentinel-2-b4-checkbox">B4 - Red (10 m)</label>
                                 </div>
                                 <div class="filter-option">
@@ -347,6 +350,18 @@
                                     <input type="checkbox" id="sentinel-2-b12-checkbox" value="B12"
                                            name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
                                     <label for="sentinel-2-b12-checkbox">B12 - Short Wave IR (20 m)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter">
+                            <div class="filter-category-label">Misc</div>
+                            <div class="filter-options">
+                                <div class="filter-option">
+                                    <input type="checkbox" id="sentinel-2-rgb-checkbox" value="RGB"
+                                           name="sentinel-2-misc"
+                                           onclick="toggleSentinel2Checkbox(); toggleSentinel2RGBBandsCheckboxes();">
+                                    <label for="sentinel-2-rgb-checkbox">Generate RGB Mosaic</label>
                                 </div>
                             </div>
                         </div>

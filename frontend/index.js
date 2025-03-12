@@ -88,6 +88,11 @@ function sentinel2CloudCoverSliderToValue() {
     sentinel2CloudCoverValue.value = sentinel2CloudCoverSlider.value;
 }
 
+document.querySelector("#sentinel-2-cloud-cover-value").addEventListener("input", function() {
+    let sentinel2CloudCoverSlider = document.querySelector("#sentinel-2-cloud-cover-range");
+    sentinel2CloudCoverSlider.value = this.value;
+});
+
 const closeAlert = (alertDiv) => {
     alertDiv.style.animation = 'slide-out 0.7s forwards';
     alertDiv.addEventListener('animationend', () => {
@@ -365,6 +370,10 @@ const fetchFeatures = async () => {
                     const bandsSelectedNodes = document.querySelectorAll('input[name="sentinel-2-bands"]:checked');
                     const bandsSelected = Array.from(bandsSelectedNodes).map(checkbox => checkbox.value);
 
+                    const miscSelectedNodes = document.querySelectorAll('input[name="sentinel-2-misc"]:checked');
+                    const miscSelected = Array.from(miscSelectedNodes).map(checkbox => checkbox.value);
+
+
                     if (levelsSelected.length <= 0 || bandsSelected.length <= 0) {
                         await showAlert("Warning", "Not enough parameters specified!", false);
                     }
@@ -385,6 +394,9 @@ const fetchFeatures = async () => {
 
                     selectedFilters.set('bands', bandsSelected);
                     // Bands not filtered in Copernicus API call
+
+                    selectedFilters.set('misc', miscSelected);
+                    // Misc not filtered in Copernicus API call
 
                     filtersGlobal.set(datasetsSelected[dataset], selectedFilters)
                     filters += `${datasetFilter} and (${cloudCoverApiCall} and ${levelsApiCall})`;
@@ -503,6 +515,8 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const fetchWithTimeout = async (url, options = {}, timeout = 5000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
+
+    console.log(url, options);
 
     try {
         return await fetch(url, {
@@ -755,14 +769,20 @@ const toggleSentinel1Checkbox = () => {
 }
 
 const toggleSentinel2Checkbox = () => {
-    //todo - same as in toggleSentinel1Checkbox()
-    document.querySelector("#mission-filter-checkbox-sentinel-2").checked = true;
+    if (
+        document.querySelectorAll('input[name="sentinel-2-levels"]:checked').length <= 0
+        && document.querySelectorAll('input[name="sentinel-2-bands"]:checked').length <= 0
+        && document.querySelectorAll('input[name="sentinel-2-misc"]:checked').length <= 0
+    ) {
+        document.querySelector("#mission-filter-checkbox-sentinel-2").checked = false;
+    } else {
+        document.querySelector("#mission-filter-checkbox-sentinel-2").checked = true;
+    }
 }
 
 const toggleSentinel1AdditionalCheckboxes = () => {
     if (!document.querySelector("#mission-filter-checkbox-sentinel-1").checked) {
         document.querySelectorAll("#mission-filters-sentinel-1-div input[type=checkbox]").forEach((checkbox) => {
-
             checkbox.checked = false;
         })
     } else {
@@ -781,5 +801,25 @@ const toggleSentinel2AdditionalCheckboxes = () => {
         document.querySelectorAll("#mission-filters-sentinel-2-div input[type=checkbox]").forEach((checkbox) => {
             checkbox.checked = true;
         })
+    }
+}
+
+const toggleSentinel2RGBCheckbox = () => {
+    if (document.querySelector("#sentinel-2-rgb-checkbox").checked) {
+        if (
+            !document.querySelector("#sentinel-2-b2-checkbox").checked ||
+            !document.querySelector("#sentinel-2-b3-checkbox").checked ||
+            !document.querySelector("#sentinel-2-b4-checkbox").checked
+        ) {
+            document.querySelector("#sentinel-2-rgb-checkbox").checked = false;
+        }
+    }
+}
+
+const toggleSentinel2RGBBandsCheckboxes = () => {
+    if (document.querySelector("#sentinel-2-rgb-checkbox").checked) {
+        document.querySelector("#sentinel-2-b2-checkbox").checked = true;
+        document.querySelector("#sentinel-2-b3-checkbox").checked = true;
+        document.querySelector("#sentinel-2-b4-checkbox").checked = true;
     }
 }
