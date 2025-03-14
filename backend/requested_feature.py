@@ -1,6 +1,7 @@
 import logging
 
 import json
+import os
 
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -83,13 +84,11 @@ class RequestedFeature(ABC):
         print(f"RequestedFeature {self._feature_id} downloaded into {str(self._workdir.name)}")  # TODO proper logging
 
         # TODO Generovat snímky
-        # self._generate_map_tile() # Predpokladam ze bude odlisne pro S1 i S2, tedy asi implementovat v sentinel1_feature.py a sentinel2_feature.py ????
-        output_files_paths = self._generate_map_tile() # self._generate_map_tile() by mělo vrátit seznam cest k vygenerovaným souborům.
+        output_files_paths = self._generate_map_tiles(input_files=downloaded_files_paths)
         output_files_paths = json.loads(output_files_paths) # prevedeni z JSONového stringu na Python list
         # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
         # TODO prozatím bude uloženo ve složce webserveru s frontendem (config/variables.py --- FRONTEND_ROOT_DIR)
         # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
-
         self._hrefs = self._prepare_hrefs(filepaths=output_files_paths)
 
         self._set_status(status=RequestStatuses.COMPLETED)
@@ -122,9 +121,11 @@ class RequestedFeature(ABC):
         return downloaded_files_paths
 
     #@abstractmethod #TODO skutečně abstract? - viz process_feature()
-    def _generate_map_tile(self) -> str | None:
-        return "[]"
-        pass
+    def _generate_map_tiles(self, input_files: list[str]) -> str | None:
+        processed_tiles = []
+        # processed_tiles = os.popen(f"img_processer -i {input_files}").read()
+        return processed_tiles
+    #pass
 
     def _prepare_hrefs(self, filepaths: list[str]) -> list[str]:
         hrefs = []
