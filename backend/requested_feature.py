@@ -123,7 +123,7 @@ class RequestedFeature(ABC):
     #@abstractmethod #TODO skutečně abstract? - viz process_feature()
     def _generate_map_tiles(self, input_files: list[str]) -> str | None:
         processed_tiles = []
-        # processed_tiles = os.popen(f"img_processer -i {input_files}").read()
+        # processed_tiles = os.popen(f"img_processer -i {json.dumps(input_files)} -o {config.FRONTEND_WEBSERVER_ROOT_DIR}").read()
         return processed_tiles
     #pass
 
