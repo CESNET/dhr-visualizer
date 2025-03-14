@@ -1,5 +1,7 @@
 import logging
 
+import json
+
 from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -83,6 +85,7 @@ class RequestedFeature(ABC):
         # TODO Generovat snímky
         # self._generate_map_tile() # Predpokladam ze bude odlisne pro S1 i S2, tedy asi implementovat v sentinel1_feature.py a sentinel2_feature.py ????
         output_files_paths = self._generate_map_tile() # self._generate_map_tile() by mělo vrátit seznam cest k vygenerovaným souborům.
+        output_files_paths = json.loads(output_files_paths) # prevedeni z JSONového stringu na Python list
         # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
         # TODO prozatím bude uloženo ve složce webserveru s frontendem (config/variables.py --- FRONTEND_ROOT_DIR)
         # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
@@ -119,15 +122,15 @@ class RequestedFeature(ABC):
         return downloaded_files_paths
 
     #@abstractmethod #TODO skutečně abstract? - viz process_feature()
-    def _generate_map_tile(self) -> list[str] | None:
-        return []
+    def _generate_map_tile(self) -> str | None:
+        return "[]"
         pass
 
     def _prepare_hrefs(self, filepaths: list[str]) -> list[str]:
         hrefs = []
 
         for filepath in filepaths:
-            href = filepath.replace(variables.FRONTEND_WEBSERVER_ROOT_DIR, variables.FRONTEND_URL)
+            href = filepath.replace(variables.FRONTEND_WEBSERVER_ROOT_DIR, '')
             hrefs.append(href)
 
         return hrefs
