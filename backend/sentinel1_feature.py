@@ -41,6 +41,8 @@ class Sentinel1Feature(RequestedFeature):
         return polarisation_filter
 
     def _filter_available_s3_files(self, available_files=None):
+        # TODO asi bude potřeba přidělat stažení i nějakých metadat pro zobrazení v mapě
+
         if available_files is None:
             available_files = []
 
@@ -49,21 +51,16 @@ class Sentinel1Feature(RequestedFeature):
         filtered_files = []
 
         for available_file in available_files:
-            if (
-                    re.search('/preview/', available_file)
-                    or re.search('.+-report-.+\.pdf', available_file)
+            if not (
+                    re.search('/measurement/', available_file)
             ):
                 continue
 
-            if (
-                    re.search('/support/', available_file)
-                    or re.search('manifest.safe', available_file)
-            ):
-                filtered_files.append(available_file)
-
             for polarisation_channel in polarisation_filter:
                 if re.search(f'.+-{polarisation_channel}-.+', available_file):
-                    filtered_files.append(available_file)
-                    self._filters_polarisation_channels_availability[polarisation_channel.upper()] = True
+                    if available_file.split('.')[-1].lower() in ['tif', 'tiff']:
+                        self._filters_polarisation_channels_availability[polarisation_channel.upper()] = True
+                        filtered_files.append(available_file)
+                        break
 
         return filtered_files
