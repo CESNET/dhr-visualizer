@@ -570,7 +570,7 @@ const visualize = async () => {
 
     visualizationRequest.getHrefs().forEach(processedProduct => {
         let option = document.createElement("option");
-        option.value = [processedProduct,backendHost].join('/');
+        option.value = processedProduct;
         option.textContent = processedProduct;
         processedProductsSelect.appendChild(option);
     });
