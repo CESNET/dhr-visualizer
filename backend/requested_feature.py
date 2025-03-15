@@ -3,6 +3,8 @@ import logging
 import json
 import os
 
+from datetime import datetime
+
 from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -122,8 +124,13 @@ class RequestedFeature(ABC):
 
     #@abstractmethod #TODO skutečně abstract? - viz process_feature()
     def _generate_map_tiles(self, input_files: list[str]) -> str | None:
-        processed_tiles = json.dumps(['/var/www/frontend/output/2025-03-15-18:44:30/TEST.jpg'])
-        # processed_tiles = os.popen(f"img_processer -i {json.dumps(input_files)} -o {config.FRONTEND_WEBSERVER_ROOT_DIR}").read()
+        # processed_tiles = "[\"/home/xpulec/dhr-visualizer/frontend/T33UVR_20250216T101029_B01.jpg\"]"^M
+        file_list = ' '.join(input_files)
+        now = datetime.now()
+        # Format the date and time as a string^M
+        outdir = now.strftime(f"{variables.FRONTEND_WEBSERVER_ROOT_DIR}/output/%Y-%m-%d-%H:%M:%S")
+        os.makedirs(outdir, exist_ok=True)
+        processed_tiles = os.popen(f"gjtiff -q 82 -o {outdir} {file_list}").read()
         return processed_tiles
     #pass
 
