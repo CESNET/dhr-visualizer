@@ -483,11 +483,15 @@ const fetchFeatures = async () => {
 const disableUIElements = () => {
     document.querySelector("#visualize-feature-button-div").classList.add("disabled-element");
     document.querySelector("#available-features-select-div").classList.add("disabled-element");
+    document.querySelector("#processed-products-select-div").classList.add("disabled-element");
+    document.querySelector("#open-product-button-div").classList.add("disabled-element");
 }
 
 const enableUIElements = () => {
     document.querySelector("#visualize-feature-button-div").classList.remove("disabled-element");
     document.querySelector("#available-features-select-div").classList.remove("disabled-element");
+    document.querySelector("#processed-products-select-div").classList.remove("disabled-element");
+    document.querySelector("#open-product-button-div").classList.remove("disabled-element");
 }
 
 
@@ -497,16 +501,20 @@ const clearCoordinates = () => {
 }
 
 class VisualizationRequest {
-    constructor(featureId, status, href) {
+    constructor(featureId, status, hrefs) {
         this.featureId = featureId;
         this.status = status;
-        this.href = href;
+        this.hrefs = hrefs;
     }
 
     isInitialized() {
         return (this.featureId !== undefined)
             && (this.status !== undefined)
-            && (this.href !== undefined);
+            && (this.hrefs !== undefined);
+    }
+
+    getHrefs() {
+        return this.hrefs;
     }
 }
 
@@ -516,27 +524,58 @@ const fetchWithTimeout = async (url, options = {}, timeout = 5000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
 
-    console.log(url, options);
+    console.log("Requesting:", url, options); // todo smazat
 
     try {
-        return await fetch(url, {
+        const response = await fetch(url, {
             ...options,
             signal: controller.signal
         });
 
-    } catch (error) {
-        console.error(`Error name: ${error.name}; Error message: ${error.message}`)
+        console.log("Response:", response); // todo smazat
 
-        throw error;
+        if (!response.ok) {
+            throw new Error(`Backend error: ${response.statusText}`);
+        }
+
+        return response;
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            // Timeout specific handling
+            console.error('Request timed out');
+        } else {
+            // Other error handling (network issues, etc.)
+            console.error(`Error name: ${error.name}; Error message: ${error.message}`);
+        }
+
+        throw error; // Re-throw the error after logging
     } finally {
-        clearTimeout(id);
+        clearTimeout(id); // Clean up timeout
     }
 };
 
+const openFeature = () => {
+    const selectedValue = document.querySelector("#processed-products-select").value;
+
+    if (selectedValue) {
+        window.open(selectedValue, '_blank');
+    }
+}
 
 const visualize = async () => {
     let visualizationRequest = await requestVisualization()
 
+    let processedProductsSelect = document.querySelector("#processed-products-select");
+    processedProductsSelect.innerHTML = '';
+
+    visualizationRequest.getHrefs().forEach(processedProduct => {
+        let option = document.createElement("option");
+        option.value = [processedProduct,backendHost].join('/');
+        option.textContent = processedProduct;
+        processedProductsSelect.appendChild(option);
+    });
+
+    enableUIElements()
 }
 
 const requestVisualization = async () => {
@@ -582,7 +621,7 @@ const requestVisualization = async () => {
             visualizationRequest = new VisualizationRequest(
                 data.feature_id,
                 data.status,
-                data.href
+                data.hrefs
             );
 
             console.log(visualizationRequest);

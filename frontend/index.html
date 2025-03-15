@@ -402,9 +402,18 @@
                 </div>
             </div>
 
-            <div class="controls-element" id="show-example-geo-tiff-button-div">
-                <button id="showExampleGeoTiffButton" onclick="showExampleGeoTiff()">Show Example GeoTiff</button>
+            <div>
+                <div class="controls-element disabled-element" id="processed-products-select-div">
+                    <label for="processed-products-select">Processed products</label>
+                    <select id="processed-products-select" onchange="openFeature()"></select>
+                </div>
+
+                <div class="controls-element disabled-element" id="open-product-button-div">
+                    <button id="open-product-button" onclick="openFeature()">Open product</button>
+                </div>
             </div>
+
+
         </div>
 
         <div class="map-div" id="map-div"></div>

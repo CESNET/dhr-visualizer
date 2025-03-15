@@ -66,7 +66,7 @@ class RequestedFeature(ABC):
     def get_hrefs(self) -> list[str]:
         return self._hrefs
 
-    async def process_feature(self):
+    def process_feature(self):
         """
         Stažení tily identifikované pomocí feature_id z copernicus dataspace
         Pravděpodobně z jejich s3 na loklání uložiště. Poté spustit processing dané tily
@@ -122,7 +122,7 @@ class RequestedFeature(ABC):
 
     #@abstractmethod #TODO skutečně abstract? - viz process_feature()
     def _generate_map_tiles(self, input_files: list[str]) -> str | None:
-        processed_tiles = []
+        processed_tiles = json.dumps(['/var/www/frontend/output/2025-03-15-18:44:30/TEST.jpg'])
         # processed_tiles = os.popen(f"img_processer -i {json.dumps(input_files)} -o {config.FRONTEND_WEBSERVER_ROOT_DIR}").read()
         return processed_tiles
     #pass
