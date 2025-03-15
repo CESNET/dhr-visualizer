@@ -1,4 +1,4 @@
-const backendHost = 'http://147.251.54.252:8889';
+const backendHost = 'http://195.113.151.147:8889';
 const apiRootUrl = "https://catalogue.dataspace.copernicus.eu/odata/v1/Products";
 const supportEmail = "placeholder@example.com"; //TODO Change email
 
