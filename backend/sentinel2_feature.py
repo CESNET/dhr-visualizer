@@ -31,15 +31,8 @@ class Sentinel2Feature(RequestedFeature):
         filtered_files = []
 
         for available_file in available_files:
-            if (
-                    re.search('/HTML/', available_file)
-                    or re.search('/AUX_DATA/', available_file)
-                    or re.search('/rep_info/', available_file)
-                    or re.search('-ql\.jpg', available_file)
-                    or re.search('_PVI.jp2', available_file)
-
-                    # exclude True Color Image, Scene Classification Layer, Water Vapour and Aerosol Optical Thickness
-                    or re.search(r'_(TCI|SCL|WVP|AOT)_', available_file)
+            if not (
+                    re.search('/IMG_DATA/', available_file)
             ):
                 continue
 
@@ -48,7 +41,10 @@ class Sentinel2Feature(RequestedFeature):
                 if match.group()[1:-1] in excluded_bands:
                     continue
 
-            filtered_files.append(available_file)
+            if available_file.split('.')[-1].lower() in [
+                'jp2', 'j2k', 'jpf', 'jpm', 'jpg2', 'j2c', 'jpc', 'jpx', 'mj2'
+            ]:
+                filtered_files.append(available_file)
 
         return filtered_files
 
@@ -56,8 +52,9 @@ class Sentinel2Feature(RequestedFeature):
         band_filter = []
 
         for band in self._filters['bands']:
-            if band == 'B8A' or band == 'B8a':
-                band_filter.append(band.upper())
+            band = band.upper()
+            if band == 'B8A':
+                band_filter.append(band)
             else:
                 band_filter.append(f'B{int(band[1:]):02}')
 

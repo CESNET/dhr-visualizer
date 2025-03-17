@@ -1,5 +1,10 @@
 import logging
 
+import json
+import os
+
+from datetime import datetime
+
 from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -8,6 +13,7 @@ from typing import Dict, Any
 from dataspace_odata import DataspaceOData
 from s3_connector import S3Connector
 
+from config import variables
 from config import variables_secret
 from enums import RequestStatuses
 
@@ -22,7 +28,7 @@ class RequestedFeature(ABC):
     _filters: Dict[str, Any] = None
 
     _status: RequestStatuses = RequestStatuses.NON_EXISTING
-    _href: str = None  # TODO možná url, Path, nebo tak něco..?
+    _hrefs: [str] = None  # TODO možná url, Path, nebo tak něco..?
 
     _workdir: TemporaryDirectory = None
 
@@ -59,10 +65,10 @@ class RequestedFeature(ABC):
     def _set_status(self, status: RequestStatuses):
         self._status = status
 
-    def get_href(self) -> str:
-        return self._href
+    def get_hrefs(self) -> list[str]:
+        return self._hrefs
 
-    async def process_feature(self):
+    def process_feature(self):
         """
         Stažení tily identifikované pomocí feature_id z copernicus dataspace
         Pravděpodobně z jejich s3 na loklání uložiště. Poté spustit processing dané tily
@@ -72,15 +78,20 @@ class RequestedFeature(ABC):
         """
         self._set_status(status=RequestStatuses.PROCESSING)
 
-        self._download_feature()
+        downloaded_files_paths = self._download_feature()
+        # v self._feature_dir nyní staženy data dané feature, destruktor self.__del__ složku smaže, \
+        #   tedy processing provést před voláním self.__del__
+        # V downloaded_files_paths nyní uložen list stringů absolutních cest ke všem staženým souborům
 
         print(f"RequestedFeature {self._feature_id} downloaded into {str(self._workdir.name)}")  # TODO proper logging
-        # v self._feature_dir nyní staženy data dané feature, destruktor self.__del__ složku smaže
 
         # TODO Generovat snímky
-        # self._generate_map_tile() # Predpokladam ze bude odlisne pro S1 i S2, tedy asi implementovat v sentinel1_feature.py a sentinel2_feature.py
-
+        output_files_paths = self._generate_map_tiles(input_files=downloaded_files_paths)
+        output_files_paths = json.loads(output_files_paths) # prevedeni z JSONového stringu na Python list
         # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
+        # TODO prozatím bude uloženo ve složce webserveru s frontendem (config/variables.py --- FRONTEND_ROOT_DIR)
+        # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
+        self._hrefs = self._prepare_hrefs(filepaths=output_files_paths)
 
         self._set_status(status=RequestStatuses.COMPLETED)
 
@@ -92,7 +103,7 @@ class RequestedFeature(ABC):
     def _filter_available_s3_files(self, available_files):
         pass
 
-    def _download_feature(self):
+    def _download_feature(self) -> list[str]:
         bucket_key = self._get_s3_path()
 
         if '/eodata/' in bucket_key:
@@ -103,5 +114,31 @@ class RequestedFeature(ABC):
         all_available_files = s3_eodata_connector.get_file_list(bucket_key=bucket_key)
         filtered_files = self._filter_available_s3_files(available_files=all_available_files)
 
+        downloaded_files_paths = []
+
         for file in filtered_files:
-            s3_eodata_connector.download_file(bucket_key=file, root_output_directory=Path(self._workdir.name))
+            fp = s3_eodata_connector.download_file(bucket_key=file, root_output_directory=Path(self._workdir.name))
+            downloaded_files_paths.append(str(fp))
+
+        return downloaded_files_paths
+
+    #@abstractmethod #TODO skutečně abstract? - viz process_feature()
+    def _generate_map_tiles(self, input_files: list[str]) -> str | None:
+        # processed_tiles = "[\"/home/xpulec/dhr-visualizer/frontend/T33UVR_20250216T101029_B01.jpg\"]"^M
+        file_list = ' '.join(input_files)
+        now = datetime.now()
+        # Format the date and time as a string^M
+        outdir = now.strftime(f"{variables.FRONTEND_WEBSERVER_ROOT_DIR}/output/%Y-%m-%d-%H:%M:%S")
+        os.makedirs(outdir, exist_ok=True)
+        processed_tiles = os.popen(f"gjtiff -q 82 -o {outdir} {file_list}").read()
+        return processed_tiles
+    #pass
+
+    def _prepare_hrefs(self, filepaths: list[str]) -> list[str]:
+        hrefs = []
+
+        for filepath in filepaths:
+            href = filepath.replace(variables.FRONTEND_WEBSERVER_ROOT_DIR, '')
+            hrefs.append(href)
+
+        return hrefs

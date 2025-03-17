@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from requested_feature import RequestedFeature
+
 
 class DatabaseConnector(ABC):
     @abstractmethod
@@ -7,11 +9,11 @@ class DatabaseConnector(ABC):
         pass
 
     @abstractmethod
-    def get(self, key):
+    def get(self, key) -> RequestedFeature:
         pass
 
     @abstractmethod
-    def set(self, key, value):
+    def set(self, key, value: RequestedFeature):
         pass
 
     @abstractmethod

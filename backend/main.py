@@ -33,6 +33,7 @@ async def request_visualization(
         background_tasks: BackgroundTasks,
         requested_feature_model: RequestedFeatureModel = RequestedFeatureModel()
 ):
+    # TODO - tady by se spíš měl zahashovat celý request a ten uložit do DB
     if database.get(requested_feature_model.feature_id) is None:
         requested_feature: RequestedFeature | None = None
 
@@ -64,7 +65,7 @@ async def request_visualization(
 
         background_tasks.add_task(requested_feature.process_feature)
 
-    return_entry = database.get(requested_feature_model.feature_id)
+    return_entry: RequestedFeature | None = database.get(requested_feature_model.feature_id)
 
     if return_entry is None:
         return HTTPException(status_code=404, detail="Feature not found in database!")
@@ -80,11 +81,11 @@ async def request_visualization(
     return ReturnedFeatureModel(
         feature_id=return_entry.get_feature_id(),
         status=return_entry.get_status(),
-        href=return_entry.get_href(),
+        hrefs=return_entry.get_hrefs(),
     )
 
 
 if __name__ == "__main__":
     logger = logging.getLogger(name="visualization_backend")
     database = DictDatabaseConnector()
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8889)
