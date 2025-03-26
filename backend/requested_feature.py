@@ -79,15 +79,10 @@ class RequestedFeature(ABC):
         self._set_status(status=RequestStatuses.PROCESSING)
 
         downloaded_files_paths = self._download_feature()
-        # v self._feature_dir nyní staženy data dané feature, destruktor self.__del__ složku smaže, \
-        #   tedy processing provést před voláním self.__del__
-        # V downloaded_files_paths nyní uložen list stringů absolutních cest ke všem staženým souborům
 
         print(f"RequestedFeature {self._feature_id} downloaded into {str(self._workdir.name)}")  # TODO proper logging
 
-        # TODO Generovat snímky
         output_files_paths = self._generate_map_tiles(input_files=downloaded_files_paths)
-        output_files_paths = json.loads(output_files_paths) # prevedeni z JSONového stringu na Python list
         # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
         # TODO prozatím bude uloženo ve složce webserveru s frontendem (config/variables.py --- FRONTEND_ROOT_DIR)
         # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
@@ -104,6 +99,7 @@ class RequestedFeature(ABC):
         pass
 
     def _download_feature(self) -> list[str]:
+
         bucket_key = self._get_s3_path()
 
         if '/eodata/' in bucket_key:
@@ -122,17 +118,21 @@ class RequestedFeature(ABC):
 
         return downloaded_files_paths
 
-    #@abstractmethod #TODO skutečně abstract? - viz process_feature()
-    def _generate_map_tiles(self, input_files: list[str]) -> str | None:
-        # processed_tiles = "[\"/home/xpulec/dhr-visualizer/frontend/T33UVR_20250216T101029_B01.jpg\"]"^M
+    def _generate_map_tiles(self, input_files: list[str]) -> list[str] | None:
+
         file_list = ' '.join(input_files)
-        now = datetime.now()
-        # Format the date and time as a string^M
-        outdir = now.strftime(f"{variables.FRONTEND_WEBSERVER_ROOT_DIR}/output/%Y-%m-%d-%H:%M:%S")
-        os.makedirs(outdir, exist_ok=True)
-        processed_tiles = os.popen(f"gjtiff -q 82 -o {outdir} {file_list}").read()
+
+        """
+        # Format the date and time as a string
+        output_directory = datetime.now().strftime(f"{variables.FRONTEND_WEBSERVER_ROOT_DIR}/output/%Y-%m-%d-%H:%M:%S")
+        os.makedirs(output_directory, exist_ok=True)
+        processed_tiles_json = os.popen(f"gjtiff -q 82 -o {output_directory} {file_list}").read()
+        """
+
+        processed_tiles_json = ''
+
+        processed_tiles = json.loads(processed_tiles_json)
         return processed_tiles
-    #pass
 
     def _prepare_hrefs(self, filepaths: list[str]) -> list[str]:
         hrefs = []

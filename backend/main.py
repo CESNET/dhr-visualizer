@@ -88,4 +88,4 @@ async def request_visualization(
 if __name__ == "__main__":
     logger = logging.getLogger(name="visualization_backend")
     database = DictDatabaseConnector()
-    uvicorn.run(app, host="0.0.0.0", port=8889)
+    uvicorn.run(app, host="0.0.0.0", port=8081)

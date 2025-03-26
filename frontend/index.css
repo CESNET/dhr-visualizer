@@ -158,10 +158,10 @@ select {
     padding: 10px;
 }
 
-.additional-filters > .filter{
+.additional-filters > .filter {
     margin-bottom: 10px;
 }
 
-.additional-filters > .filter:last-of-type{
+.additional-filters > .filter:last-of-type {
     margin-bottom: 0;
 }
