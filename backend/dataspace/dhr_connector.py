@@ -4,15 +4,25 @@ import re
 import httpx
 
 from config.variables import DHR_CATALOG_ROOT
+from config.variables_secret import DATAHUB_RELAY
+
 from dataspace.dataspace_connector import DataspaceConnector
 from dataspace.exceptions.dhr_connector import *
 
+from dataspace.http_client import HTTPClient
+
 
 class DHRConnector(DataspaceConnector):
+    _dhr_http_client: HTTPClient | None = None
     _resto_id: str | None = None
 
-    def __init__(self, feature_id=None, logger: logging.Logger = logging.getLogger(__name__)):
-        super().__init__(root_url=DHR_CATALOG_ROOT, feature_id=feature_id, logger=logger)
+    def __init__(
+            self,
+            feature_id=None, workdir=None,
+            logger: logging.Logger = logging.getLogger(__name__)
+    ):
+        super().__init__(root_url=DHR_CATALOG_ROOT, feature_id=feature_id, workdir=workdir, logger=logger)
+        self._dhr_http_client = HTTPClient(config=DATAHUB_RELAY, logger=self._logger)
 
     def _get_resto_id(self) -> str:
         if self._resto_id is None:
@@ -57,3 +67,14 @@ class DHRConnector(DataspaceConnector):
         ]
 
         return available_files
+
+    def download_selected_files(self, files_to_download: list[tuple[str, str]]) -> list[str]:
+        downloaded_files = []
+
+        for file_to_download in files_to_download:
+            downloaded_file_path = self._workdir.joinpath(file_to_download[0])
+            downloaded_file_path.parent.mkdir(parents=True, exist_ok=True)
+            downloaded_file_path = self._dhr_http_client.download_file(file_to_download[1], downloaded_file_path)
+            downloaded_files.append(str(downloaded_file_path))
+
+        return downloaded_files

@@ -13,6 +13,11 @@ class DataspaceConnectorFeatureIdNotProvided(DataspaceConnectorError):
         self.message = message
         super().__init__(self.message)
 
+class DataspaceConnectorWorkdirNotSpecified(DataspaceConnectorError):
+    def __init__(self, message="Working directory must be specified!"):
+        self.message = message
+        super().__init__(self.message)
+
 class DataspaceConnectorCouldNotFetchFeature(DataspaceConnectorError):
     def __init__(self, feature_id=None, status_code=None, message="Couldn't fetch feature!"):
         if feature_id is not None:

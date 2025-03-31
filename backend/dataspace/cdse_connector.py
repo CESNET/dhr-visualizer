@@ -9,12 +9,19 @@ from config.variables_secret import CDSE_CONNECTOR_S3
 from dataspace.dataspace_connector import DataspaceConnector
 from dataspace.exceptions.cdse_connector import *
 
-from dataspace.s3_connector import S3Connector
+from dataspace.s3_client import S3Client
 
 
 class CDSEConnector(DataspaceConnector):
-    def __init__(self, feature_id=None, logger: logging.Logger = logging.getLogger(__name__)):
-        super().__init__(root_url=CDSE_CATALOG_ROOT, feature_id=feature_id, logger=logger)
+    _cdse_s3_client: S3Client | None = None
+
+    def __init__(
+            self,
+            feature_id=None, workdir=None,
+            logger: logging.Logger = logging.getLogger(__name__)
+    ):
+        super().__init__(root_url=CDSE_CATALOG_ROOT, feature_id=feature_id, workdir=workdir, logger=logger)
+        self._cdse_s3_client = S3Client(config=CDSE_CONNECTOR_S3, logger=self._logger)
 
     def _get_feature(self) -> dict:
         if self._feature is None:
@@ -54,8 +61,18 @@ class CDSEConnector(DataspaceConnector):
         if '/eodata/' in bucket_key:
             bucket_key = bucket_key.replace('/eodata/', '')
 
-        s3_eodata_connector = S3Connector(CDSE_CONNECTOR_S3)
-
-        available_files = s3_eodata_connector.get_file_list(bucket_key=bucket_key)
+        available_files = self._cdse_s3_client.get_file_list(bucket_key=bucket_key)
 
         return [(self._get_asset_path(available_file), available_file) for available_file in available_files]
+
+    def download_selected_files(self, files_to_download: list[tuple[str, str]]) -> list[str]:
+        downloaded_files = []
+
+        for file_to_download in files_to_download:
+            downloaded_file_path = self._cdse_s3_client.download_file(
+                bucket_key=file_to_download[1],
+                root_output_directory=self._workdir
+            )
+            downloaded_files.append(str(downloaded_file_path))
+
+        return downloaded_files

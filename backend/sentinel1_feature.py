@@ -11,13 +11,15 @@ class Sentinel1Feature(RequestedFeature):
 
     def __init__(
             self, logger: logging.Logger = logging.getLogger(name=__name__),
-            feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None
+            feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None,
+            request_hash: str = None
     ):
         super().__init__(
             logger=logger,
             feature_id=feature_id,
             platform=platform,
-            filters=filters
+            filters=filters,
+            request_hash=request_hash
         )
 
         self._filters_polarisation_channels_availability = {

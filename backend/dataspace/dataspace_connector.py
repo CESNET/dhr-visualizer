@@ -1,5 +1,6 @@
 import logging
 from abc import abstractmethod
+from pathlib import Path
 
 from dataspace.exceptions.dataspace_connector import *
 
@@ -9,10 +10,11 @@ from utilities.http_requestable_object import HTTPRequestableObject
 class DataspaceConnector(HTTPRequestableObject):
     _feature_id: str | None = None
     _feature: dict | None = None
+    _workdir: Path | None = None
 
     def __init__(
             self,
-            root_url=None, feature_id=None,
+            root_url=None, feature_id=None, workdir=None,
             logger: logging.Logger = logging.getLogger(__name__)
     ):
         if root_url is None:
@@ -20,8 +22,11 @@ class DataspaceConnector(HTTPRequestableObject):
 
         if feature_id is None:
             raise DataspaceConnectorFeatureIdNotProvided()
-
         self._feature_id = feature_id
+
+        if workdir is None:
+            raise DataspaceConnectorWorkdirNotSpecified()
+        self._workdir = Path(workdir.name)
 
         super().__init__(
             root_url=root_url,
@@ -43,4 +48,8 @@ class DataspaceConnector(HTTPRequestableObject):
 
     @abstractmethod
     def get_available_files(self) -> list[tuple[str, str]]:
+        pass
+
+    @abstractmethod
+    def download_selected_files(self, files_to_download: list[tuple[str, str]]) -> list[str]:
         pass

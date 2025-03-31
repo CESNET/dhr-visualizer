@@ -33,6 +33,8 @@ async def request_visualization(
         background_tasks: BackgroundTasks,
         requested_feature_model: RequestedFeatureModel = RequestedFeatureModel()
 ):
+    request_hash = requested_feature_model.hash_myself()
+
     # TODO - tady by se spíš měl zahashovat celý request a ten uložit do DB
     if database.get(requested_feature_model.feature_id) is None:
         requested_feature: RequestedFeature | None = None
@@ -43,7 +45,8 @@ async def request_visualization(
                     logger=logger,
                     feature_id=requested_feature_model.feature_id,
                     platform=requested_feature_model.platform,
-                    filters=requested_feature_model.filters
+                    filters=requested_feature_model.filters,
+                    request_hash=request_hash
                 )
 
             case Platforms.SENTINEL_2:
@@ -51,7 +54,8 @@ async def request_visualization(
                     logger=logger,
                     feature_id=requested_feature_model.feature_id,
                     platform=requested_feature_model.platform,
-                    filters=requested_feature_model.filters
+                    filters=requested_feature_model.filters,
+                    request_hash=request_hash
                 )
 
             case _:
@@ -81,7 +85,7 @@ async def request_visualization(
     return ReturnedFeatureModel(
         feature_id=return_entry.get_feature_id(),
         status=return_entry.get_status(),
-        hrefs=return_entry.get_hrefs(),
+        hrefs=return_entry.get_output_hrefs(),
     )
 
 
