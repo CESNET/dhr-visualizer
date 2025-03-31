@@ -22,7 +22,7 @@ class Sentinel2Feature(RequestedFeature):
             filters=filters
         )
 
-    def _filter_available_s3_files(self, available_files=None):
+    def _filter_available_files(self, available_files=None):
         if available_files is None:
             available_files = []
 

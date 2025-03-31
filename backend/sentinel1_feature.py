@@ -40,7 +40,7 @@ class Sentinel1Feature(RequestedFeature):
         polarisation_filter = [channel.lower() for channel in polarisation_filter]
         return polarisation_filter
 
-    def _filter_available_s3_files(self, available_files=None):
+    def _filter_available_files(self, available_files=None):
         # TODO asi bude potřeba přidělat stažení i nějakých metadat pro zobrazení v mapě
 
         if available_files is None:

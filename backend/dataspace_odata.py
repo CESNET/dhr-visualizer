@@ -1,11 +1,9 @@
 import json
 import logging
 
-import utils
-
 from config import variables
 from exceptions.dataspace_odata import *
-from http_requestable_object import HTTPRequestableObject
+from utilities.http_requestable_object import HTTPRequestableObject
 
 
 class DataspaceOData(HTTPRequestableObject):
@@ -13,7 +11,7 @@ class DataspaceOData(HTTPRequestableObject):
 
     def __init__(
             self,
-            base_url=utils.normalize_url(variables.DATASPACE_ODATA_BASE_URL),
+            root_url=variables.CDSE_CATALOG_ROOT,
             feature_id=None,
             logger=logging.getLogger(__name__)
     ):
@@ -22,7 +20,7 @@ class DataspaceOData(HTTPRequestableObject):
         self._feature_id = feature_id
 
         super().__init__(
-            base_url=base_url,
+            root_url=root_url,
             logger=logger,
         )
 

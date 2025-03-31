@@ -1,14 +1,17 @@
 import logging
 
 import json
-import os
-
-from datetime import datetime
 
 from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Dict, Any
+
+from dataspace.dataspace_connector import DataspaceConnector
+from dataspace.exceptions.dataspace_connector import DataspaceConnectorCouldNotFetchFeature
+from dataspace.cdse_connector import CDSEConnector
+from dataspace.dhr_connector import DHRConnector
+
 
 from dataspace_odata import DataspaceOData
 from s3_connector import S3Connector
@@ -22,6 +25,8 @@ from exceptions.requested_feature import *
 
 class RequestedFeature(ABC):
     _logger: logging.Logger = None
+
+    _dataspace_conncetor: DataspaceConnector | None = None
 
     _feature_id: str = None
     _platform: str = None
@@ -42,6 +47,8 @@ class RequestedFeature(ABC):
             raise RequestedFeatureIDNotSpecified()
         self._feature_id = feature_id
 
+        self._assing_connector()
+
         if platform is not None:
             self._platform = platform
 
@@ -55,6 +62,12 @@ class RequestedFeature(ABC):
 
     def __del__(self):
         self._workdir.cleanup()
+
+    def _assing_connector(self):
+        try:
+            self._dataspace_connector = DHRConnector(feature_id=self._feature_id, logger=self._logger)
+        except DataspaceConnectorCouldNotFetchFeature:
+            self._dataspace_connector = CDSEConnector(feature_id=self._feature_id, logger=self._logger)
 
     def get_feature_id(self) -> str:
         return self._feature_id
@@ -95,10 +108,12 @@ class RequestedFeature(ABC):
         return dataspace_stac.get_s3_path()
 
     @abstractmethod
-    def _filter_available_s3_files(self, available_files):
+    def _filter_available_files(self, available_files):
         pass
 
     def _download_feature(self) -> list[str]:
+
+        available_files = self._dataspace_conncetor.get_available_files()
 
         bucket_key = self._get_s3_path()
 
@@ -108,7 +123,7 @@ class RequestedFeature(ABC):
         s3_eodata_connector = S3Connector(variables_secret.DATASPACE_S3_EODATA)
 
         all_available_files = s3_eodata_connector.get_file_list(bucket_key=bucket_key)
-        filtered_files = self._filter_available_s3_files(available_files=all_available_files)
+        filtered_files = self._filter_available_files(available_files=all_available_files)
 
         downloaded_files_paths = []
 
