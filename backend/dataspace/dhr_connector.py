@@ -7,9 +7,9 @@ from config.variables import DHR_CATALOG_ROOT
 from config.variables_secret import DATAHUB_RELAY
 
 from dataspace.dataspace_connector import DataspaceConnector
-from dataspace.exceptions.dhr_connector import *
-
 from dataspace.http_client import HTTPClient
+
+from dataspace.exceptions.dhr_connector import *
 
 
 class DHRConnector(DataspaceConnector):

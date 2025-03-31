@@ -1,12 +1,12 @@
 import json
 import logging
-import os
-import shutil
 
 from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Dict, Any
+
+from resources.enums import RequestStatuses
 
 from dataspace.dataspace_connector import DataspaceConnector
 from dataspace.exceptions.dataspace_connector import DataspaceConnectorCouldNotFetchFeature
@@ -14,9 +14,8 @@ from dataspace.cdse_connector import CDSEConnector
 from dataspace.dhr_connector import DHRConnector
 
 from config import variables
-from enums import RequestStatuses
 
-from exceptions.requested_feature import *
+from feature.exceptions.requested_feature import *
 
 
 class RequestedFeature(ABC):

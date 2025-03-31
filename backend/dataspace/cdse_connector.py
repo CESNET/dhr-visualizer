@@ -7,9 +7,9 @@ from config.variables import CDSE_CATALOG_ROOT
 from config.variables_secret import CDSE_CONNECTOR_S3
 
 from dataspace.dataspace_connector import DataspaceConnector
-from dataspace.exceptions.cdse_connector import *
-
 from dataspace.s3_client import S3Client
+
+from dataspace.exceptions.cdse_connector import *
 
 
 class CDSEConnector(DataspaceConnector):

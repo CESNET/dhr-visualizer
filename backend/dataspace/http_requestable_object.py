@@ -3,9 +3,10 @@ import random
 import time
 
 import httpx
+
 from urllib.parse import urljoin
 
-from exceptions.http_requestable_object import *
+from dataspace.exceptions.http_requestable_object import *
 
 
 class HTTPRequestableObject:
@@ -24,7 +25,7 @@ class HTTPRequestableObject:
         return url if urlparse(url).path else url + "/"
 
     def _send_request(
-        self, endpoint, headers=None, payload_dict=None, max_retries=5, method="GET"
+            self, endpoint, headers=None, payload_dict=None, max_retries=5, method="GET"
     ) -> httpx.Response:
         headers = headers or {}
         payload_dict = payload_dict or {}
@@ -42,14 +43,14 @@ class HTTPRequestableObject:
         return response
 
     def _retry_request(
-        self,
-        endpoint,
-        payload_dict,
-        max_retries=5,
-        headers=None,
-        timeout=10,
-        sleep=5,
-        method="GET",
+            self,
+            endpoint,
+            payload_dict,
+            max_retries=5,
+            headers=None,
+            timeout=10,
+            sleep=5,
+            method="GET",
     ) -> httpx.Response:
         headers = headers or {}
 

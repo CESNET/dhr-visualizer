@@ -1,9 +1,9 @@
-from requested_feature import RequestedFeature
-
 import logging
 import re
 
 from typing import Dict, Any
+
+from requested_feature import RequestedFeature
 
 
 class Sentinel2Feature(RequestedFeature):

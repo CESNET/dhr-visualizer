@@ -5,16 +5,15 @@ from fastapi import FastAPI, BackgroundTasks, HTTPException
 
 from fastapi.middleware.cors import CORSMiddleware
 
-from enums import *
+from database.dict_database_connector import DictDatabaseConnector
 
-from dict_database_connector import DictDatabaseConnector
+from resources.enums import *
+from resources.reqeusted_feature_model import RequestedFeatureModel
+from resources.returned_feature_model import ReturnedFeatureModel
 
-from reqeusted_feature_model import RequestedFeatureModel
-from returned_feature_model import ReturnedFeatureModel
-
-from requested_feature import RequestedFeature
-from sentinel1_feature import Sentinel1Feature
-from sentinel2_feature import Sentinel2Feature
+from feature.requested_feature import RequestedFeature
+from feature.sentinel1_feature import Sentinel1Feature
+from feature.sentinel2_feature import Sentinel2Feature
 
 app = FastAPI()
 

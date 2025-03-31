@@ -1,10 +1,11 @@
 import logging
+
 from abc import abstractmethod
 from pathlib import Path
 
-from dataspace.exceptions.dataspace_connector import *
+from dataspace.http_requestable_object import HTTPRequestableObject
 
-from utilities.http_requestable_object import HTTPRequestableObject
+from dataspace.exceptions.dataspace_connector import *
 
 
 class DataspaceConnector(HTTPRequestableObject):

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from requested_feature import RequestedFeature
+from feature.requested_feature import RequestedFeature
 
 
 class DatabaseConnector(ABC):
