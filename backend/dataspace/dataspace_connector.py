@@ -7,7 +7,8 @@ from utilities.http_requestable_object import HTTPRequestableObject
 
 
 class DataspaceConnector(HTTPRequestableObject):
-    _feature_id: str = None
+    _feature_id: str | None = None
+    _feature: dict | None = None
 
     def __init__(
             self,
@@ -28,14 +29,18 @@ class DataspaceConnector(HTTPRequestableObject):
         )
 
         try:
-            self.get_feature()
+            self._get_feature()
         except DataspaceConnectorCouldNotFetchFeature as e:
             raise e
 
     @abstractmethod
-    def get_feature(self) -> dict:
+    def _get_feature(self) -> dict:
         pass
 
     @abstractmethod
-    def get_available_files(self) -> list[str]:
+    def _get_asset_path(self, full_path: str | None = None) -> str:
+        pass
+
+    @abstractmethod
+    def get_available_files(self) -> list[tuple[str, str]]:
         pass

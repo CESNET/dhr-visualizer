@@ -22,7 +22,7 @@ class Sentinel2Feature(RequestedFeature):
             filters=filters
         )
 
-    def _filter_available_files(self, available_files=None):
+    def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
         if available_files is None:
             available_files = []
 
@@ -30,20 +30,12 @@ class Sentinel2Feature(RequestedFeature):
 
         filtered_files = []
 
+        extensions = ['jp2', 'j2k', 'jpf', 'jpm', 'jpg2', 'j2c', 'jpc', 'jpx', 'mj2']
+        extensions_pattern = "|".join(extensions)
+        regex_patern = rf"/([^/]+)/GRANULE/([^/]+)/IMG_DATA/([^/]+_(B(0[1-9]|1[0-2])|8A|TCI)\.({extensions_pattern}))$"
+
         for available_file in available_files:
-            if not (
-                    re.search('/IMG_DATA/', available_file)
-            ):
-                continue
-
-            match = re.search(r'_(B0[1-9]|B1[0-2]|B8A)([._])', available_file)
-            if match:
-                if match.group()[1:-1] in excluded_bands:
-                    continue
-
-            if available_file.split('.')[-1].lower() in [
-                'jp2', 'j2k', 'jpf', 'jpm', 'jpg2', 'j2c', 'jpc', 'jpx', 'mj2'
-            ]:
+            if re.match(regex_patern, available_file[0]):
                 filtered_files.append(available_file)
 
         return filtered_files

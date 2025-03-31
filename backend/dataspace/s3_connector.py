@@ -5,7 +5,7 @@ import re
 import boto3
 
 from botocore import exceptions as botocore_exceptions
-from boto3.s3.transfer import TransferConfig
+from boto3.s3.transfer import TransferConfig # For multithread downloading, see below
 
 from pathlib import Path
 
@@ -85,13 +85,14 @@ class S3Connector:
 
             download_path.parents[0].mkdir(parents=True, exist_ok=True)
 
-            """
-            # Singlethreaded download...
+            # USE EITHER SINGLETHREAD OR MULTITHREAD DOWNLOADING
+            # >>> SINGLETHREAD_DOWNLOADING
             download_path.touch(exist_ok=False)
             self._s3_bucket.download_file(bucket_key, download_path)
-            """
+            # <<< SINGLETHREAD_DOWNLOADING
 
-            # ...or multitrheaded download.
+            """
+            # >>> MULTITHREAD_DOWNLOADING
             transfer_config = TransferConfig(
                 multipart_chunksize=1024 * 1024 * 16, # Downloading chunks of 16 MB size...
                 max_concurrency=32, # ...in 32 threads
@@ -100,6 +101,8 @@ class S3Connector:
                 download_path,
                 Config=transfer_config
             )
+            # <<< MULTITHREAD_DOWNLOADING
+            """
 
             return download_path
 

@@ -1,10 +1,12 @@
 import logging
+import re
 
 import httpx
 
 from config.variables import DHR_CATALOG_ROOT
 from dataspace.dataspace_connector import DataspaceConnector
 from dataspace.exceptions.dhr_connector import *
+
 
 class DHRConnector(DataspaceConnector):
     _resto_id: str | None = None
@@ -20,17 +22,38 @@ class DHRConnector(DataspaceConnector):
 
         return self._resto_id
 
-    def get_feature(self) -> dict:
-        response: httpx.Response = self._send_request(endpoint="search", payload_dict={"ids": self._get_resto_id()})
+    def _get_feature(self) -> dict:
+        if self._feature is None:
+            response: httpx.Response = self._send_request(endpoint="search", payload_dict={"ids": self._get_resto_id()})
 
-        if response.status_code != 200:
-            raise DHRConnectorCouldNotFetchFeature(feature_id=self._feature_id)
+            if response.status_code != 200:
+                raise DHRConnectorCouldNotFetchFeature(feature_id=self._feature_id)
 
-        response_data=response.json()
-        if response_data['numberReturned'] < 1:
-            raise DHRConnectorCouldNotFetchFeature(feature_id=self._feature_id)
+            response_data = response.json()
+            if response_data['numberReturned'] < 1:
+                raise DHRConnectorCouldNotFetchFeature(feature_id=self._feature_id)
 
-        if response_data['numberReturned'] > 1:
-            raise DHRConnectorTooManyFeaturesReturned(returned=response_data['numberReturned'])
+            if response_data['numberReturned'] > 1:
+                raise DHRConnectorTooManyFeaturesReturned(returned=response_data['numberReturned'])
 
-        return response_data['features'][0]
+            self._feature = response_data['features'][0]
+
+        return self._feature
+
+    def _get_asset_path(self, full_path: str | None = None) -> str:
+        if full_path is None:
+            return ""
+
+        re_matches = re.findall(r"Nodes\('([^']+)'\)", full_path)
+        asset_path = "/".join(re_matches)
+
+        return asset_path
+
+    def get_available_files(self) -> list[tuple[str, str]]:
+        self._get_feature()
+
+        available_files = [
+            (self._get_asset_path(asset['href']), asset['href']) for asset in self._feature['assets'].values()
+        ]
+
+        return available_files

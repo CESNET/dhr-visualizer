@@ -12,9 +12,8 @@ from dataspace.exceptions.dataspace_connector import DataspaceConnectorCouldNotF
 from dataspace.cdse_connector import CDSEConnector
 from dataspace.dhr_connector import DHRConnector
 
-
 from dataspace_odata import DataspaceOData
-from s3_connector import S3Connector
+from dataspace.s3_connector import S3Connector
 
 from config import variables
 from config import variables_secret
@@ -26,7 +25,7 @@ from exceptions.requested_feature import *
 class RequestedFeature(ABC):
     _logger: logging.Logger = None
 
-    _dataspace_conncetor: DataspaceConnector | None = None
+    _dataspace_connector: DataspaceConnector | None = None
 
     _feature_id: str = None
     _platform: str = None
@@ -108,22 +107,13 @@ class RequestedFeature(ABC):
         return dataspace_stac.get_s3_path()
 
     @abstractmethod
-    def _filter_available_files(self, available_files):
+    def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
         pass
 
     def _download_feature(self) -> list[str]:
 
-        available_files = self._dataspace_conncetor.get_available_files()
-
-        bucket_key = self._get_s3_path()
-
-        if '/eodata/' in bucket_key:
-            bucket_key = bucket_key.replace('/eodata/', '')
-
-        s3_eodata_connector = S3Connector(variables_secret.DATASPACE_S3_EODATA)
-
-        all_available_files = s3_eodata_connector.get_file_list(bucket_key=bucket_key)
-        filtered_files = self._filter_available_files(available_files=all_available_files)
+        available_files = self._dataspace_connector.get_available_files()
+        filtered_files = self._filter_available_files(available_files=available_files)
 
         downloaded_files_paths = []
 
