@@ -3,6 +3,8 @@ import logging
 import shutil
 import subprocess
 
+import docker
+
 from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -150,12 +152,23 @@ class RequestedFeature(ABC):
         print("GENERATING MAP TILES 01")
         cmd = f"docker exec gjtiff_container gjtiff -q 82 -o {str(self._output_directory)} {file_list}"
         print("GENERATING MAP TILES 02")
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        gjtiff_stdout = self._run_gjtiff_docker(file_list=file_list)
         print("GENERATING MAP TILES 03")
-        processed_tiles = json.loads(result.stdout)
+        processed_tiles = json.loads(gjtiff_stdout)
         print("GENERATING MAP TILES 04")
 
         return processed_tiles
+
+    def _run_gjtiff_docker(self, file_list: str = None, output_directory: Path = _output_directory) -> str:
+        if file_list is None:
+            raise ValueError("file_list cannot be None") ## TODO Proper exception
+
+        command = ["gjtiff", "-q", "82", "-o" f"{str(output_directory)}", f"{file_list}"]
+
+        gjtiff_container = docker.from_env().containers.get("gjtiff_container")
+        result = gjtiff_container.exec_run(command, stdout=True, stderr=True, tty=False)
+
+        return result.output.decode('utf-8')
 
     def _generate_output_hrefs(self, filepaths: list[str]):
         self._output_hrefs = [
