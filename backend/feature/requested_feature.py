@@ -104,11 +104,8 @@ class RequestedFeature(ABC):
 
     def _download_feature(self) -> list[str]:
         available_files = self._dataspace_connector.get_available_files()
-        print(available_files)
         filtered_files = self._filter_available_files(available_files=available_files)
-        print(filtered_files)
         downloaded_files = self._dataspace_connector.download_selected_files(files_to_download=filtered_files)
-        print(downloaded_files)
 
         return downloaded_files
 
@@ -139,6 +136,8 @@ class RequestedFeature(ABC):
 
         # self._output_directory = Path(f"{variables.FRONTEND_WEBSERVER_ROOT_DIR}/output/{self._request_hash}")
         self._output_directory = Path(f"/data/output/{self._request_hash}")
+        self._output_directory.mkdir(parents=True, exist_ok=True)
+
         for item in self._output_directory.iterdir():
             if item.is_file() or item.is_symlink():
                 item.unlink()
