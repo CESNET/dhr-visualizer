@@ -28,21 +28,16 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-@app.get("/utils/get_frontend_output_directory")
-async def get_output_directory():
-    return {
-        "FRONTEND_OUTPUT_DIRECTORY": variables.FRONTEND_OUTPUT_DIRECTORY,
-    }
-
 @app.post("/api/request_visualization")
 async def request_visualization(
         background_tasks: BackgroundTasks,
         requested_feature_model: RequestedFeatureModel = RequestedFeatureModel()
 ):
+    print(f"REQUEST_VISUALIZATION>>>{requested_feature_model}<<<REQUEST_VISUALIZATION")
     request_hash = requested_feature_model.hash_myself()
 
     # TODO - tady by se spíš měl zahashovat celý request a ten uložit do DB
-    if database.get(requested_feature_model.feature_id) is None:
+    if database.get(request_hash) is None:
         requested_feature: RequestedFeature | None = None
 
         match Platforms(requested_feature_model.platform):
@@ -69,23 +64,23 @@ async def request_visualization(
 
         # TODO zmenit praci s DB, je blbost ukladat tam Python object, ze jo...
         database.set(
-            key=requested_feature_model.feature_id,
+            key=request_hash,
             value=requested_feature
         )
 
         background_tasks.add_task(requested_feature.process_feature)
 
-    return_entry: RequestedFeature | None = database.get(requested_feature_model.feature_id)
+    return_entry: RequestedFeature | None = database.get(request_hash)
 
     if return_entry is None:
         return HTTPException(status_code=404, detail="Feature not found in database!")
 
     if return_entry.get_status == RequestStatuses.NON_EXISTING:
-        database.delete(requested_feature_model.feature_id)
+        database.delete(request_hash)
         return HTTPException(status_code=404, detail="Feature not found in database!")
 
     if return_entry.get_status == RequestStatuses.FAILED:
-        database.delete(requested_feature_model.feature_id)
+        database.delete(request_hash)
         return HTTPException(status_code=500, detail="Feature processing failed!")
 
     return ReturnedFeatureModel(
