@@ -579,6 +579,7 @@ const visualize = async () => {
     processedProductsSelect.innerHTML = '';
 
     visualizationRequest.getHrefs().forEach(processedProduct => {
+        console.log(processedProduct);
         let option = document.createElement("option");
         option.value = processedProduct;
         option.textContent = processedProduct;

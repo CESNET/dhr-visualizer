@@ -36,7 +36,7 @@ class RequestedFeature(ABC):
     _status: RequestStatuses = RequestStatuses.NON_EXISTING
 
     _output_directory: Path = None
-    _output_hrefs: [str] = None  # TODO možná url, Path, nebo tak něco..?
+    _output_files: [str] = None  # TODO možná url, Path, nebo tak něco..?
 
     _workdir: TemporaryDirectory = None
 
@@ -97,8 +97,8 @@ class RequestedFeature(ABC):
     def _set_status(self, status: RequestStatuses):
         self._status = status
 
-    def get_output_hrefs(self) -> list[str]:
-        return self._output_hrefs
+    def get_output_files(self) -> list[str]:
+        return self._output_files
 
     @abstractmethod
     def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
@@ -125,11 +125,10 @@ class RequestedFeature(ABC):
 
         print(f"Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")  # TODO proper logging
 
-        output_files_paths = self._generate_map_tiles(input_files=downloaded_files_paths)
+        self._output_files = self._generate_map_tiles(input_files=downloaded_files_paths)
         # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
         # TODO prozatím bude uloženo ve složce webserveru s frontendem (config/variables.py --- FRONTEND_ROOT_DIR)
         # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
-        self._generate_output_hrefs(filepaths=output_files_paths)
 
         self._set_status(status=RequestStatuses.COMPLETED)
 
@@ -137,7 +136,7 @@ class RequestedFeature(ABC):
         file_list = ' '.join(input_files)
 
         # self._output_directory = Path(f"{variables.FRONTEND_WEBSERVER_ROOT_DIR}/output/{self._request_hash}")
-        self._output_directory = Path(f"/data/output/{self._request_hash}")
+        self._output_directory = Path(variables.OUTPUT_DIRECTORY, self._request_hash)
         self._output_directory.mkdir(parents=True, exist_ok=True)
 
         for item in self._output_directory.iterdir():
@@ -149,45 +148,24 @@ class RequestedFeature(ABC):
         # processed_tiles_json = os.popen(f"gjtiff -q 82 -o {str(self._output_directory)} {file_list}").read()
         # processed_tiles = json.loads(processed_tiles_json)
 
-        print("GENERATING MAP TILES 01")
-        cmd = f"docker exec gjtiff_container gjtiff -q 82 -o {str(self._output_directory)} {file_list}"
-        print("GENERATING MAP TILES 02")
         gjtiff_stdout = self._run_gjtiff_docker(input_files=input_files, output_directory=self._output_directory)
-        print("GENERATING MAP TILES 03")
-        print(f"GJTIFFSTDOUT_START>>>{gjtiff_stdout}<<<GJTIFFSTDOUT_END")
-        print("GENERATING MAP TILES 04")
         processed_tiles = self._extract_output_file_list(stdout=gjtiff_stdout)
-        print("GENERATING MAP TILES 05")
-        print(f"PROCESSEDTILES_START >>> {processed_tiles} <<< PROCESSEDTILES_END")
-        print("GENERATING MAP TILES 06")
 
         return processed_tiles
 
     def _extract_output_file_list(self, stdout: str) -> list[str] | None:
-        print(f"EXTRACT_STDOUT_START>>>{stdout}<<<EXTRACT_STDOUT_END")
         json_list_pattern = r'\[.*\]'
         matches = re.findall(json_list_pattern, stdout, re.DOTALL)
-        print(f"MATCHES_START>>>{matches}<<<MATCHES_END")
         last_json_list = matches[-1] if matches else None
-        print(f"LASTJSONLIST_START>>>{last_json_list}<<<LASTJSONLIST_END")
         return json.loads(last_json_list)
 
     def _run_gjtiff_docker(self, input_files: list[str] = None, output_directory: Path = _output_directory) -> str:
-        print("RUN GJTIFF_DOCKER 01")
         if input_files is None:
             raise ValueError("No input files provided")  ## TODO Proper exception
 
         command = ["gjtiff", "-q", "82", "-o" f"{str(output_directory)}"] + [input_file for input_file in input_files]
 
-        print(command)
-
         gjtiff_container = docker.from_env().containers.get("gjtiff_container")
         result = gjtiff_container.exec_run(command, stdout=True, stderr=True, tty=False)
 
-        print("RUN GJTIFF_DOCKER 02")
         return result.output.decode('utf-8')
-
-    def _generate_output_hrefs(self, filepaths: list[str]):
-        self._output_hrefs = [
-            filepath.replace(variables.FRONTEND_WEBSERVER_ROOT_DIR, '') for filepath in filepaths
-        ]

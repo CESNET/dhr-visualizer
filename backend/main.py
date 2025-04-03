@@ -84,7 +84,7 @@ async def request_visualization(
     return ReturnedFeatureModel(
         feature_id=return_entry.get_feature_id(),
         status=return_entry.get_status(),
-        hrefs=return_entry.get_output_hrefs(),
+        hrefs=return_entry.get_output_files(),
     )
 
 
