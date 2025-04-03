@@ -100,6 +100,9 @@ class RequestedFeature(ABC):
     def get_output_files(self) -> list[str]:
         return self._output_files
 
+    def get_output_hrefs(self) -> list[str]:
+        return [file.replace(variables.OUTPUT_DIRECTORY,'/output') for file in self._output_files]
+
     @abstractmethod
     def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
         pass
