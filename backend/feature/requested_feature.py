@@ -153,7 +153,7 @@ class RequestedFeature(ABC):
         cmd = f"docker exec gjtiff_container gjtiff -q 82 -o {str(self._output_directory)} {file_list}"
         print("GENERATING MAP TILES 02")
         gjtiff_stdout = self._run_gjtiff_docker(file_list=file_list)
-        print(gjtiff_stdout)
+        print(gjtiff_stdout.strip())
         print("GENERATING MAP TILES 03")
         processed_tiles = json.loads(gjtiff_stdout)
         print("GENERATING MAP TILES 04")
@@ -166,6 +166,8 @@ class RequestedFeature(ABC):
             raise ValueError("file_list cannot be None") ## TODO Proper exception
 
         command = ["gjtiff", "-q", "82", "-o" f"{str(output_directory)}", f"{file_list}"]
+
+        print(command)
 
         gjtiff_container = docker.from_env().containers.get("gjtiff_container")
         result = gjtiff_container.exec_run(command, stdout=True, stderr=True, tty=False)
