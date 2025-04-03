@@ -3,7 +3,7 @@ import re
 
 from typing import Dict, Any
 
-from requested_feature import RequestedFeature
+from feature.requested_feature import RequestedFeature
 
 
 class Sentinel2Feature(RequestedFeature):
