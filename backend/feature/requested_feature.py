@@ -134,7 +134,7 @@ class RequestedFeature(ABC):
         self._set_status(status=RequestStatuses.COMPLETED)
 
     def _generate_map_tiles(self, input_files: list[str]) -> list[str] | None:
-        file_list = ','.join(input_files)
+        file_list = ' '.join(input_files)
 
         # self._output_directory = Path(f"{variables.FRONTEND_WEBSERVER_ROOT_DIR}/output/{self._request_hash}")
         self._output_directory = Path(f"/data/output/{self._request_hash}")
@@ -152,7 +152,7 @@ class RequestedFeature(ABC):
         print("GENERATING MAP TILES 01")
         cmd = f"docker exec gjtiff_container gjtiff -q 82 -o {str(self._output_directory)} {file_list}"
         print("GENERATING MAP TILES 02")
-        gjtiff_stdout = self._run_gjtiff_docker(file_list=file_list, output_directory=self._output_directory)
+        gjtiff_stdout = self._run_gjtiff_docker(input_files=input_files, output_directory=self._output_directory)
         print(gjtiff_stdout.strip())
         print("GENERATING MAP TILES 03")
         processed_tiles = json.loads(gjtiff_stdout)
@@ -160,12 +160,12 @@ class RequestedFeature(ABC):
 
         return processed_tiles
 
-    def _run_gjtiff_docker(self, file_list: str = None, output_directory: Path = _output_directory) -> str:
+    def _run_gjtiff_docker(self, input_files: list[str] = None, output_directory: Path = _output_directory) -> str:
         print("RUN GJTIFF_DOCKER 01")
-        if file_list is None:
-            raise ValueError("file_list cannot be None") ## TODO Proper exception
+        if input_files is None:
+            raise ValueError("No input files provided") ## TODO Proper exception
 
-        command = ["gjtiff", "-q", "82", "-o" f"{str(output_directory)}", f"{file_list}"]
+        command = ["gjtiff", "-q", "82", "-o" f"{str(output_directory)}", [input_file for input_file in input_files]]
 
         print(command)
 
