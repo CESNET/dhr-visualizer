@@ -102,14 +102,14 @@ class RequestedFeature(ABC):
     def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
         pass
 
-    def _download_feature(self) -> list[str]:
+    async def _download_feature(self) -> list[str]:
         available_files = self._dataspace_connector.get_available_files()
         filtered_files = self._filter_available_files(available_files=available_files)
         downloaded_files = self._dataspace_connector.download_selected_files(files_to_download=filtered_files)
 
         return downloaded_files
 
-    def process_feature(self):
+    async def process_feature(self):
         """
         Stažení tily identifikované pomocí feature_id z copernicus dataspace
         Pravděpodobně z jejich s3 na loklání uložiště. Poté spustit processing dané tily
@@ -119,7 +119,7 @@ class RequestedFeature(ABC):
         """
         self._set_status(status=RequestStatuses.PROCESSING)
 
-        downloaded_files_paths = self._download_feature()
+        downloaded_files_paths = await self._download_feature()
 
         print(f"Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")  # TODO proper logging
 
