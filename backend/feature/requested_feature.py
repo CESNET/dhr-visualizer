@@ -1,15 +1,14 @@
 import json
 import logging
+import re
 import shutil
-import subprocess
-from logging import lastResort
 
 import docker
 
 from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Dict, Any, re
+from typing import Dict, Any
 
 from resources.enums import RequestStatuses
 
@@ -165,7 +164,7 @@ class RequestedFeature(ABC):
         json_list_pattern = r'\[.*\]'
         matches = re.findall(json_list_pattern, stdout)
         last_json_list = matches[-1] if matches else None
-        return last_json_list
+        return json.loads(last_json_list)
 
     def _run_gjtiff_docker(self, input_files: list[str] = None, output_directory: Path = _output_directory) -> str:
         print("RUN GJTIFF_DOCKER 01")
