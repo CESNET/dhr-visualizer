@@ -132,7 +132,6 @@ class RequestedFeature(ABC):
         self._set_status(status=RequestStatuses.COMPLETED)
 
     def _generate_map_tiles(self, input_files: list[str]) -> list[str] | None:
-        print("GENERATING MAP TILES")
         file_list = ' '.join(input_files)
 
         # self._output_directory = Path(f"{variables.FRONTEND_WEBSERVER_ROOT_DIR}/output/{self._request_hash}")
@@ -148,9 +147,13 @@ class RequestedFeature(ABC):
         # processed_tiles_json = os.popen(f"gjtiff -q 82 -o {str(self._output_directory)} {file_list}").read()
         # processed_tiles = json.loads(processed_tiles_json)
 
+        print("GENERATING MAP TILES 01")
         cmd = f"docker exec gjtiff_container gjtiff -q 82 -o {str(self._output_directory)} {file_list}"
+        print("GENERATING MAP TILES 02")
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        print("GENERATING MAP TILES 03")
         processed_tiles = json.loads(result.stdout)
+        print("GENERATING MAP TILES 04")
 
         return processed_tiles
 
