@@ -153,6 +153,7 @@ class RequestedFeature(ABC):
         cmd = f"docker exec gjtiff_container gjtiff -q 82 -o {str(self._output_directory)} {file_list}"
         print("GENERATING MAP TILES 02")
         gjtiff_stdout = self._run_gjtiff_docker(file_list=file_list)
+        print(gjtiff_stdout)
         print("GENERATING MAP TILES 03")
         processed_tiles = json.loads(gjtiff_stdout)
         print("GENERATING MAP TILES 04")
@@ -160,6 +161,7 @@ class RequestedFeature(ABC):
         return processed_tiles
 
     def _run_gjtiff_docker(self, file_list: str = None, output_directory: Path = _output_directory) -> str:
+        print("RUN GJTIFF_DOCKER 01")
         if file_list is None:
             raise ValueError("file_list cannot be None") ## TODO Proper exception
 
@@ -168,6 +170,7 @@ class RequestedFeature(ABC):
         gjtiff_container = docker.from_env().containers.get("gjtiff_container")
         result = gjtiff_container.exec_run(command, stdout=True, stderr=True, tty=False)
 
+        print("RUN GJTIFF_DOCKER 02")
         return result.output.decode('utf-8')
 
     def _generate_output_hrefs(self, filepaths: list[str]):
