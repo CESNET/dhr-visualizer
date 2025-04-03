@@ -2,13 +2,14 @@ import json
 import logging
 import shutil
 import subprocess
+from logging import lastResort
 
 import docker
 
 from abc import ABC, abstractmethod
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Dict, Any
+from typing import Dict, Any, re
 
 from resources.enums import RequestStatuses
 
@@ -153,15 +154,18 @@ class RequestedFeature(ABC):
         cmd = f"docker exec gjtiff_container gjtiff -q 82 -o {str(self._output_directory)} {file_list}"
         print("GENERATING MAP TILES 02")
         gjtiff_stdout = self._run_gjtiff_docker(input_files=input_files, output_directory=self._output_directory)
+        processed_tiles = self._extract_output_file_list(stdout=gjtiff_stdout)
         print("GENERATING MAP TILES 03")
-        print(f"GJTIFF STDOUT + {gjtiff_stdout} <<< ENDGJTIFFstdout")
+        print(f"PROCESSEDTILES_START >>> {processed_tiles} <<< PROCESSEDTILES_END")
         print("GENERATING MAP TILES 04")
-        print(json.loads(gjtiff_stdout))
-        print("GENERATING MAP TILES 05")
-        processed_tiles = json.loads(gjtiff_stdout)
-        print("GENERATING MAP TILES 06")
 
         return processed_tiles
+
+    def _extract_output_file_list(self, stdout: str) -> list[str] | None:
+        json_list_pattern = r'\[.*\]'
+        matches = re.findall(json_list_pattern, stdout)
+        last_json_list = matches[-1] if matches else None
+        return last_json_list
 
     def _run_gjtiff_docker(self, input_files: list[str] = None, output_directory: Path = _output_directory) -> str:
         print("RUN GJTIFF_DOCKER 01")
