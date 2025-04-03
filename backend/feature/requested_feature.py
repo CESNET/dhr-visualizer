@@ -164,6 +164,7 @@ class RequestedFeature(ABC):
         return processed_tiles
 
     def _extract_output_file_list(self, stdout: str) -> list[str] | None:
+        stdout=stdout.strip().replace(" ", "")
         print(f"EXTRACT_STDOUT_START>>>{stdout}<<<EXTRACT_STDOUT_END")
         json_list_pattern = r'\[.*\]'
         matches = re.findall(json_list_pattern, stdout)
