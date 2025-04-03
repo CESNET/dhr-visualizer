@@ -1,5 +1,7 @@
 import json
 import logging
+import shutil
+import subprocess
 
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -132,20 +134,21 @@ class RequestedFeature(ABC):
     def _generate_map_tiles(self, input_files: list[str]) -> list[str] | None:
         file_list = ' '.join(input_files)
 
-        """
-        self._output_directory = Path(f"{variables.FRONTEND_WEBSERVER_ROOT_DIR}/output/{self._request_hash}")
+        # self._output_directory = Path(f"{variables.FRONTEND_WEBSERVER_ROOT_DIR}/output/{self._request_hash}")
+        self._output_directory = Path(f"/data/output/{self._request_hash}")
         for item in self._output_directory.iterdir():
             if item.is_file() or item.is_symlink():
                 item.unlink()
             elif item.is_dir():
                 shutil.rmtree(item)
 
-        processed_tiles_json = os.popen(f"gjtiff -q 82 -o {str(self._output_directory)} {file_list}").read()
-        """
+        # processed_tiles_json = os.popen(f"gjtiff -q 82 -o {str(self._output_directory)} {file_list}").read()
+        # processed_tiles = json.loads(processed_tiles_json)
 
-        processed_tiles_json = ''
+        cmd = f"docker exec gjtiff_container gjtiff -q 82 -o {str(self._output_directory)} {file_list}"
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        processed_tiles = json.loads(result.stdout)
 
-        processed_tiles = json.loads(processed_tiles_json)
         return processed_tiles
 
     def _generate_output_hrefs(self, filepaths: list[str]):
