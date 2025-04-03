@@ -132,6 +132,7 @@ class RequestedFeature(ABC):
         self._set_status(status=RequestStatuses.COMPLETED)
 
     def _generate_map_tiles(self, input_files: list[str]) -> list[str] | None:
+        print("GENERATING MAP TILES")
         file_list = ' '.join(input_files)
 
         # self._output_directory = Path(f"{variables.FRONTEND_WEBSERVER_ROOT_DIR}/output/{self._request_hash}")
