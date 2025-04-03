@@ -103,7 +103,7 @@ class RequestedFeature(ABC):
     def get_output_hrefs(self) -> list[str]:
         if self._output_files is None:
             return []
-        return [file.replace(variables.OUTPUT_DIRECTORY,'/output') for file in self._output_files]
+        return [file.replace(variables.BACKEND_OUTPUT_DIRECTORY,variables.FRONTEND_OUTPUT_DIRECTORY) for file in self._output_files]
 
     @abstractmethod
     def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
@@ -141,7 +141,7 @@ class RequestedFeature(ABC):
         file_list = ' '.join(input_files)
 
         # self._output_directory = Path(f"{variables.FRONTEND_WEBSERVER_ROOT_DIR}/output/{self._request_hash}")
-        self._output_directory = Path(variables.OUTPUT_DIRECTORY, self._request_hash)
+        self._output_directory = Path(variables.BACKEND_OUTPUT_DIRECTORY, self._request_hash)
         self._output_directory.mkdir(parents=True, exist_ok=True)
 
         for item in self._output_directory.iterdir():

@@ -1,4 +1,7 @@
-DHR_CATALOG_ROOT: str = "https://stac.cesnet.cz/"
-CDSE_CATALOG_ROOT: str = "https://catalogue.dataspace.copernicus.eu/odata/v1/"
+import os
 
-OUTPUT_DIRECTORY: str = "/data/output"
+DHR_CATALOG_ROOT: str = os.getenv("DHR_CATALOG_ROOT")
+CDSE_CATALOG_ROOT: str = os.getenv("CDSE_CATALOG_ROOT")
+
+BACKEND_OUTPUT_DIRECTORY: str = os.getenv("BACKEND_OUTPUT_DIRECTORY")
+FRONTEND_OUTPUT_DIRECTORY: str = os.getenv("FRONTEND_OUTPUT_DIRECTORY")

@@ -5,7 +5,9 @@ from fastapi import FastAPI, BackgroundTasks, HTTPException
 
 from fastapi.middleware.cors import CORSMiddleware
 
-from database.dict_database_connector import DictDatabaseConnector
+import config.variables as variables
+
+from database.dict_database_connector import (DictDatabaseConnector)
 
 from resources.enums import *
 from resources.reqeusted_feature_model import RequestedFeatureModel
@@ -26,6 +28,11 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+@app.get("/utils/get_frontend_output_directory")
+async def get_output_directory():
+    return {
+        "FRONTEND_OUTPUT_DIRECTORY": variables.FRONTEND_OUTPUT_DIRECTORY,
+    }
 
 @app.post("/api/request_visualization")
 async def request_visualization(

@@ -582,7 +582,8 @@ const visualize = async () => {
         console.log(processedProduct);
         let option = document.createElement("option");
         option.value = processedProduct;
-        option.textContent = processedProduct;
+        const processedProductParst = processedProduct.split('/')
+        option.textContent = processedProductParst[processedProductParst.length - 1];
         processedProductsSelect.appendChild(option);
     });
 
