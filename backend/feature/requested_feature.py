@@ -154,7 +154,7 @@ class RequestedFeature(ABC):
         print("GENERATING MAP TILES 02")
         gjtiff_stdout = self._run_gjtiff_docker(input_files=input_files, output_directory=self._output_directory)
         print("GENERATING MAP TILES 03")
-        print(gjtiff_stdout)
+        print(f"GJTIFF STDOUT + {gjtiff_stdout}")
         print("GENERATING MAP TILES 04")
         print(json.loads(gjtiff_stdout))
         print("GENERATING MAP TILES 05")
