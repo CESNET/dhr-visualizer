@@ -164,10 +164,9 @@ class RequestedFeature(ABC):
         return processed_tiles
 
     def _extract_output_file_list(self, stdout: str) -> list[str] | None:
-        stdout=stdout.strip().replace(" ", "")
         print(f"EXTRACT_STDOUT_START>>>{stdout}<<<EXTRACT_STDOUT_END")
         json_list_pattern = r'\[.*\]'
-        matches = re.findall(json_list_pattern, stdout)
+        matches = re.findall(json_list_pattern, stdout, re.DOTALL)
         print(f"MATCHES_START>>>{matches}<<<MATCHES_END")
         last_json_list = matches[-1] if matches else None
         print(f"LASTJSONLIST_START>>>{last_json_list}<<<LASTJSONLIST_END")
