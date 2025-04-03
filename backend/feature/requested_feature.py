@@ -153,10 +153,13 @@ class RequestedFeature(ABC):
         cmd = f"docker exec gjtiff_container gjtiff -q 82 -o {str(self._output_directory)} {file_list}"
         print("GENERATING MAP TILES 02")
         gjtiff_stdout = self._run_gjtiff_docker(input_files=input_files, output_directory=self._output_directory)
-        print(json.loads(gjtiff_stdout))
         print("GENERATING MAP TILES 03")
-        processed_tiles = json.loads(gjtiff_stdout)
+        print(gjtiff_stdout)
         print("GENERATING MAP TILES 04")
+        print(json.loads(gjtiff_stdout))
+        print("GENERATING MAP TILES 05")
+        processed_tiles = json.loads(gjtiff_stdout)
+        print("GENERATING MAP TILES 06")
 
         return processed_tiles
 
