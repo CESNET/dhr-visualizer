@@ -312,10 +312,6 @@ const fetchFeatures = async () => {
 
             switch (datasetsSelected[dataset]) {
                 case "SENTINEL-1": {
-
-
-                    //TODO NOT WORKING!
-                    // 2024_12_03 hele je tu tohle todočko, ale přijde mi, že to cleá pracuje... Asi jsem ho zapomněl smazat
                     const levelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-levels"]:checked');
                     const levelsSelected = Array.from(levelsSelectedNodes).map(checkbox => checkbox.value);
 

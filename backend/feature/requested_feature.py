@@ -154,6 +154,7 @@ class RequestedFeature(ABC):
         # processed_tiles = json.loads(processed_tiles_json)
 
         gjtiff_stdout = self._run_gjtiff_docker(input_files=input_files, output_directory=self._output_directory)
+        print(f"GJTIFF_STDOUT>>>{gjtiff_stdout}<<<GJTIFF_STDOUT")
         processed_tiles = self._extract_output_file_list(stdout=gjtiff_stdout)
 
         return processed_tiles

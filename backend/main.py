@@ -5,8 +5,6 @@ from fastapi import FastAPI, BackgroundTasks, HTTPException
 
 from fastapi.middleware.cors import CORSMiddleware
 
-import config.variables as variables
-
 from database.dict_database_connector import (DictDatabaseConnector)
 
 from resources.enums import *
