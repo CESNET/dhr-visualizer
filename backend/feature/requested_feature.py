@@ -101,6 +101,8 @@ class RequestedFeature(ABC):
         return self._output_files
 
     def get_output_hrefs(self) -> list[str]:
+        if self._output_files is None:
+            return []
         return [file.replace(variables.OUTPUT_DIRECTORY,'/output') for file in self._output_files]
 
     @abstractmethod
