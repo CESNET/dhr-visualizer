@@ -163,9 +163,9 @@ class RequestedFeature(ABC):
     def _run_gjtiff_docker(self, input_files: list[str] = None, output_directory: Path = _output_directory) -> str:
         print("RUN GJTIFF_DOCKER 01")
         if input_files is None:
-            raise ValueError("No input files provided") ## TODO Proper exception
+            raise ValueError("No input files provided")  ## TODO Proper exception
 
-        command = ["gjtiff", "-q", "82", "-o" f"{str(output_directory)}", [input_file for input_file in input_files]]
+        command = ["gjtiff", "-q", "82", "-o" f"{str(output_directory)}"] + [input_file for input_file in input_files]
 
         print(command)
 
