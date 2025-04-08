@@ -79,14 +79,22 @@ class RequestedFeature(ABC):
         #     self._remove_path_tree(self._output_directory)
 
     def _assign_connector(self):
-        try:
-            self._dataspace_connector = DHRConnector(
-                feature_id=self._feature_id, workdir=self._workdir, logger=self._logger
-            )
-        except DataspaceConnectorCouldNotFetchFeature:
-            self._dataspace_connector = CDSEConnector(
-                feature_id=self._feature_id, workdir=self._workdir, logger=self._logger
-            )
+        if variables.DHR__USE_DHR:
+            try:
+                self._dataspace_connector = DHRConnector(
+                    feature_id=self._feature_id,
+                    workdir=self._workdir,
+                    logger=self._logger
+                )
+                return
+            except DataspaceConnectorCouldNotFetchFeature:
+                pass
+
+        self._dataspace_connector = CDSEConnector(
+            feature_id=self._feature_id,
+            workdir=self._workdir,
+            logger=self._logger
+        )
 
     def get_feature_id(self) -> str:
         return self._feature_id
@@ -103,7 +111,8 @@ class RequestedFeature(ABC):
     def get_output_hrefs(self) -> list[str]:
         if self._output_files is None:
             return []
-        return [file.replace(variables.BACKEND_OUTPUT_DIRECTORY,variables.FRONTEND_OUTPUT_DIRECTORY) for file in self._output_files]
+        return [file.replace(variables.BACKEND_OUTPUT_DIRECTORY, variables.FRONTEND_OUTPUT_DIRECTORY) for file in
+                self._output_files]
 
     @abstractmethod
     def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:

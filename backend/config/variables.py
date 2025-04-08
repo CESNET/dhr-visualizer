@@ -1,7 +1,9 @@
 import os
 
-DHR_CATALOG_ROOT: str = os.getenv("DHR_CATALOG_ROOT")
-CDSE_CATALOG_ROOT: str = os.getenv("CDSE_CATALOG_ROOT")
+DHR__USE_DHR: bool = os.environ.get("DHR__USE_DHR").lower() in ["1", "true", "yes", ]
+DHR__CATALOG_ROOT: str = os.getenv("DHR__CATALOG_ROOT")
+
+CDSE__CATALOG_ROOT: str = os.getenv("CDSE__CATALOG_ROOT")
 
 BACKEND_OUTPUT_DIRECTORY: str = os.getenv("BACKEND_OUTPUT_DIRECTORY")
 FRONTEND_OUTPUT_DIRECTORY: str = os.getenv("FRONTEND_OUTPUT_DIRECTORY")

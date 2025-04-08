@@ -3,8 +3,8 @@ import re
 
 import httpx
 
-from config.variables import CDSE_CATALOG_ROOT
-from config.variables_secret import CDSE_CONNECTOR_S3
+from config.variables import CDSE__CATALOG_ROOT
+from config.variables_secret import CDSE__CONNECTOR_S3_CREDENTIALS
 
 from dataspace.dataspace_connector import DataspaceConnector
 from dataspace.s3_client import S3Client
@@ -20,8 +20,8 @@ class CDSEConnector(DataspaceConnector):
             feature_id=None, workdir=None,
             logger: logging.Logger = logging.getLogger(__name__)
     ):
-        super().__init__(root_url=CDSE_CATALOG_ROOT, feature_id=feature_id, workdir=workdir, logger=logger)
-        self._cdse_s3_client = S3Client(config=CDSE_CONNECTOR_S3, logger=self._logger)
+        super().__init__(root_url=CDSE__CATALOG_ROOT, feature_id=feature_id, workdir=workdir, logger=logger)
+        self._cdse_s3_client = S3Client(config=CDSE__CONNECTOR_S3_CREDENTIALS, logger=self._logger)
 
     def _get_feature(self) -> dict:
         if self._feature is None:
