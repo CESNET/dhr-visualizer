@@ -2,10 +2,10 @@ version: '3.8'
 
 services:
   backend:
-    build: ./dhr-visualizer/backend
+    build: ./backend
     container_name: "backend_container"
     env_file:
-      - .env
+      - env_variables.env
     ports:
       - "8081:8081"
     depends_on:
@@ -15,12 +15,11 @@ services:
       - shared_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
 
-
   frontend:
-    build: ./dhr-visualizer/frontend
+    build: ./frontend
     container_name: "frontend_container"
     env_file:
-      - .env
+      - env_variables.env
     ports:
       - "8080:8080"
     depends_on:
