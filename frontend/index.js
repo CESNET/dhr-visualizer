@@ -1,4 +1,5 @@
-const backendHost = 'http://195.113.151.147:8889';
+const backendHost = 'http://195.113.151.147:8081';
+//const backendHost = 'http://127.0.0.1:8081';
 const apiRootUrl = "https://catalogue.dataspace.copernicus.eu/odata/v1/Products";
 const supportEmail = "placeholder@example.com"; //TODO Change email
 
@@ -44,10 +45,26 @@ const offeredDatasets = [
  **************************************/
 
 let leafletMap = L.map('map-div').setView(leafletInitCoords, leafletInitZoom);
+L.control.scale().addTo(leafletMap);
 let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
     maxZoom: 19,
 }).addTo(leafletMap);
+
+let isUserInteractingWithMap = true;
+
+leafletMap.on('moveend', () => {
+    if (isUserInteractingWithMap) {
+        insertCoordinatesFromMap();
+    }
+});
+
+leafletMap.on('zoomend', () => {
+    if (isUserInteractingWithMap) {
+        insertCoordinatesFromMap();
+    }
+});
+
 insertCoordinatesFromMap();
 
 
@@ -88,7 +105,7 @@ function sentinel2CloudCoverSliderToValue() {
     sentinel2CloudCoverValue.value = sentinel2CloudCoverSlider.value;
 }
 
-document.querySelector("#sentinel-2-cloud-cover-value").addEventListener("input", function() {
+document.querySelector("#sentinel-2-cloud-cover-value").addEventListener("input", function () {
     let sentinel2CloudCoverSlider = document.querySelector("#sentinel-2-cloud-cover-range");
     sentinel2CloudCoverSlider.value = this.value;
 });
@@ -295,10 +312,6 @@ const fetchFeatures = async () => {
 
             switch (datasetsSelected[dataset]) {
                 case "SENTINEL-1": {
-
-
-                    //TODO NOT WORKING!
-                    // 2024_12_03 hele je tu tohle todočko, ale přijde mi, že to cleá pracuje... Asi jsem ho zapomněl smazat
                     const levelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-levels"]:checked');
                     const levelsSelected = Array.from(levelsSelectedNodes).map(checkbox => checkbox.value);
 
@@ -370,10 +383,6 @@ const fetchFeatures = async () => {
                     const bandsSelectedNodes = document.querySelectorAll('input[name="sentinel-2-bands"]:checked');
                     const bandsSelected = Array.from(bandsSelectedNodes).map(checkbox => checkbox.value);
 
-                    const miscSelectedNodes = document.querySelectorAll('input[name="sentinel-2-misc"]:checked');
-                    const miscSelected = Array.from(miscSelectedNodes).map(checkbox => checkbox.value);
-
-
                     if (levelsSelected.length <= 0 || bandsSelected.length <= 0) {
                         await showAlert("Warning", "Not enough parameters specified!", false);
                     }
@@ -394,9 +403,6 @@ const fetchFeatures = async () => {
 
                     selectedFilters.set('bands', bandsSelected);
                     // Bands not filtered in Copernicus API call
-
-                    selectedFilters.set('misc', miscSelected);
-                    // Misc not filtered in Copernicus API call
 
                     filtersGlobal.set(datasetsSelected[dataset], selectedFilters)
                     filters += `${datasetFilter} and (${cloudCoverApiCall} and ${levelsApiCall})`;
@@ -569,9 +575,11 @@ const visualize = async () => {
     processedProductsSelect.innerHTML = '';
 
     visualizationRequest.getHrefs().forEach(processedProduct => {
+        console.log(processedProduct);
         let option = document.createElement("option");
         option.value = processedProduct;
-        option.textContent = processedProduct;
+        const processedProductParst = processedProduct.split('/')
+        option.textContent = processedProductParst[processedProductParst.length - 1];
         processedProductsSelect.appendChild(option);
     });
 
@@ -692,9 +700,12 @@ const showBorders = () => {
         fillOpacity: 0.3
     }).addTo(leafletMap);
 
-    // To fit the map view to the polygon bounds
+    isUserInteractingWithMap = false;
     leafletMap.fitBounds(showedPolygon.getBounds());
-}
+    leafletMap.once('moveend', () => {
+        isUserInteractingWithMap = true;
+    });
+};
 
 const showExampleGeoTiff = async () => {
     spinner.style.display = "block";

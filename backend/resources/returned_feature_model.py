@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel
 from typing import Any
 
-from enums import RequestStatuses
+from resources.enums import RequestStatuses
 
 
 class ReturnedFeatureModel(BaseModel):

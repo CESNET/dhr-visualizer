@@ -1,4 +1,4 @@
-from database_connector import DatabaseConnector
+from database.database_connector import DatabaseConnector
 
 class DictDatabaseConnector(DatabaseConnector):
     def __init__(self):

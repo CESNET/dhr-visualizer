@@ -52,13 +52,13 @@
                 </div>
 
                 <div class="controls-element" id="coordinates-from-map-button-div">
-                    <button id="coordinates-from-map-button" onclick="insertCoordinatesFromMap()">
+                    <button id="coordinates-from-map-button" onclick="insertCoordinatesFromMap();">
                         Insert coordinates of map corners
                     </button>
                 </div>
 
                 <div class="controls-element" id="coordinates-clear-button-div">
-                    <button id="coordinates-clear-button" onclick="clearCoordinates()">Clear coordinates</button>
+                    <button id="coordinates-clear-button" onclick="clearCoordinates();">Clear coordinates</button>
                 </div>
             </div>
 
@@ -86,7 +86,7 @@
                     <div class="checkbox-div">
                         <input type="checkbox" class="mission-filter-checkbox" id="mission-filter-checkbox-sentinel-1"
                                name="dataset" value="SENTINEL-1"
-                               onclick="toggleSentinel1AdditionalCheckboxes()">
+                               onclick="toggleSentinel1AdditionalCheckboxes();">
                         <label for="mission-filter-checkbox-sentinel-1">Sentinel 1</label>
                         <button class="mission-filter-button" id="mission-filter-button-sentinel-1" value="SENTINEL-1">
                             Open filter
@@ -100,17 +100,17 @@
                             <div class="filter-options">
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-1-level-0-checkbox" value="LEVEL0"
-                                           name="sentinel-1-levels" onclick="toggleSentinel1Checkbox()">
+                                           name="sentinel-1-levels" onclick="toggleSentinel1Checkbox();">
                                     <label for="sentinel-1-level-0-checkbox">Level 0</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-1-level-1-checkbox" value="LEVEL1"
-                                           name="sentinel-1-levels" onclick="toggleSentinel1Checkbox()">
+                                           name="sentinel-1-levels" onclick="toggleSentinel1Checkbox();">
                                     <label for="sentinel-1-level-1-checkbox">Level 1</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-1-level-2-checkbox" value="LEVEL2"
-                                           name="sentinel-1-levels" onclick="toggleSentinel1Checkbox()">
+                                           name="sentinel-1-levels" onclick="toggleSentinel1Checkbox();">
                                     <label for="sentinel-1-level-2-checkbox">Level 2</label>
                                 </div>
                             </div>
@@ -121,22 +121,22 @@
                             <div class="filter-options">
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-1-iw-checkbox" value="IW"
-                                           name="sentinel-1-sensing-types" onclick="toggleSentinel1Checkbox()">
+                                           name="sentinel-1-sensing-types" onclick="toggleSentinel1Checkbox();">
                                     <label for="sentinel-1-iw-checkbox">IW</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-1-ew-checkbox" value="EW"
-                                           name="sentinel-1-sensing-types" onclick="toggleSentinel1Checkbox()">
+                                           name="sentinel-1-sensing-types" onclick="toggleSentinel1Checkbox();">
                                     <label for="sentinel-1-ew-checkbox">EW</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-1-sm-checkbox" value="SM"
-                                           name="sentinel-1-sensing-types" onclick="toggleSentinel1Checkbox()">
+                                           name="sentinel-1-sensing-types" onclick="toggleSentinel1Checkbox();">
                                     <label for="sentinel-1-sm-checkbox">SM</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-1-wv-checkbox" value="WV"
-                                           name="sentinel-1-sensing-types" onclick="toggleSentinel1Checkbox()">
+                                           name="sentinel-1-sensing-types" onclick="toggleSentinel1Checkbox();">
                                     <label for="sentinel-1-wv-checkbox">WV</label>
                                 </div>
                             </div>
@@ -147,22 +147,22 @@
                             <div class="filter-options">
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-1-raw-checkbox" value="RAW"
-                                           name="sentinel-1-product-types" onclick="toggleSentinel1Checkbox()">
+                                           name="sentinel-1-product-types" onclick="toggleSentinel1Checkbox();">
                                     <label for="sentinel-1-raw-checkbox">RAW</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-1-slc-checkbox" value="SLC"
-                                           name="sentinel-1-product-types" onclick="toggleSentinel1Checkbox()">
+                                           name="sentinel-1-product-types" onclick="toggleSentinel1Checkbox();">
                                     <label for="sentinel-1-slc-checkbox">SLC</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-1-grd-checkbox" value="GRD"
-                                           name="sentinel-1-product-types" onclick="toggleSentinel1Checkbox()">
+                                           name="sentinel-1-product-types" onclick="toggleSentinel1Checkbox();">
                                     <label for="sentinel-1-grd-checkbox">GRD</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-1-ocn-checkbox" value="OCN"
-                                           name="sentinel-1-product-types" onclick="toggleSentinel1Checkbox()">
+                                           name="sentinel-1-product-types" onclick="toggleSentinel1Checkbox();">
                                     <label for="sentinel-1-ocn-checkbox">OCN</label>
                                 </div>
                             </div>
@@ -223,7 +223,7 @@
                     <div class="checkbox-div">
                         <input type="checkbox" class="mission-filter-checkbox" id="mission-filter-checkbox-sentinel-2"
                                name="dataset" value="SENTINEL-2"
-                               onclick="toggleSentinel2AdditionalCheckboxes()">
+                               onclick="toggleSentinel2AdditionalCheckboxes();">
                         <label for="mission-filter-checkbox-sentinel-2">Sentinel 2</label>
                         <button class="mission-filter-button" id="mission-filter-button-sentinel-2" value="SENTINEL-2">
                             Open filter
@@ -242,8 +242,8 @@
                                         <input type="text" id="sentinel-2-cloud-cover-value">
                                         <input type="range" min="0" max="100" value="100"
                                                id="sentinel-2-cloud-cover-range"
-                                               name="sentinel-2-levels" onclick="toggleSentinel2Checkbox()"
-                                               oninput="sentinel2CloudCoverSliderToValue()">
+                                               name="sentinel-2-levels" onclick="toggleSentinel2Checkbox();"
+                                               oninput="sentinel2CloudCoverSliderToValue();">
                                     </div>
                                 </div>
                             </div>
@@ -254,27 +254,27 @@
                             <div class="filter-options">
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-level-0-checkbox" value="S2MSI0"
-                                           name="sentinel-2-levels" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-levels" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-level-0-checkbox">Level 0</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-level-1a-checkbox" value="S2MSI1A"
-                                           name="sentinel-2-levels" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-levels" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-level-1a-checkbox">Level 1A</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-level-1b-checkbox" value="S2MSI1B"
-                                           name="sentinel-2-levels" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-levels" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-level-1b-checkbox">Level 1B</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-level-1c-checkbox" value="S2MSI1C"
-                                           name="sentinel-2-levels" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-levels" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-level-1c-checkbox">Level 1C</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-level-2a-checkbox" value="S2MSI2A"
-                                           name="sentinel-2-levels" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-levels" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-level-2a-checkbox">Level 2A</label>
                                 </div>
                             </div>
@@ -285,7 +285,7 @@
                             <div class="filter-options">
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-b1-checkbox" value="B1"
-                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-b1-checkbox">B1 - Coastal, aerosol (60 m)</label>
                                 </div>
                                 <div class="filter-option">
@@ -308,60 +308,54 @@
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-b5-checkbox" value="B5"
-                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-b5-checkbox">B5 - Red Edge (20 m)</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-b6-checkbox" value="B6"
-                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-b6-checkbox">B6 - Visible NIR (20 m)</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-b7-checkbox" value="B7"
-                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-b7-checkbox">B7 - Visible and Near IR (20 m)</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-b8-checkbox" value="B8"
-                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-b8-checkbox">B8 - Visible and Near IR (10 m)</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-b8a-checkbox" value="B8a"
-                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-b8a-checkbox">B8a - Visible and Near IR (20 m)</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-b9-checkbox" value="B9"
-                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-b9-checkbox">B9 - Short Wave IR (60 m)</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-b10-checkbox" value="B10"
-                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-b10-checkbox">B10 - Short Wave IR (60 m)</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-b11-checkbox" value="B11"
-                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-b11-checkbox">B11 - Short Wave IR (20 m)</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="sentinel-2-b12-checkbox" value="B12"
-                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox()">
+                                           name="sentinel-2-bands" onclick="toggleSentinel2Checkbox();">
                                     <label for="sentinel-2-b12-checkbox">B12 - Short Wave IR (20 m)</label>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="filter">
-                            <div class="filter-category-label">Misc</div>
-                            <div class="filter-options">
                                 <div class="filter-option">
-                                    <input type="checkbox" id="sentinel-2-rgb-checkbox" value="RGB"
-                                           name="sentinel-2-misc"
-                                           onclick="toggleSentinel2Checkbox(); toggleSentinel2RGBBandsCheckboxes();">
-                                    <label for="sentinel-2-rgb-checkbox">Generate RGB Mosaic</label>
+                                    <input type="checkbox" id="sentinel-2-tci-checkbox" value="TCI"
+                                           name="sentinel-2-bands"
+                                           onclick="toggleSentinel2Checkbox();">
+                                    <label for="sentinel-2-tci-checkbox">TCI - True color Mosaic</label>
                                 </div>
                             </div>
                         </div>

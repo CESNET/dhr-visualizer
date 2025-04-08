@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: "backend_container"
+    env_file:
+      - variables.env
+      - variables_secret.env
+    ports:
+      - "8081:8081"
+    depends_on:
+      - gjtiff
+    volumes:
+      - tmp:/tmp
+      - shared_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  frontend:
+    build: ./frontend
+    container_name: "frontend_container"
+    env_file:
+      - variables.env
+      - variables_secret.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+    volumes:
+      - shared_data:/data
+
+  gjtiff:
+    build: ./gjtiff
+    container_name: "gjtiff_container"
+    command: ["sleep", "infinity"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - tmp:/tmp
+      - shared_data:/data
+
+volumes:
+  shared_data:
+  tmp:
