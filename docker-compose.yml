@@ -5,7 +5,8 @@ services:
     build: ./backend
     container_name: "backend_container"
     env_file:
-      - env_variables.env
+      - variables.env
+      - variables_secret.env
     ports:
       - "8081:8081"
     depends_on:
@@ -19,7 +20,8 @@ services:
     build: ./frontend
     container_name: "frontend_container"
     env_file:
-      - env_variables.env
+      - variables.env
+      - variables_secret.env
     ports:
       - "8080:8080"
     depends_on:

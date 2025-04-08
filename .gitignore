@@ -172,7 +172,7 @@ cython_debug/
 gjtiff
 
 # Secrets
-backend/config/variables_secret.py
+variables_secret.env
 
 ##### I suppose that example tifs wont be in release, so it would be safe to remove these lines:
 # Example TIFs
