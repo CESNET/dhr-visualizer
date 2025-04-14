@@ -1,6 +1,8 @@
 import os
 
-DHR__USE_DHR: bool = os.environ.get("DHR__USE_DHR", default="False").lower() in ["1", "true", "yes", ]
+true_statements = ["1", "true", "yes", ]
+
+DHR__USE_DHR: bool = os.getenv("DHR__USE_DHR", default="no").lower() in true_statements
 DHR__CATALOG_ROOT: str = os.getenv("DHR__CATALOG_ROOT")
 
 CDSE__CATALOG_ROOT: str = os.getenv("CDSE__CATALOG_ROOT")
