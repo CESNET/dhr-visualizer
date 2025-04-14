@@ -161,6 +161,34 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 
+### React (auto-generated frontend/.gitignore contents):
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+### End of React part
+
+### matejkaj working environment specific:
 # KDE Kate swap files
 *.kate-swp
 
@@ -179,3 +207,4 @@ variables_secret.env
 *example*.tif*
 # Frontend example tiffs
 frontend/example_tiffs
+frontend_pureHtmlJs/example_tiffs
