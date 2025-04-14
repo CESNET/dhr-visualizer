@@ -50,6 +50,7 @@ Frontend will be accessible at 0.0.0.0:8080, backend at 0.0.0.0:8081. These port
 By default application uses local datahub relay specified in `variables.env`:
 
 ```bash
+DHR__USE_DHR="True"
 DHR__CATALOG_ROOT="https://stac.cesnet.cz/"
 ```
 

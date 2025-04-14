@@ -2,7 +2,7 @@ import os
 
 true_statements = ["1", "true", "yes", ]
 
-DHR__USE_DHR: bool = os.getenv("DHR__USE_DHR", default="no").lower() in true_statements
+DHR__USE_DHR: bool = os.getenv("DHR__USE_DHR", default="False").lower() in true_statements
 DHR__CATALOG_ROOT: str = os.getenv("DHR__CATALOG_ROOT")
 DHR__CONNECTOR_CREDENTIALS = {
     'host_base': os.getenv("DHR__CONNECTOR_HOST_BASE"),
