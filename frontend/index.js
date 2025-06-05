@@ -51,6 +51,18 @@ let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     maxZoom: 19,
 }).addTo(leafletMap);
 
+const provider = new window.GeoSearch.OpenStreetMapProvider();
+const searchControl = new window.GeoSearch.GeoSearchControl({
+  provider: provider,
+  style: 'bar',
+  showMarker: true,
+  retainZoomLevel: false,
+  autoClose: true,
+  searchLabel: 'Search address',
+});
+
+leafletMap.addControl(searchControl);
+
 let isUserInteractingWithMap = true;
 
 leafletMap.on('moveend', () => {
