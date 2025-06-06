@@ -50,6 +50,13 @@ let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: 'Map data (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
     maxZoom: 19,
 }).addTo(leafletMap);
+const hoverLayer = L.geoJSON(null, {
+  style: {
+    color: '#6997e5',
+    weight: 2,
+    fillOpacity: 0.2
+  }
+}).addTo(leafletMap);
 
 const provider = new window.GeoSearch.OpenStreetMapProvider();
 const searchControl = new window.GeoSearch.GeoSearchControl({
@@ -120,6 +127,26 @@ function sentinel2CloudCoverSliderToValue() {
 document.querySelector("#sentinel-2-cloud-cover-value").addEventListener("input", function () {
     let sentinel2CloudCoverSlider = document.querySelector("#sentinel-2-cloud-cover-range");
     sentinel2CloudCoverSlider.value = this.value;
+});
+
+const dropdownTrigger = document.getElementById("dropdown-trigger");
+const featureSelect = document.getElementById("available-features-select");
+
+dropdownTrigger.addEventListener("click", () => {
+  const isVisible = featureSelect.style.display === "block";
+  featureSelect.style.display = isVisible ? "none" : "block";
+});
+
+featureSelect.addEventListener("change", function () {
+  const selectedId = this.value;
+  const feature = featuresGlobal.get(selectedId);
+  hoverLayer.clearLayers();
+
+  console.log(feature);
+
+  if (feature && feature.geofootprint) {
+    hoverLayer.addData(feature.geofootprint);
+  }
 });
 
 const closeAlert = (alertDiv) => {
@@ -251,8 +278,7 @@ const parseCoordinates = async (coordinatesString) => {
 }
 
 const clearAvailableFeaturesSelect = () => {
-    let availableFeaturesSelect = document.getElementById('available-features-select');
-    availableFeaturesSelect.innerHTML = '';
+    featureSelect.innerHTML = '';
     disableUIElements();
 }
 
@@ -475,9 +501,21 @@ const fetchFeatures = async () => {
         for (const feature of finalFeatures) {
             featuresGlobal.set(feature.Id, feature);
 
-            let option = document.createElement("option");
-            option.value = feature.Id;
+            const option = document.createElement("li");
             option.textContent = feature.Name;
+            option.dataset.id = feature.Id;
+            option.style.cursor = "pointer";
+            option.style.padding = "4px";
+
+            option.addEventListener("mouseenter", () => {
+            hoverLayer.clearLayers();
+            hoverLayer.addData(feature.GeoFootprint);
+            });
+
+            option.addEventListener("mouseleave", () => {
+            hoverLayer.clearLayers();
+            });
+
             availableFeaturesSelect.appendChild(option);
         }
 
