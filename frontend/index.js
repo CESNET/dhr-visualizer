@@ -46,10 +46,20 @@ const offeredDatasets = [
 
 let leafletMap = L.map('map-div').setView(leafletInitCoords, leafletInitZoom);
 L.control.scale().addTo(leafletMap);
-let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.jpg', {
     attribution: 'Map data (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
     maxZoom: 19,
+    opacity: 1,
 }).addTo(leafletMap);
+
+L.tileLayer("http://localhost:8000/tiles/{z}/{x}/{y}.jpg", {
+    minZoom: 8,
+    maxZoom: 19,
+    tileSize: 256,
+    opacity: 0.8,
+}).addTo(leafletMap);
+
 
 let isUserInteractingWithMap = true;
 
