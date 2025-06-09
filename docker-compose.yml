@@ -6,9 +6,8 @@ services:
     container_name: "backend_container"
     env_file:
       - variables.env
-      - variables_secret.env
     ports:
-      - "8081:8081"
+      - "${UVICORN__SERVER_PORT}:${UVICORN__SERVER_PORT}"
     depends_on:
       - gjtiff
     volumes:
@@ -21,9 +20,8 @@ services:
     container_name: "frontend_container"
     env_file:
       - variables.env
-      - variables_secret.env
     ports:
-      - "8080:8080"
+      - "${FRONTEND__SERVER_PORT}:${FRONTEND__SERVER_PORT}"
     depends_on:
       - backend
     volumes:

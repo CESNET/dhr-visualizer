@@ -19,10 +19,10 @@ from dataspace.dhr_connector import DHRConnector
 
 import variables as variables
 
-from feature.exceptions.requested_feature import *
+from feature.exceptions.processed_feature import *
 
 
-class RequestedFeature(ABC):
+class ProcessedFeature(ABC):
     _logger: logging.Logger = None
 
     _request_hash: str = None
@@ -38,7 +38,7 @@ class RequestedFeature(ABC):
     _output_directory: Path = None
     _output_files: [str] = None  # TODO možná url, Path, nebo tak něco..?
 
-    _coordinates: list[list[float]] = None
+    _bbox: list[float] = None
 
     _workdir: TemporaryDirectory = None
 
@@ -55,7 +55,7 @@ class RequestedFeature(ABC):
         self._workdir = TemporaryDirectory()
 
         if feature_id is None:
-            raise RequestedFeatureIDNotSpecified()
+            raise ProcessedFeatureIDNotSpecified()
         self._feature_id = feature_id
 
         self._assign_connector()
@@ -120,6 +120,14 @@ class RequestedFeature(ABC):
         return [file.replace(variables.BACKEND_OUTPUT_DIRECTORY, variables.FRONTEND_OUTPUT_DIRECTORY) for file in
                 self._output_files]
 
+    def get_bbox(self) -> list[float]:
+        if self._bbox is None:
+            raise ProcessedFeatureBboxNotSet(feature_id=self._feature_id)
+        return self._bbox
+
+    def get_request_hash(self) -> str:
+        return self._request_hash
+
     @abstractmethod
     def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
         pass
@@ -169,6 +177,7 @@ class RequestedFeature(ABC):
 
         gjtiff_stdout = self._run_gjtiff_docker(input_files=input_files, output_directory=self._output_directory)
         self._logger.debug(f"[{__name__}]: gjtiff_stdout: {gjtiff_stdout}")
+        #TODO tady je potreba dostat z gjtiffu seznam zpracovaných souborů a souradnice okraju
         processed_tiles = self._extract_output_file_list(stdout=gjtiff_stdout)
 
         return processed_tiles

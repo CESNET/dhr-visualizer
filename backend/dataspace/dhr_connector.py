@@ -79,8 +79,3 @@ class DHRConnector(DataspaceConnector):
             downloaded_files.append(str(downloaded_file_path))
 
         return downloaded_files
-
-    def get_coordinates(self) -> list[list[float]]:
-        # TODO implement after Sentinel available in STAC
-        raise Exception("Not implemented")
-        return [[0.0]]

@@ -1,5 +1,7 @@
-from .request_visualization import router as request_visualization_router
+from .request_processing import router as request_processing_router
+from .get_tile import router as get_tile_router
 
 fastapi_routes = [
-    request_visualization_router,
+    request_processing_router,
+    get_tile_router,
 ]

@@ -54,7 +54,3 @@ class DataspaceConnector(HTTPRequestableObject):
     @abstractmethod
     def download_selected_files(self, files_to_download: list[tuple[str, str]]) -> list[str]:
         pass
-
-    @abstractmethod
-    def get_coordinates(self) ->list[list[float]]:
-        pass

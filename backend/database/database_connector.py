@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from feature.requested_feature import RequestedFeature
+from feature.processing.processed_feature import ProcessedFeature
 
 
 class DatabaseConnector(ABC):
@@ -9,11 +9,11 @@ class DatabaseConnector(ABC):
         pass
 
     @abstractmethod
-    def get(self, key) -> RequestedFeature:
+    def get(self, key) -> ProcessedFeature:
         pass
 
     @abstractmethod
-    def set(self, key, value: RequestedFeature):
+    def set(self, key, value: ProcessedFeature):
         pass
 
     @abstractmethod

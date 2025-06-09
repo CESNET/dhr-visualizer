@@ -53,7 +53,7 @@ let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.jpg',
     opacity: 1,
 }).addTo(leafletMap);
 
-L.tileLayer("http://localhost:8000/tiles/{z}/{x}/{y}.jpg", {
+L.tileLayer("http://localhost:8000/get_tile/{z}/{x}/{y}.jpg", {
     minZoom: 8,
     maxZoom: 19,
     tileSize: 256,
@@ -622,7 +622,7 @@ const requestVisualization = async () => {
     let visualizationRequest = new VisualizationRequest(undefined, undefined, undefined);
 
     try {
-        let url = `${backendHost}/api/request_visualization`
+        let url = `${backendHost}/api/request_processing`
         console.log(url);
 
         let timeEnd = new Date()

@@ -115,10 +115,10 @@ class HTTPClient:
         await task()
         File "/usr/local/lib/python3.12/site-packages/starlette/background.py", line 26, in __call__
         await self.func(*self.args, **self.kwargs)
-        File "/app/feature/requested_feature.py", line 138, in process_feature
+        File "/app/feature/processed_feature.py", line 138, in process_feature
         downloaded_files_paths = await self._download_feature()
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        File "/app/feature/requested_feature.py", line 124, in _download_feature
+        File "/app/feature/processed_feature.py", line 124, in _download_feature
         downloaded_files = self._dataspace_connector.download_selected_files(files_to_download=filtered_files)
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         File "/app/dataspace/dhr_connector.py", line 79, in download_selected_files

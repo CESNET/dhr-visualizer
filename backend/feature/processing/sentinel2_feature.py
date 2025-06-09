@@ -3,10 +3,10 @@ import re
 
 from typing import Dict, Any
 
-from feature.requested_feature import RequestedFeature
+from feature.processing.processed_feature import ProcessedFeature
 
 
-class Sentinel2Feature(RequestedFeature):
+class Sentinel2Feature(ProcessedFeature):
     def __init__(
             self, logger: logging.Logger = logging.getLogger(name=__name__),
             feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None,
