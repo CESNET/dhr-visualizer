@@ -29,6 +29,8 @@ class Sentinel1Feature(RequestedFeature):
             'HV': False
         }
 
+        self._logger.debug(f"[{__name__}]: Sentinel-1 feature initialized")
+
     def _prepare_channel_filter_array(self) -> list:
         polarisation_filter = []
         for channels_combine in self._filters['polarisation_channels_combined']:

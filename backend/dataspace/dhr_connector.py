@@ -3,7 +3,7 @@ import re
 
 import httpx
 
-from config.variables import DHR__USE_DHR, DHR__CATALOG_ROOT, DHR__CONNECTOR_CREDENTIALS
+from variables import DHR__USE_DHR, DHR__CATALOG_ROOT, DHR__CONNECTOR_CREDENTIALS
 
 from dataspace.dataspace_connector import DataspaceConnector
 from dataspace.http_client import HTTPClient
@@ -79,3 +79,8 @@ class DHRConnector(DataspaceConnector):
             downloaded_files.append(str(downloaded_file_path))
 
         return downloaded_files
+
+    def get_coordinates(self) -> list[list[float]]:
+        # TODO implement after Sentinel available in STAC
+        raise Exception("Not implemented")
+        return [[0.0]]

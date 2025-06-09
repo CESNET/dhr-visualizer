@@ -3,7 +3,7 @@ import re
 
 import httpx
 
-from config.variables import CDSE__CATALOG_ROOT, CDSE__CONNECTOR_S3_CREDENTIALS
+from variables import CDSE__CATALOG_ROOT, CDSE__CONNECTOR_S3_CREDENTIALS
 
 from dataspace.dataspace_connector import DataspaceConnector
 from dataspace.s3_client import S3Client
@@ -75,3 +75,6 @@ class CDSEConnector(DataspaceConnector):
             downloaded_files.append(str(downloaded_file_path))
 
         return downloaded_files
+
+    def get_coordinates(self) -> list[list[float]]:
+        return self._get_feature()['GeoFootprint']['coordinates'][0]

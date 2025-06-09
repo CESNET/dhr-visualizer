@@ -1,6 +1,15 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path="./variables.env")
+
 true_statements = ["1", "true", "yes", ]
+
+APP__NAME: str = os.getenv("APP__NAME", default="dhr-visualizer")
+
+UVICORN__SERVER_HOST: str = os.environ.get("UVICORN__SERVER_HOST", default="0.0.0.0")
+UVICORN__SERVER_PORT: int = int(os.environ.get("UVICORN__SERVER_PORT", default=8081))
 
 DHR__USE_DHR: bool = os.getenv("DHR__USE_DHR", default="False").lower() in true_statements
 DHR__CATALOG_ROOT: str = os.getenv("DHR__CATALOG_ROOT")

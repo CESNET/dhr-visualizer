@@ -17,7 +17,7 @@ from dataspace.exceptions.dataspace_connector import DataspaceConnectorCouldNotF
 from dataspace.cdse_connector import CDSEConnector
 from dataspace.dhr_connector import DHRConnector
 
-from config import variables
+import variables as variables
 
 from feature.exceptions.requested_feature import *
 
@@ -38,6 +38,8 @@ class RequestedFeature(ABC):
     _output_directory: Path = None
     _output_files: [str] = None  # TODO možná url, Path, nebo tak něco..?
 
+    _coordinates: list[list[float]] = None
+
     _workdir: TemporaryDirectory = None
 
     def __init__(
@@ -46,6 +48,8 @@ class RequestedFeature(ABC):
             request_hash: str = None
     ):
         self._logger = logger
+        self._logger.debug(f"[{__name__}]: Initializing Requested feature for platform: {platform}")
+
         self._request_hash = request_hash
 
         self._workdir = TemporaryDirectory()
@@ -79,6 +83,8 @@ class RequestedFeature(ABC):
         #     self._remove_path_tree(self._output_directory)
 
     def _assign_connector(self):
+        self._logger.debug(f"[{__name__}]: Assigning dataspace connector")
+
         if variables.DHR__USE_DHR:
             try:
                 self._dataspace_connector = DHRConnector(
@@ -135,9 +141,11 @@ class RequestedFeature(ABC):
         """
         self._set_status(status=RequestStatuses.PROCESSING)
 
+        self._coordinates = self._dataspace_connector.get_coordinates()
+
         downloaded_files_paths = await self._download_feature()
 
-        print(f"Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")  # TODO proper logging
+        self._logger.debug(f"[{__name__}]: Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")
 
         self._output_files = self._generate_map_tiles(input_files=downloaded_files_paths)
         # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
@@ -159,11 +167,8 @@ class RequestedFeature(ABC):
             elif item.is_dir():
                 shutil.rmtree(item)
 
-        # processed_tiles_json = os.popen(f"gjtiff -q 82 -o {str(self._output_directory)} {file_list}").read()
-        # processed_tiles = json.loads(processed_tiles_json)
-
         gjtiff_stdout = self._run_gjtiff_docker(input_files=input_files, output_directory=self._output_directory)
-        print(f"GJTIFF_STDOUT>>>{gjtiff_stdout}<<<GJTIFF_STDOUT")
+        self._logger.debug(f"[{__name__}]: gjtiff_stdout: {gjtiff_stdout}")
         processed_tiles = self._extract_output_file_list(stdout=gjtiff_stdout)
 
         return processed_tiles

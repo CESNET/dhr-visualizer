@@ -20,6 +20,8 @@ class Sentinel2Feature(RequestedFeature):
             request_hash=request_hash
         )
 
+        self._logger.debug(f"[{__name__}]: Sentinel-2 feature initialized")
+
     def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
         if available_files is None:
             return []
