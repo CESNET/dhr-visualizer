@@ -1,17 +1,14 @@
 import io
 import logging
 
-import PIL.Image
 import mercantile
 import numpy as np
-import uvicorn
 
 from PIL import Image
-from PIL.Image import DecompressionBombWarning, DecompressionBombError
 
 from feature.processing.processed_feature import ProcessedFeature
 
-from feature.exceptions.tiling_worker import *
+from feature.tiling.exceptions.tiling_worker import *
 
 class TilingWorker:
     _logger: logging.Logger = None

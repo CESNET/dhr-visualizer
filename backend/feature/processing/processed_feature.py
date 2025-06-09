@@ -19,7 +19,7 @@ from dataspace.dhr_connector import DHRConnector
 
 import variables as variables
 
-from feature.exceptions.processed_feature import *
+from feature.processing.exceptions.processed_feature import *
 
 
 class ProcessedFeature(ABC):

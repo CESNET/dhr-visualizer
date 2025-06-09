@@ -6,7 +6,7 @@ from fastapi.responses import StreamingResponse, Response
 import fastapi_server.fastapi_shared as fastapi_shared
 
 from feature.tiling.tiling_worker import TilingWorker
-from feature.exceptions.tiling_worker import TilingWorkerTileOutOfBounds
+from feature.tiling.exceptions.tiling_worker import TilingWorkerTileOutOfBounds
 
 router = APIRouter()
 
