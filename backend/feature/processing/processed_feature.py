@@ -173,6 +173,9 @@ class ProcessedFeature(ABC):
             elif item.is_dir():
                 shutil.rmtree(item)
 
+        # processed_tiles_json = os.popen(f"gjtiff -q 82 -o {str(self._output_directory)} {file_list}").read()
+        # processed_tiles = json.loads(processed_tiles_json)
+
         gjtiff_stdout = self._run_gjtiff_docker(input_files=input_files, output_directory=self._output_directory)
         self._logger.debug(f"[{__name__}]: gjtiff_stdout: {gjtiff_stdout}")
         #TODO tady je potreba dostat z gjtiffu seznam zpracovaných souborů a souradnice okraju
