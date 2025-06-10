@@ -149,8 +149,6 @@ class ProcessedFeature(ABC):
         """
         self._set_status(status=RequestStatuses.PROCESSING)
 
-        self._coordinates = self._dataspace_connector.get_coordinates()
-
         downloaded_files_paths = await self._download_feature()
 
         self._logger.debug(f"[{__name__}]: Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")
