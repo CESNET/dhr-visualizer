@@ -50,6 +50,13 @@ let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: 'Map data (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
     maxZoom: 19,
 }).addTo(leafletMap);
+const hoverLayer = L.geoJSON(null, {
+    style: {
+        color: '#6997e5',
+        weight: 2,
+        fillOpacity: 0.2
+    }
+}).addTo(leafletMap);
 
 const provider = new window.GeoSearch.OpenStreetMapProvider();
 const searchControl = new window.GeoSearch.GeoSearchControl({
@@ -120,6 +127,14 @@ function sentinel2CloudCoverSliderToValue() {
 document.querySelector("#sentinel-2-cloud-cover-value").addEventListener("input", function () {
     let sentinel2CloudCoverSlider = document.querySelector("#sentinel-2-cloud-cover-range");
     sentinel2CloudCoverSlider.value = this.value;
+});
+
+const featureSelect = document.getElementById("available-features-select");
+const choices = new Choices(featureSelect, {
+    searchEnabled: false,
+    shouldSort: true,
+    itemSelectText: '',
+    position: 'auto',
 });
 
 const closeAlert = (alertDiv) => {
@@ -250,15 +265,16 @@ const parseCoordinates = async (coordinatesString) => {
     return [latitude, longitude];
 }
 
-const clearAvailableFeaturesSelect = () => {
-    let availableFeaturesSelect = document.getElementById('available-features-select');
-    availableFeaturesSelect.innerHTML = '';
-    disableUIElements();
+const clearFeaturesSelection = () => {
+    choices.removeActiveItems();
+    choices.clearChoices();
+    hoverLayer.clearLayers();
+    showBorders();
+
 }
 
 const fetchFeatures = async () => {
     showSpinner();
-    clearAvailableFeaturesSelect();
     disableUIElements();
 
     try {
@@ -315,6 +331,7 @@ const fetchFeatures = async () => {
             return;
         }
 
+        clearFeaturesSelection();
         filtersGlobal = new Map();
         let obtainedFeatures = [];
         for (let dataset in datasetsSelected) {
@@ -453,9 +470,6 @@ const fetchFeatures = async () => {
             obtainedFeatures = obtainedFeatures.concat(currentFeatures);
         }
 
-        let availableFeaturesSelect = document.querySelector("#available-features-select");
-        availableFeaturesSelect.innerHTML = '';
-
         const obtainedFeaturesMap = new Map();
         obtainedFeatures.forEach(obtainedFeature => {
             obtainedFeaturesMap.set(obtainedFeature.Id, obtainedFeature);
@@ -468,20 +482,49 @@ const fetchFeatures = async () => {
             finalFeatures.push(obtainedFeaturesMap.get(featureId));
         }
 
-        finalFeatures.sort((a, b) => a.Name.toLowerCase().localeCompare(b.Name.toLowerCase()));
-
         featuresGlobal = new Map();
 
         for (const feature of finalFeatures) {
             featuresGlobal.set(feature.Id, feature);
-
-            let option = document.createElement("option");
-            option.value = feature.Id;
-            option.textContent = feature.Name;
-            availableFeaturesSelect.appendChild(option);
+            choices.setChoices([
+                {
+                    value: feature.Id,
+                    label: feature.Name,
+                    customProperties: {
+                        feature: feature,
+                    }
+                }
+            ], 'value', 'label', false);
         }
 
-        showBorders();
+        featureSelect.addEventListener('change', function (e) {
+            const selectedId = e.target.value;
+            const feature = featuresGlobal.get(selectedId);
+
+            hoverLayer.clearLayers();
+            if (feature?.GeoFootprint) {
+                hoverLayer.addData(feature.GeoFootprint);
+            }
+
+            showBorders(selectedId);
+        });
+
+        document.addEventListener('mouseover', function (e) {
+            const item = e.target.closest('.choices__item--choice');
+            if (item && item.dataset.value) {
+                const feature = featuresGlobal.get(item.dataset.value);
+                hoverLayer.clearLayers();
+                if (feature?.GeoFootprint) {
+                    hoverLayer.addData(feature.GeoFootprint);
+                }
+            }
+        });
+
+        document.addEventListener('mouseout', function (e) {
+            if (e.target.closest('.choices__item--choice')) {
+                hoverLayer.clearLayers();
+            }
+        });
 
         if (obtainedFeatures.length > 0) {
             enableUIElements()
@@ -605,8 +648,8 @@ const requestVisualization = async () => {
     const totalTimeout = 120 // secs // TODO timeout of backend processing after 120 sec. Enough?
     const backendReplyTimeout = 30 * 1000;  // 1 sec = 1 000 millisecs // TODO timeout of backend call after 30 sec. Enough?
 
-    const featureId = document.querySelector("#available-features-select").value;
-    const platform = featuresGlobal.get(featureId).platform;
+    const selectedFeatureId = document.getElementById("available-features-select").value;
+    const platform = featuresGlobal.get(selectedFeatureId).platform;
     const filters = Object.fromEntries(filtersGlobal.get(platform));
 
     const method = 'POST';
@@ -615,7 +658,7 @@ const requestVisualization = async () => {
     }
     const bodyJson = JSON.stringify(
         {
-            feature_id: featureId,
+            feature_id: selectedFeatureId,
             platform: platform,
             filters: filters
         }
@@ -699,12 +742,12 @@ const showBorders = () => {
         showedPolygon.remove()
     }
 
-    let featureId = document.querySelector("#available-features-select").value;
-    if (!featureId) {
+    const selectedFeatureId = document.getElementById("available-features-select").value;
+    if (!selectedFeatureId) {
         return;
     }
 
-    let coordinates = transposeCoordinates(featuresGlobal.get(featureId).GeoFootprint.coordinates[0]);
+    let coordinates = transposeCoordinates(featuresGlobal.get(selectedFeatureId).GeoFootprint.coordinates[0]);
 
     showedPolygon = L.polygon(coordinates, {
         color: 'black', //obrys

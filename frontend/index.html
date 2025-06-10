@@ -387,9 +387,22 @@
                     <button id="fetch-features-button" onclick="fetchFeatures()">Fetch features</button>
                 </div>
 
-                <div class="controls-element disabled-element" id="available-features-select-div">
-                    <label for="available-features-select">Available features</label>
-                    <select id="available-features-select" onchange="showBorders()"></select>
+                <div class="controls-element disabled-element" id="available-features-select-div" style="position: relative; width: 200px;">
+                    <label>Available features</label>
+
+                    <!-- Trigger that looks like a dropdown -->
+                    <div id="dropdown-trigger"
+                       style="border: 1px solid #ccc; padding: 6px; cursor: pointer; background: white;">
+                    Select a feature ⌄
+                    </div>
+
+                    <!-- Dropdown list -->
+                    <ul id="available-features-select"
+                      style="display: none; border: 1px solid #ccc; list-style: none;
+                             padding: 0; margin: 0;
+                             position: absolute; top: 100%; left: 0;
+                             background: white; z-index: 999; width: 100%;">
+                    </ul>
                 </div>
 
                 <div class="controls-element disabled-element" id="visualize-feature-button-div">
