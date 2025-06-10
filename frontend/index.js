@@ -47,11 +47,19 @@ const offeredDatasets = [
 let leafletMap = L.map('map-div').setView(leafletInitCoords, leafletInitZoom);
 L.control.scale().addTo(leafletMap);
 
-let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.jpg', {
+let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
     maxZoom: 19,
     opacity: 1,
 }).addTo(leafletMap);
+
+L.tileLayer("http://localhost:8081/get_tile/{z}/{x}/{y}.jpg", {
+    minZoom: 8,
+    maxZoom: 19,
+    tileSize: 256,
+    opacity: 0.8,
+}).addTo(leafletMap);
+
 const hoverLayer = L.geoJSON(null, {
     style: {
         color: '#6997e5',
@@ -62,23 +70,15 @@ const hoverLayer = L.geoJSON(null, {
 
 const provider = new window.GeoSearch.OpenStreetMapProvider();
 const searchControl = new window.GeoSearch.GeoSearchControl({
-  provider: provider,
-  style: 'bar',
-  showMarker: true,
-  retainZoomLevel: false,
-  autoClose: true,
-  searchLabel: 'Search address',
+    provider: provider,
+    style: 'bar',
+    showMarker: true,
+    retainZoomLevel: false,
+    autoClose: true,
+    searchLabel: 'Search address',
 });
 
 leafletMap.addControl(searchControl);
-
-L.tileLayer("http://localhost:8000/get_tile/{z}/{x}/{y}.jpg", {
-    minZoom: 8,
-    maxZoom: 19,
-    tileSize: 256,
-    opacity: 0.8,
-}).addTo(leafletMap);
-
 
 let isUserInteractingWithMap = true;
 
@@ -280,11 +280,17 @@ const clearFeaturesSelection = () => {
     choices.clearChoices();
     hoverLayer.clearLayers();
     showBorders();
+}
 
+const clearAvailableFeaturesSelect = () => {
+    let availableFeaturesSelect = document.getElementById('available-features-select');
+    availableFeaturesSelect.innerHTML = '';
+    disableUIElements();
 }
 
 const fetchFeatures = async () => {
     showSpinner();
+    //clearAvailableFeaturesSelect();
     disableUIElements();
 
     try {
@@ -480,6 +486,11 @@ const fetchFeatures = async () => {
             obtainedFeatures = obtainedFeatures.concat(currentFeatures);
         }
 
+        /*
+        let availableFeaturesSelect = document.querySelector("#available-features-select");
+        availableFeaturesSelect.innerHTML = '';
+        */
+
         const obtainedFeaturesMap = new Map();
         obtainedFeatures.forEach(obtainedFeature => {
             obtainedFeaturesMap.set(obtainedFeature.Id, obtainedFeature);
@@ -492,10 +503,20 @@ const fetchFeatures = async () => {
             finalFeatures.push(obtainedFeaturesMap.get(featureId));
         }
 
+        //finalFeatures.sort((a, b) => a.Name.toLowerCase().localeCompare(b.Name.toLowerCase()));
+
         featuresGlobal = new Map();
 
         for (const feature of finalFeatures) {
             featuresGlobal.set(feature.Id, feature);
+
+            /*
+            let option = document.createElement("option");
+            option.value = feature.Id;
+            option.textContent = feature.Name;
+            availableFeaturesSelect.appendChild(option);
+             */
+
             choices.setChoices([
                 {
                     value: feature.Id,
@@ -506,6 +527,8 @@ const fetchFeatures = async () => {
                 }
             ], 'value', 'label', false);
         }
+
+        //showBorders();
 
         featureSelect.addEventListener('change', function (e) {
             const selectedId = e.target.value;
