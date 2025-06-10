@@ -486,11 +486,6 @@ const fetchFeatures = async () => {
             obtainedFeatures = obtainedFeatures.concat(currentFeatures);
         }
 
-        /*
-        let availableFeaturesSelect = document.querySelector("#available-features-select");
-        availableFeaturesSelect.innerHTML = '';
-        */
-
         const obtainedFeaturesMap = new Map();
         obtainedFeatures.forEach(obtainedFeature => {
             obtainedFeaturesMap.set(obtainedFeature.Id, obtainedFeature);
@@ -503,19 +498,10 @@ const fetchFeatures = async () => {
             finalFeatures.push(obtainedFeaturesMap.get(featureId));
         }
 
-        //finalFeatures.sort((a, b) => a.Name.toLowerCase().localeCompare(b.Name.toLowerCase()));
-
         featuresGlobal = new Map();
 
         for (const feature of finalFeatures) {
             featuresGlobal.set(feature.Id, feature);
-
-            /*
-            let option = document.createElement("option");
-            option.value = feature.Id;
-            option.textContent = feature.Name;
-            availableFeaturesSelect.appendChild(option);
-             */
 
             choices.setChoices([
                 {
@@ -527,8 +513,6 @@ const fetchFeatures = async () => {
                 }
             ], 'value', 'label', false);
         }
-
-        //showBorders();
 
         featureSelect.addEventListener('change', function (e) {
             const selectedId = e.target.value;
