@@ -24,8 +24,6 @@ services:
       - "${FRONTEND__SERVER_PORT}:${FRONTEND__SERVER_PORT}"
     depends_on:
       - backend
-    volumes:
-      - shared_data:/data
 
   gjtiff:
     build: ./gjtiff
