@@ -36,7 +36,7 @@ class ProcessedFeature(ABC):
     _status: RequestStatuses = RequestStatuses.NON_EXISTING
 
     _output_directory: Path = None
-    _output_files: [str] = None  # TODO možná url, Path, nebo tak něco..?
+    _output_files: list[str] = None  # TODO možná url, Path, nebo tak něco..?
 
     _bbox: list[float] = None
 
@@ -111,14 +111,20 @@ class ProcessedFeature(ABC):
     def _set_status(self, status: RequestStatuses):
         self._status = status
 
-    def get_output_files(self) -> list[str]:
-        return self._output_files
+    def get_processed_files(self) -> dict[str, list[str]]:
+        processed_files = {}
 
-    def get_output_hrefs(self) -> list[str]:
         if self._output_files is None:
-            return []
-        return [file.replace(variables.BACKEND_OUTPUT_DIRECTORY, variables.FRONTEND_OUTPUT_DIRECTORY) for file in
-                self._output_files]
+            return processed_files
+
+        for file in self._output_files:
+            file = file.replace(str(self._output_directory).replace("\\","/"), '')
+            while file[0] == '/':
+                file = file[1:]
+
+            processed_files.setdefault(self._request_hash, []).append(file)
+
+        return processed_files
 
     def get_bbox(self) -> list[float]:
         if self._bbox is None:
@@ -149,6 +155,8 @@ class ProcessedFeature(ABC):
         """
         self._set_status(status=RequestStatuses.PROCESSING)
 
+        self._bbox = self._dataspace_connector.get_bbox()
+
         downloaded_files_paths = await self._download_feature()
 
         self._logger.debug(f"[{__name__}]: Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")
@@ -163,7 +171,6 @@ class ProcessedFeature(ABC):
     def _generate_map_tiles(self, input_files: list[str]) -> list[str] | None:
         file_list = ' '.join(input_files)
 
-        # self._output_directory = Path(f"{variables.FRONTEND_WEBSERVER_ROOT_DIR}/output/{self._request_hash}")
         self._output_directory = Path(variables.BACKEND_OUTPUT_DIRECTORY, self._request_hash)
         self._output_directory.mkdir(parents=True, exist_ok=True)
 
@@ -173,12 +180,8 @@ class ProcessedFeature(ABC):
             elif item.is_dir():
                 shutil.rmtree(item)
 
-        # processed_tiles_json = os.popen(f"gjtiff -q 82 -o {str(self._output_directory)} {file_list}").read()
-        # processed_tiles = json.loads(processed_tiles_json)
-
         gjtiff_stdout = self._run_gjtiff_docker(input_files=input_files, output_directory=self._output_directory)
-        self._logger.debug(f"[{__name__}]: gjtiff_stdout: {gjtiff_stdout}")
-        #TODO tady je potreba dostat z gjtiffu seznam zpracovaných souborů a souradnice okraju
+        self._logger.debug(f"[{__name__}]: gjtiff_stdout: |>|>|>{gjtiff_stdout}<|<|<|")
         processed_tiles = self._extract_output_file_list(stdout=gjtiff_stdout)
 
         return processed_tiles

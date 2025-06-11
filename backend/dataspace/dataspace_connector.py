@@ -56,5 +56,14 @@ class DataspaceConnector(HTTPRequestableObject):
         pass
 
     @abstractmethod
-    def get_coordinates(self) ->list[list[float]]:
+    def get_polygon(self) ->list[list[float]]:
         pass
+
+    def get_bbox(self) -> list[float]:
+        polygon = self.get_polygon()
+
+        lats = [pt[1] for pt in polygon]
+        lons = [pt[0] for pt in polygon]
+
+        return [min(lons), min(lats), max(lons), max(lats)]
+

@@ -70,8 +70,7 @@ async def request_processing(
         return HTTPException(status_code=500, detail="Feature processing failed!")
 
     return ReturnedFeatureModel(
-        request_hash=request_hash,
         feature_id=return_entry.get_feature_id(),
         status=return_entry.get_status(),
-        hrefs=return_entry.get_output_hrefs()
+        processed_files=return_entry.get_processed_files()
     )

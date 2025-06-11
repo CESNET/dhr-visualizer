@@ -53,13 +53,6 @@ let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     opacity: 1,
 }).addTo(leafletMap);
 
-L.tileLayer("http://localhost:8081/get_tile/{z}/{x}/{y}.jpg", {
-    minZoom: 8,
-    maxZoom: 19,
-    tileSize: 256,
-    opacity: 0.8,
-}).addTo(leafletMap);
-
 const hoverLayer = L.geoJSON(null, {
     style: {
         color: '#6997e5',
@@ -282,15 +275,8 @@ const clearFeaturesSelection = () => {
     showBorders();
 }
 
-const clearAvailableFeaturesSelect = () => {
-    let availableFeaturesSelect = document.getElementById('available-features-select');
-    availableFeaturesSelect.innerHTML = '';
-    disableUIElements();
-}
-
 const fetchFeatures = async () => {
     showSpinner();
-    //clearAvailableFeaturesSelect();
     disableUIElements();
 
     try {
@@ -579,20 +565,20 @@ const clearCoordinates = () => {
 }
 
 class VisualizationRequest {
-    constructor(featureId, status, hrefs) {
+    constructor(featureId, status, processedFiles) {
         this.featureId = featureId;
         this.status = status;
-        this.hrefs = hrefs;
+        this.processedFiles = processedFiles;
     }
 
     isInitialized() {
         return (this.featureId !== undefined)
             && (this.status !== undefined)
-            && (this.hrefs !== undefined);
+            && (this.processedFiles !== undefined);
     }
 
-    getHrefs() {
-        return this.hrefs;
+    getProcessedFiles() {
+        return this.processedFiles;
     }
 }
 
@@ -636,7 +622,27 @@ const openFeature = () => {
     const selectedValue = document.querySelector("#processed-products-select").value;
 
     if (selectedValue) {
-        window.open(selectedValue, '_blank');
+        const selectedValueJSON = JSON.parse(selectedValue);
+
+        const requestHash = encodeURIComponent(selectedValueJSON.requestHash);
+        const file = encodeURIComponent(selectedValueJSON.file);
+
+        if (window.currentSatelliteTiles) {
+            leafletMap.removeLayer(window.currentSatelliteTiles);
+        }
+
+        const tileUrlTemplate = `${backendHost}/api/get_tile/{z}/{x}/{y}.jpg?request_hash=${requestHash}&selected_file=${file}`;
+
+        const satelliteTiles = L.tileLayer(tileUrlTemplate, {
+            minZoom: 8,
+            maxZoom: 19,
+            tileSize: 256,
+            opacity: 0.8,
+        });
+
+        satelliteTiles.addTo(leafletMap);
+
+        window.currentSatelliteTiles = satelliteTiles;
     }
 }
 
@@ -646,14 +652,14 @@ const visualize = async () => {
     let processedProductsSelect = document.querySelector("#processed-products-select");
     processedProductsSelect.innerHTML = '';
 
-    visualizationRequest.getHrefs().forEach(processedProduct => {
-        console.log(processedProduct);
-        let option = document.createElement("option");
-        option.value = processedProduct;
-        const processedProductParst = processedProduct.split('/')
-        option.textContent = processedProductParst[processedProductParst.length - 1];
-        processedProductsSelect.appendChild(option);
-    });
+    for (const requestHash in visualizationRequest.getProcessedFiles()) {
+        for (const file of visualizationRequest.getProcessedFiles()[requestHash]) {
+            let option = document.createElement("option");
+            option.value = `{"requestHash":"${requestHash}", "file":"${file}"}`;
+            option.textContent = file;
+            processedProductsSelect.appendChild(option);
+        }
+    }
 
     enableUIElements()
 }
@@ -681,7 +687,12 @@ const requestVisualization = async () => {
         }
     );
 
-    let visualizationRequest = new VisualizationRequest(undefined, undefined, undefined);
+    let visualizationRequest = new VisualizationRequest(
+        undefined,
+        undefined,
+        undefined,
+        undefined
+    );
 
     try {
         let url = `${backendHost}/api/request_processing`
@@ -698,10 +709,11 @@ const requestVisualization = async () => {
             }, backendReplyTimeout);
 
             const data = await response.json();
+
             visualizationRequest = new VisualizationRequest(
                 data.feature_id,
                 data.status,
-                data.hrefs
+                data.processed_files
             );
 
             console.log(visualizationRequest);
@@ -752,11 +764,9 @@ const transposeCoordinates = (coordinatesArray) => {
     return newCoordinatesArray;
 }
 
-let showedPolygon = null;
-
 const showBorders = () => {
-    if (showedPolygon) {
-        showedPolygon.remove()
+    if (window.selectedFeaturePolygon) {
+        window.selectedFeaturePolygon.remove()
     }
 
     const selectedFeatureId = document.getElementById("available-features-select").value;
@@ -766,52 +776,20 @@ const showBorders = () => {
 
     let coordinates = transposeCoordinates(featuresGlobal.get(selectedFeatureId).GeoFootprint.coordinates[0]);
 
-    showedPolygon = L.polygon(coordinates, {
+    const selectedFeaturePolygon = L.polygon(coordinates, {
         color: 'black', //obrys
         fillColor: 'black', //vypln
         fillOpacity: 0.3
     }).addTo(leafletMap);
 
     isUserInteractingWithMap = false;
-    leafletMap.fitBounds(showedPolygon.getBounds());
+    leafletMap.fitBounds(selectedFeaturePolygon.getBounds());
     leafletMap.once('moveend', () => {
         isUserInteractingWithMap = true;
     });
+
+    window.selectedFeaturePolygon = selectedFeaturePolygon;
 };
-
-const showExampleGeoTiff = async () => {
-    spinner.style.display = "block";
-
-    await fetch("http://127.0.0.1:8080/example.tif")
-        .then(response => response.arrayBuffer())
-        .then(arrayBuffer => {
-            parseGeoraster(arrayBuffer).then(georaster => {
-                console.log("georaster:", georaster);
-
-                /*
-                    GeoRasterLayer is an extension of GridLayer,
-                    which means can use GridLayer options like opacity.
-
-                    Just make sure to include the georaster option!
-
-                    Optionally set the pixelValuesToColorFn function option to customize
-                    how values for a pixel are translated to a color.
-
-                    https://leafletjs.com/reference.html#gridlayer
-                */
-                var layer = new GeoRasterLayer({
-                    georaster: georaster,
-                    opacity: 0.75,
-                    resolution: 256 // optional parameter for adjusting display resolution
-                });
-                layer.addTo(leafletMap);
-
-                leafletMap.fitBounds(layer.getBounds());
-
-                spinner.style.display = "none";
-            });
-        });
-}
 
 document.querySelectorAll(".mission-filter-button").forEach((filterButton) => {
     filterButton.addEventListener("click", async function () {

@@ -4,18 +4,22 @@ import logging
 import mercantile
 import numpy as np
 
+from pathlib import Path
+
 from PIL import Image
 
+import variables
 from feature.processing.processed_feature import ProcessedFeature
 
 from feature.tiling.exceptions.tiling_worker import *
+
 
 class TilingWorker:
     _logger: logging.Logger = None
 
     _processed_feature: ProcessedFeature = None
 
-    _selected_file: str = None
+    _selected_file: str | Path = None
     _image_file: Image.Image = None
     _image_numpy: np.ndarray = None
     _image_width: float = None
@@ -36,7 +40,9 @@ class TilingWorker:
 
         self._processed_feature = processed_feature
 
-        self._selected_file = selected_file  # todo tady to bude potřeba nějak vytáhnout z processed_feature
+        self._selected_file = (
+                Path(variables.BACKEND_OUTPUT_DIRECTORY) / self._processed_feature.get_request_hash() / selected_file
+        )
         self._image_file = Image.open(self._selected_file)
         self._image_numpy = np.array(self._image_file)
         self._image_width, self._image_height = self._image_file.size
@@ -57,7 +63,7 @@ class TilingWorker:
 
         pixel_x = int((lon - min_lon) * self._pixels_per_lon)
         pixel_y = int((max_lat - lat) * self._pixels_per_lat)
-        print(pixel_x, pixel_y)
+
         return pixel_x, pixel_y
 
     def get_tile(self) -> io.BytesIO:
@@ -70,17 +76,11 @@ class TilingWorker:
         if left > self._image_width or top > self._image_height or right < 0 or bottom < 0:
             raise TilingWorkerTileOutOfBounds(
                 request_hash=self._processed_feature.get_request_hash(),
-                z=self._z,x=self._x,y=self._y
+                z=self._z, x=self._x, y=self._y
             )
 
-        """
-        left = max(0, left)
-        right = min(self._image_width, right)
-        top = max(0, top)
-        bottom = min(self._image_height, bottom)
-        """
-
         tile_crop = self._image_file.crop((left, top, right, bottom))
+
         """
         try:
             tile_crop = image.crop((left, top, right, bottom))
@@ -92,7 +92,7 @@ class TilingWorker:
         """
 
         if tile_crop.size[0] < 256 or tile_crop.size[1] < 256:
-            tile_resized = Image.open("RES_LOW.jpg")
+            tile_resized = Image.open(Path(__file__).parent / "RES_LOW.jpg")
         else:
             tile_resized = tile_crop.resize((256, 256), resample=Image.LANCZOS)
 

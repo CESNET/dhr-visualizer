@@ -76,5 +76,5 @@ class CDSEConnector(DataspaceConnector):
 
         return downloaded_files
 
-    def get_coordinates(self) -> list[list[float]]:
+    def get_polygon(self) -> list[list[float]]:
         return self._get_feature()['GeoFootprint']['coordinates'][0]
