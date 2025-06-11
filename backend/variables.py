@@ -1,9 +1,5 @@
 import os
 
-from dotenv import load_dotenv
-
-load_dotenv(dotenv_path="./variables.env") #TODO delete on production
-
 true_statements = ["1", "true", "yes", ]
 
 APP__NAME: str = os.getenv("APP__NAME", default="dhr-visualizer")
