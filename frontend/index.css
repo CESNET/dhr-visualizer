@@ -165,3 +165,18 @@ select {
 .additional-filters > .filter:last-of-type {
     margin-bottom: 0;
 }
+
+/* cancel button on the selected items */
+.choices__item--selectable .choices__button {
+    padding: 0;
+    background-color: #007BFF;
+    border: none;
+    margin-left: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* selected items in the ellipses */
+.choices__list--multiple .choices__item--selectable {
+    background-color: #007BFF;
+}
