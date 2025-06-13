@@ -24,25 +24,14 @@ class Sentinel1Feature(ProcessedFeature):
 
         self._filters_polarisation_channels_availability = {
             'VV': False,
-            'VH': False,
             'HH': False,
-            'HV': False
+            'VV&VH': False,
+            'HH&HV': False,
+            'VH&VV': False,
+            'HV&HH': False,
         }
 
         self._logger.debug(f"[{__name__}]: Sentinel-1 feature initialized")
-
-    def _prepare_channel_filter_array(self) -> list:
-        polarisation_filter = []
-        for channels_combine in self._filters['polarisation_channels_combined']:
-            channels = channels_combine.split('+')
-            polarisation_filter = polarisation_filter + channels
-
-        for channel_separate in self._filters['polarisation_channels']:
-            if channel_separate not in polarisation_filter:
-                polarisation_filter.append(channel_separate)
-
-        polarisation_filter = [channel.lower() for channel in polarisation_filter]
-        return polarisation_filter
 
     def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
         # TODO asi bude potřeba přidělat stažení i nějakých metadat pro zobrazení v mapě
@@ -50,7 +39,7 @@ class Sentinel1Feature(ProcessedFeature):
         if available_files is None:
             available_files = []
 
-        polarisation_filter = self._prepare_channel_filter_array()
+        polarisation_filter = self._filters['polarisation_channels']
 
         filtered_files = []
 
