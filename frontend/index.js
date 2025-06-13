@@ -180,13 +180,13 @@ const s1ProductTypesChoices = new Choices('#sentinel-1-product-types', {
     position: 'bottom',
 });
 
-// const s1PolarisationChoices = new Choices('#sentinel-1-polarisation', {
-//     removeItemButton: true,
-//     shouldSort: true,
-//     placeholder: true,
-//     placeholderValue: " + ",
-//     position: 'bottom',
-// });
+const s1PolarisationChoices = new Choices('#sentinel-1-polarisation', {
+    removeItemButton: true,
+    shouldSort: true,
+    placeholder: true,
+    placeholderValue: " + ",
+    position: 'bottom',
+});
 
 
 const closeAlert = (alertDiv) => {
@@ -367,11 +367,7 @@ const fetchFeatures = async () => {
                     const s1LevelSelected = s1LevelChoices.getValue(true);
                     const s1SensingTypesSelected = s1SensingTypesChoices.getValue(true);
                     const s1ProductTypesSelected = s1ProductTypesChoices.getValue(true);
-                    
-                    const polarisationChannelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-polarisation-channels"]:checked');
-                    const polarisationChannelsSelected = Array.from(polarisationChannelsSelectedNodes).map(checkbox => checkbox.value);
-                    const combinedPolarisationChannelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-combined-polarisation-channels"]:checked');
-                    const combinedPolarisationChannelsSelected = Array.from(combinedPolarisationChannelsSelectedNodes).map(checkbox => checkbox.value);
+                    const s1PolarisationSelected = s1PolarisationChoices.getValue(true);
 
                     if (s1LevelSelected.length <= 0 || s1SensingTypesSelected.length <= 0 || s1ProductTypesSelected.length <= 0) {
                         await showAlert("Warning", "Not enough parameters specified!", false);
@@ -403,17 +399,14 @@ const fetchFeatures = async () => {
                         ).join(' or ')})`;
                     }
 
-                    selectedFilters.set('polarisation_channels', polarisationChannelsSelected);
-                    selectedFilters.set('polarisation_channels_combined', combinedPolarisationChannelsSelected);
-                    /*
-                    // It seems like it is not possible to search OData using polarisationChannels
+                    selectedFilters.set('polarisation_channels', s1PolarisationSelected);
                     let polarisationChannelsApiCall = undefined;
-                    if (polarisationChannelsSelected.length > 0) {
-                        polarisationChannelsApiCall = `(${polarisationChannelsSelected.map(
+                    if (s1PolarisationSelected.length > 0) {
+                        polarisationChannelsApiCall = `(${s1PolarisationSelected.map(
                             polarisationChannel => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'polarisationChannels' and att/OData.CSC.StringAttribute/Value eq '${polarisationChannel}')`
                         ).join(' or ')})`;
                     }
-                    */
+
 
                     filtersGlobal.set(datasetsSelected[dataset], selectedFilters);
                     filters += `${datasetFilter} and (${levelsApiCall} and ${sensingTypesApiCall} and ${productTypesApiCall})`; //and ${polarisationChannelsApiCall})`;
