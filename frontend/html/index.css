@@ -180,3 +180,13 @@ select {
 .choices__list--multiple .choices__item--selectable {
     background-color: #007BFF;
 }
+
+.choices__inner {
+    background: none;
+    border: none;
+}
+
+.choices__input--cloned {
+    background: none;
+    border: none;
+}
