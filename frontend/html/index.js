@@ -825,54 +825,6 @@ const toggleMissionFiltersDiv = async (filterButton) => {
     }
 }
 
-const toggleSentinel1HHHV = () => {
-    if (document.querySelector("#sentinel-1-combined-hhhv-checkbox").checked) {
-        document.querySelector("#sentinel-1-hh-checkbox").checked = true;
-        document.querySelector("#sentinel-1-hv-checkbox").checked = true;
-    }
-}
-
-const toggleSentinel1VVVH = () => {
-    if (document.querySelector("#sentinel-1-combined-vvvh-checkbox").checked) {
-        document.querySelector("#sentinel-1-vv-checkbox").checked = true;
-        document.querySelector("#sentinel-1-vh-checkbox").checked = true;
-    }
-}
-
-const toggleSentinel1CombinedHHHV = () => {
-    if (document.querySelector("#sentinel-1-combined-hhhv-checkbox").checked) {
-        if (
-            !document.querySelector("#sentinel-1-hh-checkbox").checked ||
-            !document.querySelector("#sentinel-1-hv-checkbox").checked
-        ) {
-            document.querySelector("#sentinel-1-combined-hhhv-checkbox").checked = false;
-        }
-    }
-}
-
-const toggleSentinel1CombinedVVVH = () => {
-    if (document.querySelector("#sentinel-1-combined-vvvh-checkbox").checked) {
-        if (
-            !document.querySelector("#sentinel-1-vv-checkbox").checked ||
-            !document.querySelector("#sentinel-1-vh-checkbox").checked
-        ) {
-            document.querySelector("#sentinel-1-combined-vvvh-checkbox").checked = false;
-        }
-    }
-}
-
-const toggleSentinel1Checkbox = () => {
-    if (
-        document.querySelectorAll('input[name="sentinel-1-levels"]:checked').length <= 0
-        && document.querySelectorAll('input[name="sentinel-1-sensing-types"]:checked').length <= 0
-        && document.querySelectorAll('input[name="sentinel-1-data-types"]:checked').length <= 0
-    ) {
-        document.querySelector("#mission-filter-checkbox-sentinel-1").checked = false;
-    } else {
-        document.querySelector("#mission-filter-checkbox-sentinel-1").checked = true;
-    }
-}
-
 const toggleSentinel2Checkbox = () => {
     if (
         document.querySelectorAll('input[name="sentinel-2-levels"]:checked').length <= 0
