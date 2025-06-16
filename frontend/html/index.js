@@ -536,6 +536,7 @@ const fetchFeatures = async () => {
 
         if (obtainedFeatures.length > 0) {
             enableUIElements()
+            toggleFeaturesControl();
         } else {
             enableUIElements()
             await showAlert("Warning", "No features found for selected filters!", false);
@@ -561,6 +562,16 @@ const enableUIElements = () => {
     document.querySelector("#available-features-select-div").classList.remove("disabled-element");
     document.querySelector("#processed-products-select-div").classList.remove("disabled-element");
     document.querySelector("#open-product-button-div").classList.remove("disabled-element");
+}
+
+const toggleFeaturesControl = () => {
+    document.querySelector("#features").classList.remove("hidden-element");
+    document.querySelector("#preselection").classList.add("hidden-element");
+}
+
+const togglePreselectionControl = () => {
+    document.querySelector("#features").classList.add("hidden-element");
+    document.querySelector("#preselection").classList.remove("hidden-element");
 }
 
 
@@ -860,3 +871,7 @@ const toggleSentinel2AdditionalCheckboxes = () => {
         })
     }
 }
+
+document.querySelector("#features-back-button").addEventListener("click", function () {
+        togglePreselectionControl();
+});
