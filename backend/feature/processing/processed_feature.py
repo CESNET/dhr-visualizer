@@ -163,18 +163,18 @@ class ProcessedFeature(ABC):
 
         self._bbox = self._dataspace_connector.get_bbox()
 
-        downloaded_files_paths = await self._download_feature()
+        downloaded_feature_files_paths = await self._download_feature()
 
         self._logger.debug(f"[{__name__}]: Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")
 
-        self._output_files = self._generate_map_tiles(input_files=downloaded_files_paths)
+        self._output_files = self._process_feature_files(feature_files=downloaded_feature_files_paths)
         # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
         # TODO prozatím bude uloženo ve složce webserveru s frontendem (config/variables.py --- FRONTEND_ROOT_DIR)
         # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
 
         self._set_status(status=RequestStatuses.COMPLETED)
 
-    def _generate_map_tiles(self, input_files: list[str]) -> list[str] | None:
+    def _process_feature_files(self, feature_files: list[str]) -> list[str] | None:
         self._output_directory = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, self._request_hash)
         self._output_directory.mkdir(parents=True, exist_ok=True)
 
@@ -184,7 +184,7 @@ class ProcessedFeature(ABC):
             elif item.is_dir():
                 shutil.rmtree(item)
 
-        gjtiff_stdout = self._run_gjtiff_docker(input_files=input_files, output_directory=self._output_directory)
+        gjtiff_stdout = self._run_gjtiff_docker(input_files=feature_files, output_directory=self._output_directory)
         self._logger.debug(f"[{__name__}]: gjtiff_stdout: |>|>|>{gjtiff_stdout}<|<|<|")
         print(f"[{__name__}]: gjtiff_stdout: |>|>|>{gjtiff_stdout}<|<|<|")
         processed_tiles = self._extract_output_file_list(stdout=gjtiff_stdout)
