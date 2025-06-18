@@ -4,8 +4,6 @@ import logging
 import mercantile
 import numpy as np
 
-from pathlib import Path
-
 from PIL import Image
 
 import variables
@@ -41,7 +39,7 @@ class TilingWorker:
         self._processed_feature = processed_feature
 
         self._selected_file = (
-                Path(variables.BACKEND_OUTPUT_DIRECTORY) / self._processed_feature.get_request_hash() / selected_file
+                Path(variables.DOCKER_SHARED_DATA_DIRECTORY) / self._processed_feature.get_request_hash() / selected_file
         )
         self._image_file = Image.open(self._selected_file)
         self._image_numpy = np.array(self._image_file)
@@ -66,9 +64,19 @@ class TilingWorker:
 
         return pixel_x, pixel_y
 
-    def get_tile(self) -> io.BytesIO:
+    def save_tile(self) -> Path:
         tile_bounds = mercantile.bounds((self._x, self._y, self._z))
         self._logger.debug(f"[{__name__}]: Tile bounds: {tile_bounds}")
+
+        tile_directory = self._processed_feature.get_output_directory() / f"{self._z}/{self._x}/"
+        tile_directory.mkdir(parents=True, exist_ok=True)
+        tile_file = tile_directory / f"{self._y}.jpg"
+
+        if tile_file.is_dir():
+            raise TilingWorkerOutputFileIsDirectory(tile_file)
+
+        if tile_file.is_file():
+            return tile_file
 
         left, top = self._coords_to_pixel(tile_bounds.west, tile_bounds.north)
         right, bottom = self._coords_to_pixel(tile_bounds.east, tile_bounds.south)
@@ -96,6 +104,6 @@ class TilingWorker:
         else:
             tile_resized = tile_crop.resize((256, 256), resample=Image.LANCZOS)
 
-        image_bytes = io.BytesIO()
-        tile_resized.save(image_bytes, format="JPEG")
-        return image_bytes
+        tile_resized.save(tile_file, format="JPEG")
+
+        return tile_file

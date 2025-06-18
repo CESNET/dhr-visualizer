@@ -10,11 +10,7 @@ class ProcessedFeatureIDNotSpecified(ProcessedFeatureError):
 
 
 class ProcessedFeatureS3DownloadFailed(ProcessedFeatureError):
-    def __init__(
-            self,
-            message="Processed Feature S3 download failed!",
-            feature_id=None
-    ):
+    def __init__(self, message="Processed Feature S3 download failed!", feature_id=None):
         if feature_id is None:
             self._message = message
         else:
@@ -22,15 +18,22 @@ class ProcessedFeatureS3DownloadFailed(ProcessedFeatureError):
 
         super().__init__(self._message)
 
+
 class ProcessedFeatureBboxNotSet(ProcessedFeatureError):
-    def __init__(
-            self,
-            message="Processed Feature bbox not set!",
-            feature_id=None
-    ):
+    def __init__(self, message="Processed Feature bbox not set!", feature_id=None):
         if feature_id is None:
             self._message = message
         else:
             self._message = f"Processed Feature bbox not set for {feature_id}!"
+
+        super().__init__(self._message)
+
+
+class ProcessedFeatureOutputDirectoryNotSet(ProcessedFeatureError):
+    def __init__(self, message="Processed Feature output directory not set!", feature_id=None):
+        if feature_id is None:
+            self._message = message
+        else:
+            self._message = f"Processed Feature output directory not set for {feature_id}!"
 
         super().__init__(self._message)

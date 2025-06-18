@@ -1,5 +1,3 @@
-FROM python:3.12.9-bookworm
-WORKDIR /app
-COPY . /app
-EXPOSE 8080
-CMD ["python", "-m", "http.server", "8080"]
+FROM httpd:2.4
+COPY apache/httpd.conf /usr/local/apache2/conf/httpd.conf
+COPY html/ /usr/local/apache2/htdocs/

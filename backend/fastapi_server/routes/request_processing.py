@@ -10,9 +10,12 @@ from feature.processing.processed_feature import ProcessedFeature
 from feature.processing.sentinel1_feature import Sentinel1Feature
 from feature.processing.sentinel2_feature import Sentinel2Feature
 
+import variables as variables
+
 router = APIRouter()
 
-@router.post("/api/request_processing")
+
+@router.post(f"{variables.UVICORN__SERVER_PREFIX}" + "/request_processing")
 async def request_processing(
         background_tasks: BackgroundTasks,
         processed_feature_model: ProcessedFeatureModel = ProcessedFeatureModel()

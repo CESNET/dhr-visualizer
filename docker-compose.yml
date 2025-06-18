@@ -8,8 +8,6 @@ services:
       - variables.env
     ports:
       - "8081:8081"
-    depends_on:
-      - gjtiff
     volumes:
       - tmp:/tmp
       - shared_data:/data
@@ -22,6 +20,8 @@ services:
       - variables.env
     ports:
       - "8080:8080"
+    volumes:
+      - shared_data:/usr/local/apache2/htdocs/data
     depends_on:
       - backend
 

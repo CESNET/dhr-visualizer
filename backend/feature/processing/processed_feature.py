@@ -134,6 +134,12 @@ class ProcessedFeature(ABC):
     def get_request_hash(self) -> str:
         return self._request_hash
 
+    def get_output_directory(self) -> Path:
+        if self._output_directory is None:
+            raise ProcessedFeatureOutputDirectoryNotSet(feature_id=self._feature_id)
+
+        return self._output_directory
+
     @abstractmethod
     def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
         pass
@@ -169,9 +175,7 @@ class ProcessedFeature(ABC):
         self._set_status(status=RequestStatuses.COMPLETED)
 
     def _generate_map_tiles(self, input_files: list[str]) -> list[str] | None:
-        file_list = ' '.join(input_files)
-
-        self._output_directory = Path(variables.BACKEND_OUTPUT_DIRECTORY, self._request_hash)
+        self._output_directory = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, self._request_hash)
         self._output_directory.mkdir(parents=True, exist_ok=True)
 
         for item in self._output_directory.iterdir():
@@ -182,6 +186,7 @@ class ProcessedFeature(ABC):
 
         gjtiff_stdout = self._run_gjtiff_docker(input_files=input_files, output_directory=self._output_directory)
         self._logger.debug(f"[{__name__}]: gjtiff_stdout: |>|>|>{gjtiff_stdout}<|<|<|")
+        print(f"[{__name__}]: gjtiff_stdout: |>|>|>{gjtiff_stdout}<|<|<|")
         processed_tiles = self._extract_output_file_list(stdout=gjtiff_stdout)
 
         return processed_tiles

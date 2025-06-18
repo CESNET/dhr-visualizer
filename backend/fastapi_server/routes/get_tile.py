@@ -1,17 +1,19 @@
 import io
 
 from fastapi import APIRouter, Query
-from fastapi.responses import StreamingResponse, Response
+from fastapi.responses import RedirectResponse, Response
 
 import fastapi_server.fastapi_shared as fastapi_shared
 
 from feature.tiling.tiling_worker import TilingWorker
 from feature.tiling.exceptions.tiling_worker import TilingWorkerTileOutOfBounds
 
+import variables as variables
+
 router = APIRouter()
 
 
-@router.get("/api/get_tile/{z}/{x}/{y}.jpg")
+@router.get(f"{variables.UVICORN__SERVER_PREFIX}" + "/get_tile/{z}/{x}/{y}.jpg")
 def get_tile(
         z: int, x: int, y: int,
         request_hash: str = Query(None, description="Request hash assigned by /api/request_processing endpoint"),
@@ -33,9 +35,11 @@ def get_tile(
     )
 
     try:
-        tile_img_bytes: io.BytesIO = tiling_worker.get_tile()
-        tile_img_bytes.seek(0)
-        return StreamingResponse(tile_img_bytes, media_type="image/jpeg")
+        tile_path = tiling_worker.save_tile()
+        return RedirectResponse(str(tile_path))
 
     except TilingWorkerTileOutOfBounds:
         return Response(status_code=204)
+
+    except Exception:
+        return Response(status_code=500)
