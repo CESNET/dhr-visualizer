@@ -188,6 +188,8 @@ class ProcessedFeature(ABC):
         self._logger.debug(f"[{__name__}]: gjtiff_stdout: |>|>|>{gjtiff_stdout}<|<|<|")
         print(f"[{__name__}]: gjtiff_stdout: |>|>|>{gjtiff_stdout}<|<|<|")
         processed_tiles = self._extract_output_file_list(stdout=gjtiff_stdout)
+        self._logger.debug(f"[{__name__}]: processed_tiles: |>|>|>{gjtiff_stdout}<|<|<|")
+        print(f"[{__name__}]: processed_tiles: |>|>|>{gjtiff_stdout}<|<|<|")
 
         return processed_tiles
 
