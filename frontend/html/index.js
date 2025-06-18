@@ -838,9 +838,8 @@ const toggleMissionFiltersDiv = async (filterButton) => {
 
 const toggleSentinel2Checkbox = () => {
     if (
-        document.querySelectorAll('input[name="sentinel-2-levels"]:checked').length <= 0
-        && document.querySelectorAll('input[name="sentinel-2-bands"]:checked').length <= 0
-        && document.querySelectorAll('input[name="sentinel-2-misc"]:checked').length <= 0
+        s2BandChoices.getValue("true").length === 0 ||
+        s2LevelChoices.getValue("true").length === 0
     ) {
         document.querySelector("#mission-filter-checkbox-sentinel-2").checked = false;
     } else {
@@ -848,30 +847,43 @@ const toggleSentinel2Checkbox = () => {
     }
 }
 
-const toggleSentinel1AdditionalCheckboxes = () => {
-    if (!document.querySelector("#mission-filter-checkbox-sentinel-1").checked) {
-        document.querySelectorAll("#mission-filters-sentinel-1-div input[type=checkbox]").forEach((checkbox) => {
-            checkbox.checked = false;
-        })
+const toggleSentinel1Checkbox = () => {
+    if (
+        s1ProductTypesChoices.getValue("true").length === 0 ||
+        s1LevelChoices.getValue("true").length === 0 ||
+        s1SensingTypesChoices.getValue("true").length === 0 ||
+        s1PolarisationChoices.getValue("true").length === 0
+    ) {
+        document.querySelector("#mission-filter-checkbox-sentinel-1").checked = false;
     } else {
-        document.querySelectorAll("#mission-filters-sentinel-1-div input[type=checkbox]").forEach((checkbox) => {
-            checkbox.checked = true;
-        })
+        document.querySelector("#mission-filter-checkbox-sentinel-1").checked = true;
     }
 }
 
-const toggleSentinel2AdditionalCheckboxes = () => {
-    if (!document.querySelector("#mission-filter-checkbox-sentinel-2").checked) {
-        document.querySelectorAll("#mission-filters-sentinel-2-div input[type=checkbox]").forEach((checkbox) => {
-            checkbox.checked = false;
-        })
-    } else {
-        document.querySelectorAll("#mission-filters-sentinel-2-div input[type=checkbox]").forEach((checkbox) => {
-            checkbox.checked = true;
-        })
-    }
-}
+// const toggleSentinel1AdditionalCheckboxes = () => {
+//     if (!document.querySelector("#mission-filter-checkbox-sentinel-1").checked) {
+//         document.querySelectorAll("#mission-filters-sentinel-1-div input[type=checkbox]").forEach((checkbox) => {
+//             checkbox.checked = false;
+//         })
+//     } else {
+//         document.querySelectorAll("#mission-filters-sentinel-1-div input[type=checkbox]").forEach((checkbox) => {
+//             checkbox.checked = true;
+//         })
+//     }
+// }
+//
+// const toggleSentinel2AdditionalCheckboxes = () => {
+//     if (!document.querySelector("#mission-filter-checkbox-sentinel-2").checked) {
+//         document.querySelectorAll("#mission-filters-sentinel-2-div input[type=checkbox]").forEach((checkbox) => {
+//             checkbox.checked = false;
+//         })
+//     } else {
+//         document.querySelectorAll("#mission-filters-sentinel-2-div input[type=checkbox]").forEach((checkbox) => {
+//             checkbox.checked = true;
+//         })
+//     }
+// }
 
 document.querySelector("#features-back-button").addEventListener("click", function () {
-        togglePreselectionControl();
+    togglePreselectionControl();
 });

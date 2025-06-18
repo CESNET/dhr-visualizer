@@ -79,8 +79,7 @@
 				<div class="controls-element mission-filter" id="mission-filters-sentinel-1-div">
 					<div class="checkbox-div">
 						<input type="checkbox" class="mission-filter-checkbox" id="mission-filter-checkbox-sentinel-1"
-							   name="dataset" value="SENTINEL-1"
-							   onclick="toggleSentinel1AdditionalCheckboxes();">
+							   name="dataset" value="SENTINEL-1">
 						<label for="mission-filter-checkbox-sentinel-1">Sentinel 1</label>
 						<button class="mission-filter-button" id="mission-filter-button-sentinel-1" value="SENTINEL-1">
 							Open filter
@@ -91,7 +90,7 @@
 						<div class="label-like">Additional filters for Sentinel 1</div>
 						<div class="filter">
 							<div class="filter-category-label">Levels</div>
-							<select id="sentinel-1-levels" name="sentinel-1-levels" multiple>
+							<select onchange="toggleSentinel1Checkbox();" id="sentinel-1-levels" name="sentinel-1-levels" multiple>
 								<option value="LEVEL0" selected="true">Level 0</option>
 								<option value="LEVEL1" selected="true">Level 1</option>
 								<option value="LEVEL2" selected="true">Level 2</option>
@@ -100,7 +99,7 @@
 
 						<div class="filter">
 							<div class="filter-category-label">Sensing types</div>
-							<select id="sentinel-1-sensing-types" name="sentinel-1-sensing-types" multiple>
+							<select onchange="toggleSentinel1Checkbox();" id="sentinel-1-sensing-types" name="sentinel-1-sensing-types" multiple>
 								<option value="IW" selected="true">IW</option>
 								<option value="EW" selected="true">EW</option>
 								<option value="SM" selected="true">SM</option>
@@ -111,7 +110,7 @@
 
 						<div class="filter">
 							<div class="filter-category-label">Product types</div>
-							<select id="sentinel-1-product-types" name="sentinel-1-product-types" multiple>
+							<select onchange="toggleSentinel1Checkbox();" id="sentinel-1-product-types" name="sentinel-1-product-types" multiple>
 								<option value="RAW" selected="true">RAW</option>
 								<option value="SLC" selected="true">SLC</option>
 								<option value="GRD" selected="true">GRD</option>
@@ -122,7 +121,7 @@
 
 						<div class="filter">
 							<div class="filter-category-label">Polarisation</div>
-							<select id="sentinel-1-polarisation" multiple>
+							<select onchange="toggleSentinel1Checkbox();" id="sentinel-1-polarisation" multiple>
 								<option value="HH&HV" selected>HH+HV</option>
 								<option value="VV&VH" selected>VV+VH</option>
 								<option value="HV&HH" selected>HV+HH</option>
@@ -144,8 +143,7 @@
 				<div class="controls-element mission-filter" id="mission-filters-sentinel-2-div">
 					<div class="checkbox-div">
 						<input type="checkbox" class="mission-filter-checkbox" id="mission-filter-checkbox-sentinel-2"
-							   name="dataset" value="SENTINEL-2"
-							   onclick="toggleSentinel2AdditionalCheckboxes();">
+							   name="dataset" value="SENTINEL-2">
 						<label for="mission-filter-checkbox-sentinel-2">Sentinel 2</label>
 						<button class="mission-filter-button" id="mission-filter-button-sentinel-2" value="SENTINEL-2">
 							Open filter
@@ -173,7 +171,7 @@
 
 						<div class="filter">
 							<div class="filter-category-label">Levels</div>
-							<select id="sentinel-2-levels" name="sentinel-2-levels" multiple>
+							<select id="sentinel-2-levels" name="sentinel-2-levels" multiple onchange="toggleSentinel2Checkbox();">
 								<option value="S2MSI0" selected="true">Level 0</option>
 								<option value="S2MSI1A" selected="true">Level 1A</option>
 								<option value="S2MSI1B" selected="true">Level 1B</option>
@@ -185,7 +183,7 @@
 
 						<div class="filter">
 							<div class="filter-category-label">Bands</div>
-							<select id="sentinel-2-bands" name="sentinel-2-bands" multiple>
+							<select id="sentinel-2-bands" name="sentinel-2-bands" multiple onchange="toggleSentinel2Checkbox();">
 								<option value="B1" selected="true">B1 - Coastal, aerosol (60 m)</option>
 								<option value="B2" selected="true">B2 - Blue (10 m)</option>
 								<option value="B3" selected="true">B3 - Green (10 m)</option>
