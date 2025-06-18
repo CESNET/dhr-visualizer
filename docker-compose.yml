@@ -19,7 +19,7 @@ services:
     env_file:
       - variables.env
     ports:
-      - "8080:80"
+      - "80:80"
     volumes:
       - shared_data:/usr/local/apache2/htdocs/data
     depends_on:
