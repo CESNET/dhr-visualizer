@@ -1,4 +1,3 @@
-import io
 import logging
 
 import mercantile
@@ -39,8 +38,9 @@ class TilingWorker:
         self._processed_feature = processed_feature
 
         self._selected_file = (
-                Path(
-                    variables.DOCKER_SHARED_DATA_DIRECTORY) / self._processed_feature.get_request_hash() / selected_file
+                Path(variables.DOCKER_SHARED_DATA_DIRECTORY) /
+                self._processed_feature.get_request_hash() /
+                selected_file
         )
         self._image_file = Image.open(self._selected_file)
         self._image_numpy = np.array(self._image_file)
@@ -69,6 +69,8 @@ class TilingWorker:
         tile_bounds = mercantile.bounds((self._x, self._y, self._z))
         self._logger.debug(f"[{__name__}]: Tile bounds: {tile_bounds}")
 
+        print(f"processed_feature.get_output_directory: {str(self._processed_feature.get_output_directory())}")
+        print(f"self._selected_file: {str(self._selected_file)}")
         tile_directory = self._processed_feature.get_output_directory() / f"{self._z}/{self._x}/"
         tile_directory.mkdir(parents=True, exist_ok=True)
         tile_file = tile_directory / f"{self._y}.jpg"
