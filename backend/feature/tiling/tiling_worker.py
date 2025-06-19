@@ -69,9 +69,7 @@ class TilingWorker:
         tile_bounds = mercantile.bounds((self._x, self._y, self._z))
         self._logger.debug(f"[{__name__}]: Tile bounds: {tile_bounds}")
 
-        print(f"processed_feature.get_output_directory: {str(self._processed_feature.get_output_directory())}")
-        print(f"self._selected_file: {str(self._selected_file)}")
-        tile_directory = self._processed_feature.get_output_directory() / f"{self._z}/{self._x}/"
+        tile_directory = self._selected_file.parent / self._selected_file.stem / f"{self._z}/{self._x}/"
         tile_directory.mkdir(parents=True, exist_ok=True)
         tile_file = tile_directory / f"{self._y}.jpg"
 
@@ -80,6 +78,8 @@ class TilingWorker:
 
         if tile_file.is_file():
             return tile_file
+
+        self._logger.debug(f"[{__name__}]: Will output tile into: {tile_file}")
 
         left, top = self._coords_to_pixel(tile_bounds.west, tile_bounds.north)
         right, bottom = self._coords_to_pixel(tile_bounds.east, tile_bounds.south)
