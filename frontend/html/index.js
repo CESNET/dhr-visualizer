@@ -642,8 +642,8 @@ const openFeature = () => {
     }
 }
 
-const visualize = async () => {
-    let visualizationRequest = await requestVisualization()
+const visualize = async (featureId) => {
+    let visualizationRequest = await requestVisualization(featureId)
 
     let processedProductsSelect = document.querySelector("#processed-products-select");
     processedProductsSelect.innerHTML = '';
@@ -660,14 +660,14 @@ const visualize = async () => {
     enableUIElements();
 }
 
-const requestVisualization = async () => {
+const requestVisualization = async (featureId) => {
     showSpinner();
 
     const repeatRequestAfter = 5 * 1000 // millisecs
     const totalTimeout = 120 // secs // TODO timeout of backend processing after 120 sec. Enough?
     const backendReplyTimeout = 30 * 1000;  // 1 sec = 1 000 millisecs // TODO timeout of backend call after 30 sec. Enough?
 
-    const selectedFeatureId = document.getElementById("available-features-select").value;
+    const selectedFeatureId = featureId;
     const platform = featuresGlobal.get(selectedFeatureId).platform;
     const filters = Object.fromEntries(filtersGlobal.get(platform));
 
@@ -849,7 +849,7 @@ const showProductDetail = (metadata) => {
     product.querySelector(".product-name").textContent = metadata.Name;
     product.querySelector(".product-mission").textContent = metadata.platform;
     product.querySelector(".product-time").textContent = metadata.OriginDate;
-    product.querySelector(".product-size").textContent = metadata.ContentLength;
+    // product.querySelector(".product-size").textContent = metadata.ContentLength;
 
     productDiv = product.querySelector(".product-tile");
     productDiv.addEventListener("mouseenter", async function (e) {
@@ -863,6 +863,10 @@ const showProductDetail = (metadata) => {
     productDiv.addEventListener("mouseleave", async function (e) {
         hoverLayer.clearLayers();
     });
+
+    product.querySelector(".visualize-btn").addEventListener("click", async function () {
+        visualize(metadata.Id);
+    })
 
     tileListDiv.appendChild(product);
 }

@@ -198,3 +198,20 @@ select {
 .nav-item {
     margin-bottom: 15px;
 }
+
+.product-tile {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1em;
+    margin-bottom: 1em;
+    background-color: #f9f9f9;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.product-tile p {
+    font-size: 14px;
+    white-space: normal;
+    word-break: break-word;
+    max-height: 3em;
+    overflow: hidden;
+}
