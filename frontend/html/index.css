@@ -194,3 +194,7 @@ select {
     background: none;
     border: none;
 }
+
+.nav-item {
+    margin-bottom: 15px;
+}

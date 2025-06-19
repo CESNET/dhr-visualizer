@@ -28,7 +28,7 @@
 
 <div class="flex-container" id="main-div">
 	<div class="controls-div" id="controls-div">
-		<div id="preselection">
+		<div id="preselection-panel">
 			<div class="controls-element controls-box" id="time-div">
 				<div class="controls-element" id="time-from-div">
 					<label for="time-from-input">Time from (UTC)</label>
@@ -90,7 +90,8 @@
 						<div class="label-like">Additional filters for Sentinel 1</div>
 						<div class="filter">
 							<div class="filter-category-label">Levels</div>
-							<select onchange="toggleSentinel1Checkbox();" id="sentinel-1-levels" name="sentinel-1-levels" multiple>
+							<select onchange="toggleSentinel1Checkbox();" id="sentinel-1-levels"
+									name="sentinel-1-levels" multiple>
 								<option value="LEVEL0" selected="true">Level 0</option>
 								<option value="LEVEL1" selected="true">Level 1</option>
 								<option value="LEVEL2" selected="true">Level 2</option>
@@ -99,7 +100,8 @@
 
 						<div class="filter">
 							<div class="filter-category-label">Sensing types</div>
-							<select onchange="toggleSentinel1Checkbox();" id="sentinel-1-sensing-types" name="sentinel-1-sensing-types" multiple>
+							<select onchange="toggleSentinel1Checkbox();" id="sentinel-1-sensing-types"
+									name="sentinel-1-sensing-types" multiple>
 								<option value="IW" selected="true">IW</option>
 								<option value="EW" selected="true">EW</option>
 								<option value="SM" selected="true">SM</option>
@@ -110,7 +112,8 @@
 
 						<div class="filter">
 							<div class="filter-category-label">Product types</div>
-							<select onchange="toggleSentinel1Checkbox();" id="sentinel-1-product-types" name="sentinel-1-product-types" multiple>
+							<select onchange="toggleSentinel1Checkbox();" id="sentinel-1-product-types"
+									name="sentinel-1-product-types" multiple>
 								<option value="RAW" selected="true">RAW</option>
 								<option value="SLC" selected="true">SLC</option>
 								<option value="GRD" selected="true">GRD</option>
@@ -171,7 +174,8 @@
 
 						<div class="filter">
 							<div class="filter-category-label">Levels</div>
-							<select id="sentinel-2-levels" name="sentinel-2-levels" multiple onchange="toggleSentinel2Checkbox();">
+							<select id="sentinel-2-levels" name="sentinel-2-levels" multiple
+									onchange="toggleSentinel2Checkbox();">
 								<option value="S2MSI0" selected="true">Level 0</option>
 								<option value="S2MSI1A" selected="true">Level 1A</option>
 								<option value="S2MSI1B" selected="true">Level 1B</option>
@@ -183,7 +187,8 @@
 
 						<div class="filter">
 							<div class="filter-category-label">Bands</div>
-							<select id="sentinel-2-bands" name="sentinel-2-bands" multiple onchange="toggleSentinel2Checkbox();">
+							<select id="sentinel-2-bands" name="sentinel-2-bands" multiple
+									onchange="toggleSentinel2Checkbox();">
 								<option value="B1" selected="true">B1 - Coastal, aerosol (60 m)</option>
 								<option value="B2" selected="true">B2 - Blue (10 m)</option>
 								<option value="B3" selected="true">B3 - Green (10 m)</option>
@@ -228,8 +233,8 @@
 			</div>
 		</div>
 
-		<div id="features" class="hidden-element">
-			<button id="features-back-button">⬅ Back</button>
+		<div id="features-panel" class="hidden-element">
+			<button class="nav-item" id="features-back-button" onclick="togglePreselectionControl();">⬅ Back</button>
 			<div>
 				<div class="controls-element disabled-element" id="available-features-select-div">
 					<label for="available-features-select">Available features</label>
@@ -240,7 +245,10 @@
 					<button id="visualize-feature-button" onclick="visualize()">Visualize selected feature</button>
 				</div>
 			</div>
+		</div>
 
+		<div id="vizualization-panel" class="hidden-element">
+			<button class="nav-item" id="vizualization-back-button" onclick="toggleFeaturesControl();">⬅ Back</button>
 			<div>
 				<div class="controls-element disabled-element" id="processed-products-select-div">
 					<label for="processed-products-select">Processed products</label>
@@ -252,7 +260,6 @@
 				</div>
 			</div>
 		</div>
-
 	</div>
 
 	<div class="map-div" id="map-div"></div>

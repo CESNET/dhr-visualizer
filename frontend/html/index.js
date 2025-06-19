@@ -493,6 +493,7 @@ const fetchFeatures = async () => {
 
         for (const feature of finalFeatures) {
             featuresGlobal.set(feature.Id, feature);
+            console.log(feature);
 
             featureChoices.setChoices([
                 {
@@ -555,6 +556,7 @@ const disableUIElements = () => {
     document.querySelector("#available-features-select-div").classList.add("disabled-element");
     document.querySelector("#processed-products-select-div").classList.add("disabled-element");
     document.querySelector("#open-product-button-div").classList.add("disabled-element");
+    document.querySelector("#map-div").classList.add("disabled-element");
 }
 
 const enableUIElements = () => {
@@ -562,17 +564,22 @@ const enableUIElements = () => {
     document.querySelector("#available-features-select-div").classList.remove("disabled-element");
     document.querySelector("#processed-products-select-div").classList.remove("disabled-element");
     document.querySelector("#open-product-button-div").classList.remove("disabled-element");
+    document.querySelector("#map-div").classList.remove("disabled-element");
 }
 
-const toggleFeaturesControl = () => {
-    document.querySelector("#features").classList.remove("hidden-element");
-    document.querySelector("#preselection").classList.add("hidden-element");
+function togglePanel(activeId) {
+  const panels = ["features-panel", "preselection-panel", "vizualization-panel"];
+  panels.forEach(id => {
+    const panel = document.querySelector(`#${id}`);
+    if (panel) {
+      panel.classList.toggle("hidden-element", id !== activeId);
+    }
+  });
 }
 
-const togglePreselectionControl = () => {
-    document.querySelector("#features").classList.add("hidden-element");
-    document.querySelector("#preselection").classList.remove("hidden-element");
-}
+const toggleFeaturesControl = () => togglePanel("features-panel");
+const togglePreselectionControl = () => togglePanel("preselection-panel");
+const toggleVisualisationControl = () => togglePanel("vizualization-panel");
 
 
 const clearCoordinates = () => {
@@ -859,31 +866,3 @@ const toggleSentinel1Checkbox = () => {
         document.querySelector("#mission-filter-checkbox-sentinel-1").checked = true;
     }
 }
-
-// const toggleSentinel1AdditionalCheckboxes = () => {
-//     if (!document.querySelector("#mission-filter-checkbox-sentinel-1").checked) {
-//         document.querySelectorAll("#mission-filters-sentinel-1-div input[type=checkbox]").forEach((checkbox) => {
-//             checkbox.checked = false;
-//         })
-//     } else {
-//         document.querySelectorAll("#mission-filters-sentinel-1-div input[type=checkbox]").forEach((checkbox) => {
-//             checkbox.checked = true;
-//         })
-//     }
-// }
-//
-// const toggleSentinel2AdditionalCheckboxes = () => {
-//     if (!document.querySelector("#mission-filter-checkbox-sentinel-2").checked) {
-//         document.querySelectorAll("#mission-filters-sentinel-2-div input[type=checkbox]").forEach((checkbox) => {
-//             checkbox.checked = false;
-//         })
-//     } else {
-//         document.querySelectorAll("#mission-filters-sentinel-2-div input[type=checkbox]").forEach((checkbox) => {
-//             checkbox.checked = true;
-//         })
-//     }
-// }
-
-document.querySelector("#features-back-button").addEventListener("click", function () {
-    togglePreselectionControl();
-});
