@@ -1,5 +1,9 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv("../variables.env")
+
 true_statements = ["1", "true", "yes", ]
 
 APP__NAME: str = os.getenv("APP__NAME", default="dhr-visualizer")

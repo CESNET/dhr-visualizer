@@ -39,7 +39,8 @@ class TilingWorker:
         self._processed_feature = processed_feature
 
         self._selected_file = (
-                Path(variables.DOCKER_SHARED_DATA_DIRECTORY) / self._processed_feature.get_request_hash() / selected_file
+                Path(
+                    variables.DOCKER_SHARED_DATA_DIRECTORY) / self._processed_feature.get_request_hash() / selected_file
         )
         self._image_file = Image.open(self._selected_file)
         self._image_numpy = np.array(self._image_file)
@@ -100,10 +101,10 @@ class TilingWorker:
         """
 
         if tile_crop.size[0] < 256 or tile_crop.size[1] < 256:
-            tile_resized = Image.open(Path(__file__).parent / "RES_LOW.jpg")
+            src = Path(__file__).parent / "RES_LOW.jpg"
+            tile_file.write_bytes(src.read_bytes())
         else:
             tile_resized = tile_crop.resize((256, 256), resample=Image.LANCZOS)
-
-        tile_resized.save(tile_file, format="JPEG")
+            tile_resized.save(tile_file, format="JPEG")
 
         return tile_file

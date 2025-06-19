@@ -34,6 +34,7 @@ class ProcessedFeature(ABC):
     _filters: Dict[str, Any] = None
 
     _status: RequestStatuses = RequestStatuses.NON_EXISTING
+    _fail_reason: str = None
 
     _output_directory: Path = None
     _output_files: list[str] = None  # TODO možná url, Path, nebo tak něco..?
@@ -108,6 +109,12 @@ class ProcessedFeature(ABC):
     def get_status(self) -> RequestStatuses:
         return self._status
 
+    def _set_fail_reason(self, reason):
+        self._fail_reason = str(reason)
+
+    def get_fail_reason(self) -> str:
+        return self._fail_reason
+
     def _set_status(self, status: RequestStatuses):
         self._status = status
 
@@ -118,7 +125,7 @@ class ProcessedFeature(ABC):
             return processed_files
 
         for file in self._output_files:
-            file = file.replace(str(self._output_directory).replace("\\","/"), '')
+            file = file.replace(str(self._output_directory).replace("\\", "/"), '')
             while file[0] == '/':
                 file = file[1:]
 
@@ -159,20 +166,25 @@ class ProcessedFeature(ABC):
 
         Na stav se bude ptát peridociky forntend voláním /api/check_visualization_status
         """
-        self._set_status(status=RequestStatuses.PROCESSING)
+        try:
+            self._set_status(status=RequestStatuses.PROCESSING)
 
-        self._bbox = self._dataspace_connector.get_bbox()
+            self._bbox = self._dataspace_connector.get_bbox()
 
-        downloaded_feature_files_paths = await self._download_feature()
+            downloaded_feature_files_paths = await self._download_feature()
 
-        self._logger.debug(f"[{__name__}]: Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")
+            self._logger.debug(f"[{__name__}]: Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")
 
-        self._output_files = self._process_feature_files(feature_files=downloaded_feature_files_paths)
-        # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
-        # TODO prozatím bude uloženo ve složce webserveru s frontendem (config/variables.py --- FRONTEND_ROOT_DIR)
-        # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
+            self._output_files = self._process_feature_files(feature_files=downloaded_feature_files_paths)
+            # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
+            # TODO prozatím bude uloženo ve složce webserveru s frontendem (config/variables.py --- FRONTEND_ROOT_DIR)
+            # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
 
-        self._set_status(status=RequestStatuses.COMPLETED)
+            self._set_status(status=RequestStatuses.COMPLETED)
+
+        except Exception as e:
+            self._fail_reason = str(e)
+            self._set_status(status=RequestStatuses.FAILED)
 
     def _process_feature_files(self, feature_files: list[str]) -> list[str] | None:
         self._output_directory = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, self._request_hash)
@@ -186,18 +198,26 @@ class ProcessedFeature(ABC):
 
         gjtiff_stdout = self._run_gjtiff_docker(input_files=feature_files, output_directory=self._output_directory)
         self._logger.debug(f"[{__name__}]: gjtiff_stdout: |>|>|>{gjtiff_stdout}<|<|<|")
-        print(f"[{__name__}]: gjtiff_stdout: |>|>|>{gjtiff_stdout}<|<|<|")
-        processed_tiles = self._extract_output_file_list(stdout=gjtiff_stdout)
-        self._logger.debug(f"[{__name__}]: processed_tiles: |>|>|>{gjtiff_stdout}<|<|<|")
-        print(f"[{__name__}]: processed_tiles: |>|>|>{gjtiff_stdout}<|<|<|")
 
-        return processed_tiles
+        processed_feature_files = self._extract_output_file_list(stdout=gjtiff_stdout)
+        self._logger.debug(f"[{__name__}]: processed_feature_files: |>|>|>{processed_feature_files}<|<|<|")
+
+        return processed_feature_files
 
     def _extract_output_file_list(self, stdout: str) -> list[str] | None:
         json_list_pattern = r'\[.*\]'
         matches = re.findall(json_list_pattern, stdout, re.DOTALL)
-        last_json_list = matches[-1] if matches else None
-        return json.loads(last_json_list)
+        last_json_list = json.loads(matches[-1] if matches else None)
+
+        bbox_set = {tuple(item['bbox']) for item in last_json_list}
+        if len(bbox_set) != 1:
+            raise ProcessedFeatureBboxForSeparateFilesNotConsistent(feature_id=self._feature_id)
+
+        self._bbox = last_json_list[0]['bbox']
+
+        output_files = [item['outfile'] for item in last_json_list]
+
+        return output_files
 
     def _run_gjtiff_docker(self, input_files: list[str] = None, output_directory: Path = _output_directory) -> str:
         if input_files is None:

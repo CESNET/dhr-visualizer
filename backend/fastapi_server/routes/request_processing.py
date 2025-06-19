@@ -70,7 +70,10 @@ async def request_processing(
 
     if return_entry.get_status == RequestStatuses.FAILED:
         fastapi_shared.database.delete(request_hash)
-        return HTTPException(status_code=500, detail="Feature processing failed!")
+        return HTTPException(
+            status_code=500,
+            detail=f"Feature processing failed! Reason: {return_entry.get_fail_reason()}"
+        )
 
     return ReturnedFeatureModel(
         feature_id=return_entry.get_feature_id(),

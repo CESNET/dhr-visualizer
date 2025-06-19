@@ -37,3 +37,12 @@ class ProcessedFeatureOutputDirectoryNotSet(ProcessedFeatureError):
             self._message = f"Processed Feature output directory not set for {feature_id}!"
 
         super().__init__(self._message)
+
+class ProcessedFeatureBboxForSeparateFilesNotConsistent(ProcessedFeatureError):
+    def __init__(self, message="bboxes for GJTIFF output files are not consistent!", feature_id=None):
+        if feature_id is None:
+            self._message = message
+        else:
+            self._message = f"bboxes for GJTIFF output files are not consistent for {feature_id}!"
+
+        super().__init__(self._message)
