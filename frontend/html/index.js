@@ -132,61 +132,33 @@ document.querySelector("#sentinel-2-cloud-cover-value").addEventListener("input"
     sentinel2CloudCoverSlider.value = this.value;
 });
 
-const featureSelect = document.getElementById("available-features-select");
-const featureChoices = new Choices(featureSelect, {
-    searchEnabled: false,
-    shouldSort: true,
-    position: 'bottom',
-    itemSelectText: '',
-});
-
-const s2BandChoices = new Choices('#sentinel-2-bands', {
+const generalChoicesSetup = {
     removeItemButton: true,
     shouldSort: true,
     placeholder: true,
     placeholderValue: " + ",
     position: 'bottom',
-});
+}
 
-const s2LevelChoices = new Choices('#sentinel-2-levels', {
-    removeItemButton: true,
-    shouldSort: true,
-    placeholder: true,
-    placeholderValue: " + ",
-    position: 'bottom',
-});
+// const featureSelect = document.getElementById("available-features-select");
+// const featureChoices = new Choices(featureSelect, {
+//     searchEnabled: false,
+//     shouldSort: true,
+//     position: 'bottom',
+//     itemSelectText: '',
+// });
 
-const s1LevelChoices = new Choices('#sentinel-1-levels', {
-    removeItemButton: true,
-    shouldSort: true,
-    placeholder: true,
-    placeholderValue: " + ",
-    position: 'bottom',
-});
+const s2BandChoices = new Choices('#sentinel-2-bands', generalChoicesSetup);
 
-const s1SensingTypesChoices = new Choices('#sentinel-1-sensing-types', {
-    removeItemButton: true,
-    shouldSort: true,
-    placeholder: true,
-    placeholderValue: " + ",
-    position: 'bottom',
-});
+const s2LevelChoices = new Choices('#sentinel-2-levels', generalChoicesSetup);
 
-const s1ProductTypesChoices = new Choices('#sentinel-1-product-types', {
-    removeItemButton: true,
-    shouldSort: true,
-    placeholder: true,
-    placeholderValue: " + ",
-    position: 'bottom',
-});
+const s1LevelChoices = new Choices('#sentinel-1-levels', generalChoicesSetup);
 
-const s1PolarisationChoices = new Choices('#sentinel-1-polarisation', {
-    removeItemButton: true,
-    shouldSort: true,
-    placeholder: true,
-    placeholderValue: " + ",
-    position: 'bottom',
-});
+const s1SensingTypesChoices = new Choices('#sentinel-1-sensing-types', generalChoicesSetup);
+
+const s1ProductTypesChoices = new Choices('#sentinel-1-product-types', generalChoicesSetup);
+
+const s1PolarisationChoices = new Choices('#sentinel-1-polarisation', generalChoicesSetup);
 
 
 const closeAlert = (alertDiv) => {
@@ -289,12 +261,12 @@ const parseCoordinates = async (coordinatesString) => {
     return [latitude, longitude];
 }
 
-const clearFeaturesSelection = () => {
-    featureChoices.removeActiveItems();
-    featureChoices.clearChoices();
-    hoverLayer.clearLayers();
-    showBorders();
-}
+// const clearFeaturesSelection = () => {
+//     featureChoices.removeActiveItems();
+//     featureChoices.clearChoices();
+//     hoverLayer.clearLayers();
+//     showBorders();
+// }
 
 const fetchFeatures = async () => {
     showSpinner();
@@ -354,7 +326,7 @@ const fetchFeatures = async () => {
             return;
         }
 
-        clearFeaturesSelection();
+        // clearFeaturesSelection();
         filtersGlobal = new Map();
         let obtainedFeatures = [];
         for (let dataset in datasetsSelected) {
@@ -493,30 +465,31 @@ const fetchFeatures = async () => {
 
         for (const feature of finalFeatures) {
             featuresGlobal.set(feature.Id, feature);
-            console.log(feature);
+            // console.log(feature);
 
-            featureChoices.setChoices([
-                {
-                    value: feature.Id,
-                    label: feature.Name,
-                    customProperties: {
-                        feature: feature,
-                    }
-                }
-            ], 'value', 'label', false);
+            // featureChoices.setChoices([
+            //     {
+            //         value: feature.Id,
+            //         label: feature.Name,
+            //         customProperties: {
+            //             feature: feature,
+            //         }
+            //     }
+            // ], 'value', 'label', false);
+            showProductDetail(feature);
         }
 
-        featureSelect.addEventListener('change', function (e) {
-            const selectedId = e.target.value;
-            const feature = featuresGlobal.get(selectedId);
-
-            hoverLayer.clearLayers();
-            if (feature?.GeoFootprint) {
-                hoverLayer.addData(feature.GeoFootprint);
-            }
-
-            showBorders(selectedId);
-        });
+        // featureSelect.addEventListener('change', function (e) {
+        //     const selectedId = e.target.value;
+        //     const feature = featuresGlobal.get(selectedId);
+        //
+        //     hoverLayer.clearLayers();
+        //     if (feature?.GeoFootprint) {
+        //         hoverLayer.addData(feature.GeoFootprint);
+        //     }
+        //
+        //     showBorders(selectedId);
+        // });
 
         document.addEventListener('mouseover', function (e) {
             const item = e.target.closest('.choices__item--choice');
@@ -552,34 +525,34 @@ const fetchFeatures = async () => {
 };
 
 const disableUIElements = () => {
-    document.querySelector("#visualize-feature-button-div").classList.add("disabled-element");
-    document.querySelector("#available-features-select-div").classList.add("disabled-element");
-    document.querySelector("#processed-products-select-div").classList.add("disabled-element");
-    document.querySelector("#open-product-button-div").classList.add("disabled-element");
+    // document.querySelector("#visualize-feature-button-div").classList.add("disabled-element");
+    // document.querySelector("#available-features-select-div").classList.add("disabled-element");
+    // document.querySelector("#processed-products-select-div").classList.add("disabled-element");
+    // document.querySelector("#open-product-button-div").classList.add("disabled-element");
     document.querySelector("#map-div").classList.add("disabled-element");
 }
 
 const enableUIElements = () => {
-    document.querySelector("#visualize-feature-button-div").classList.remove("disabled-element");
-    document.querySelector("#available-features-select-div").classList.remove("disabled-element");
-    document.querySelector("#processed-products-select-div").classList.remove("disabled-element");
-    document.querySelector("#open-product-button-div").classList.remove("disabled-element");
+    // document.querySelector("#visualize-feature-button-div").classList.remove("disabled-element");
+    // document.querySelector("#available-features-select-div").classList.remove("disabled-element");
+    // document.querySelector("#processed-products-select-div").classList.remove("disabled-element");
+    // document.querySelector("#open-product-button-div").classList.remove("disabled-element");
     document.querySelector("#map-div").classList.remove("disabled-element");
 }
 
 function togglePanel(activeId) {
-  const panels = ["features-panel", "preselection-panel", "vizualization-panel"];
-  panels.forEach(id => {
-    const panel = document.querySelector(`#${id}`);
-    if (panel) {
-      panel.classList.toggle("hidden-element", id !== activeId);
-    }
-  });
+    const panels = ["features-panel", "preselection-panel", "visualization-panel"];
+    panels.forEach(id => {
+        const panel = document.querySelector(`#${id}`);
+        if (panel) {
+            panel.classList.toggle("hidden-element", id !== activeId);
+        }
+    });
 }
 
 const toggleFeaturesControl = () => togglePanel("features-panel");
 const togglePreselectionControl = () => togglePanel("preselection-panel");
-const toggleVisualisationControl = () => togglePanel("vizualization-panel");
+const toggleVisualizationControl = () => togglePanel("visualization-panel");
 
 
 const clearCoordinates = () => {
@@ -684,7 +657,7 @@ const visualize = async () => {
         }
     }
 
-    enableUIElements()
+    enableUIElements();
 }
 
 const requestVisualization = async () => {
@@ -768,6 +741,7 @@ const requestVisualization = async () => {
         }
     } finally {
         hideSpinner();
+        toggleVisualizationControl();
     }
 
     if (visualizationRequest.isInitialized() !== true) {
@@ -865,4 +839,30 @@ const toggleSentinel1Checkbox = () => {
     } else {
         document.querySelector("#mission-filter-checkbox-sentinel-1").checked = true;
     }
+}
+
+const showProductDetail = (metadata) => {
+    console.log(metadata);
+    const template = document.getElementById("product-tile-template");
+    const tileListDiv = document.getElementById("product-tile-list");
+    const product = template.content.cloneNode(true);
+    product.querySelector(".product-name").textContent = metadata.Name;
+    product.querySelector(".product-mission").textContent = metadata.platform;
+    product.querySelector(".product-time").textContent = metadata.OriginDate;
+    product.querySelector(".product-size").textContent = metadata.ContentLength;
+
+    productDiv = product.querySelector(".product-tile");
+    productDiv.addEventListener("mouseenter", async function (e) {
+            const feature = featuresGlobal.get(metadata.Id);
+            hoverLayer.clearLayers();
+            if (feature?.GeoFootprint) {
+                hoverLayer.addData(feature.GeoFootprint);
+            }
+        });
+
+    productDiv.addEventListener("mouseleave", async function (e) {
+        hoverLayer.clearLayers();
+    });
+
+    tileListDiv.appendChild(product);
 }

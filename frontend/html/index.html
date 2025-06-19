@@ -235,29 +235,28 @@
 
 		<div id="features-panel" class="hidden-element">
 			<button class="nav-item" id="features-back-button" onclick="togglePreselectionControl();">⬅ Back</button>
+			<div id="product-tile-list" class="product-tile-list"></div>
 			<div>
-				<div class="controls-element disabled-element" id="available-features-select-div">
-					<label for="available-features-select">Available features</label>
-					<select id="available-features-select" placeholder="Select a feature"></select>
-				</div>
+				<!--				<div class="controls-element disabled-element" id="available-features-select-div">-->
+				<!--					<label for="available-features-select">Available features</label>-->
+				<!--					<select id="available-features-select" placeholder="Select a feature"></select>-->
+				<!--				</div>-->
 
-				<div class="controls-element disabled-element" id="visualize-feature-button-div">
-					<button id="visualize-feature-button" onclick="visualize()">Visualize selected feature</button>
-				</div>
+				<!--				<div class="controls-element disabled-element" id="visualize-feature-button-div">-->
+				<!--					<button id="visualize-feature-button" onclick="visualize()">Visualize selected feature</button>-->
+				<!--				</div>-->
 			</div>
 		</div>
 
-		<div id="vizualization-panel" class="hidden-element">
-			<button class="nav-item" id="vizualization-back-button" onclick="toggleFeaturesControl();">⬅ Back</button>
-			<div>
-				<div class="controls-element disabled-element" id="processed-products-select-div">
-					<label for="processed-products-select">Processed products</label>
-					<select id="processed-products-select" onchange="openFeature()"></select>
-				</div>
+		<div id="visualization-panel" class="hidden-element">
+			<button class="nav-item" id="visualization-back-button" onclick="toggleFeaturesControl();">⬅ Back</button>
 
-				<div class="controls-element disabled-element" id="open-product-button-div">
-					<button id="open-product-button" onclick="openFeature()">Open product</button>
-				</div>
+			<label for="processed-products-select">Processed products</label>
+			<select id="processed-products-select" onchange="openFeature()"></select>
+
+
+			<div class="controls-element disabled-element" id="open-product-button-div">
+				<button id="open-product-button" onclick="openFeature()">Open product</button>
 			</div>
 		</div>
 	</div>
@@ -274,3 +273,15 @@
 <!--<script>prepareDatasetSelect()</script>-->
 </body>
 </html>
+
+<template id="product-tile-template">
+	<div class="product-tile">
+		<h3 class="product-name"></h3>
+		<p><strong>Mission:</strong> <span class="product-mission"></span></p>
+		<p><strong>Sensing time:</strong> <span class="product-time"></span></p>
+		<p><strong>Size:</strong> <span class="product-size"></span></p>
+		<div class="buttons">
+			<button class="visualize-btn" onclick="visualize();">Visualize</button>
+		</div>
+	</div>
+</template>
