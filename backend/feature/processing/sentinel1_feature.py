@@ -3,10 +3,10 @@ import re
 
 from typing import Dict, Any
 
-from feature.requested_feature import RequestedFeature
+from feature.processing.processed_feature import ProcessedFeature
 
 
-class Sentinel1Feature(RequestedFeature):
+class Sentinel1Feature(ProcessedFeature):
     _filters_polarisation_channels_availability = None  # Todo stav tohohle po S3 filtrování nějak vracet frontendu, na frontendu pak vypsat alert
 
     def __init__(
@@ -28,6 +28,8 @@ class Sentinel1Feature(RequestedFeature):
             'HH': False,
             'HV': False
         }
+
+        self._logger.debug(f"[{__name__}]: Sentinel-1 feature initialized")
 
     def _prepare_channel_filter_array(self) -> list:
         polarisation_filter = []

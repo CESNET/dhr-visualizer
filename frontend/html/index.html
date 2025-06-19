@@ -6,6 +6,7 @@
     <title>Visualization</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch/dist/geosearch.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
     <link rel="stylesheet" href="index.css"/>
     <link rel="stylesheet" href="alert.css"/>
     <link rel="stylesheet" href="spinner.css"/>
@@ -389,7 +390,7 @@
 
                 <div class="controls-element disabled-element" id="available-features-select-div">
                     <label for="available-features-select">Available features</label>
-                    <select id="available-features-select" onchange="showBorders()"></select>
+                    <select id="available-features-select" placeholder="Select a feature"></select>
                 </div>
 
                 <div class="controls-element disabled-element" id="visualize-feature-button-div">
@@ -418,6 +419,7 @@
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/leaflet-geosearch/dist/bundle.min.js"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="index.js"></script>
     <!--<script>prepareDatasetSelect()</script>-->
 </body>

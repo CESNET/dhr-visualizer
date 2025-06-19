@@ -1,6 +1,18 @@
 import os
 
+"""
+# Only for local debugging
+from dotenv import load_dotenv
+load_dotenv("../variables.env")
+"""
+
 true_statements = ["1", "true", "yes", ]
+
+APP__NAME: str = os.getenv("APP__NAME", default="dhr-visualizer")
+
+UVICORN__SERVER_HOST: str = os.environ.get("UVICORN__SERVER_HOST", default="0.0.0.0")
+UVICORN__SERVER_PORT: int = int(os.environ.get("UVICORN__SERVER_PORT", default=8081))
+UVICORN__SERVER_PREFIX: str = os.environ.get("UVICORN__SERVER_PREFIX", default="/api")
 
 DHR__USE_DHR: bool = os.getenv("DHR__USE_DHR", default="False").lower() in true_statements
 DHR__CATALOG_ROOT: str = os.getenv("DHR__CATALOG_ROOT")
@@ -19,5 +31,4 @@ CDSE__CONNECTOR_S3_CREDENTIALS = {
     'secret_key': os.getenv("CDSE__CONNECTOR_S3_SECRET_KEY"),
 }
 
-BACKEND_OUTPUT_DIRECTORY: str = os.getenv("BACKEND_OUTPUT_DIRECTORY")
-FRONTEND_OUTPUT_DIRECTORY: str = os.getenv("FRONTEND_OUTPUT_DIRECTORY")
+DOCKER_SHARED_DATA_DIRECTORY: str = os.getenv("DOCKER_SHARED_DATA_DIRECTORY", default="/data")

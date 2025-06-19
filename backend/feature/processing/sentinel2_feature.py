@@ -3,10 +3,10 @@ import re
 
 from typing import Dict, Any
 
-from feature.requested_feature import RequestedFeature
+from feature.processing.processed_feature import ProcessedFeature
 
 
-class Sentinel2Feature(RequestedFeature):
+class Sentinel2Feature(ProcessedFeature):
     def __init__(
             self, logger: logging.Logger = logging.getLogger(name=__name__),
             feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None,
@@ -19,6 +19,8 @@ class Sentinel2Feature(RequestedFeature):
             filters=filters,
             request_hash=request_hash
         )
+
+        self._logger.debug(f"[{__name__}]: Sentinel-2 feature initialized")
 
     def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
         if available_files is None:
