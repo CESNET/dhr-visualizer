@@ -326,7 +326,6 @@ const fetchFeatures = async () => {
             return;
         }
 
-        // clearFeaturesSelection();
         filtersGlobal = new Map();
         let obtainedFeatures = [];
         for (let dataset in datasetsSelected) {
@@ -842,7 +841,6 @@ const toggleSentinel1Checkbox = () => {
 }
 
 const showProductDetail = (metadata) => {
-    console.log(metadata);
     const template = document.getElementById("product-tile-template");
     const tileListDiv = document.getElementById("product-tile-list");
     const product = template.content.cloneNode(true);
