@@ -461,34 +461,12 @@ const fetchFeatures = async () => {
         }
 
         featuresGlobal = new Map();
+        document.getElementById("product-tile-list").innerHTML = "";
 
         for (const feature of finalFeatures) {
             featuresGlobal.set(feature.Id, feature);
-            // console.log(feature);
-
-            // featureChoices.setChoices([
-            //     {
-            //         value: feature.Id,
-            //         label: feature.Name,
-            //         customProperties: {
-            //             feature: feature,
-            //         }
-            //     }
-            // ], 'value', 'label', false);
             showProductDetail(feature);
         }
-
-        // featureSelect.addEventListener('change', function (e) {
-        //     const selectedId = e.target.value;
-        //     const feature = featuresGlobal.get(selectedId);
-        //
-        //     hoverLayer.clearLayers();
-        //     if (feature?.GeoFootprint) {
-        //         hoverLayer.addData(feature.GeoFootprint);
-        //     }
-        //
-        //     showBorders(selectedId);
-        // });
 
         document.addEventListener('mouseover', function (e) {
             const item = e.target.closest('.choices__item--choice');
@@ -524,17 +502,11 @@ const fetchFeatures = async () => {
 };
 
 const disableUIElements = () => {
-    // document.querySelector("#visualize-feature-button-div").classList.add("disabled-element");
-    // document.querySelector("#available-features-select-div").classList.add("disabled-element");
-    // document.querySelector("#processed-products-select-div").classList.add("disabled-element");
     // document.querySelector("#open-product-button-div").classList.add("disabled-element");
     document.querySelector("#map-div").classList.add("disabled-element");
 }
 
 const enableUIElements = () => {
-    // document.querySelector("#visualize-feature-button-div").classList.remove("disabled-element");
-    // document.querySelector("#available-features-select-div").classList.remove("disabled-element");
-    // document.querySelector("#processed-products-select-div").classList.remove("disabled-element");
     // document.querySelector("#open-product-button-div").classList.remove("disabled-element");
     document.querySelector("#map-div").classList.remove("disabled-element");
 }
