@@ -374,13 +374,13 @@ const fetchFeatures = async () => {
                     let polarisationChannelsApiCall = undefined;
                     if (s1PolarisationSelected.length > 0) {
                         polarisationChannelsApiCall = `(${s1PolarisationSelected.map(
-                            polarisationChannel => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'polarisationChannels' and att/OData.CSC.StringAttribute/Value eq '${polarisationChannel}')`
+                            polarisationChannel => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'polarisationChannels' and att/OData.CSC.StringAttribute/Value eq '${polarisationChannel.replace('&', '%26')}')`
                         ).join(' or ')})`;
                     }
 
 
                     filtersGlobal.set(datasetsSelected[dataset], selectedFilters);
-                    filters += `${datasetFilter} and (${levelsApiCall} and ${sensingTypesApiCall} and ${productTypesApiCall})`; //and ${polarisationChannelsApiCall})`;
+                    filters += `${datasetFilter} and (${levelsApiCall} and ${sensingTypesApiCall} and ${productTypesApiCall} and ${polarisationChannelsApiCall})`;
 
                     break;
                 }
@@ -712,13 +712,13 @@ const requestVisualization = async (featureId) => {
         }
     } finally {
         hideSpinner();
-        toggleVisualizationControl();
     }
 
     if (visualizationRequest.isInitialized() !== true) {
         throw new Error("Request is not initialized!"); // todo proper exception
     }
 
+    toggleVisualizationControl();
     return visualizationRequest;
 };
 
