@@ -219,6 +219,7 @@ select {
 
 .nav-item {
     margin-bottom: 15px;
+    display: block;
 }
 
 .product-tile {

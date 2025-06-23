@@ -628,6 +628,7 @@ const visualize = async (featureId) => {
         }
     }
 
+    openFeature();
     enableUIElements();
 }
 

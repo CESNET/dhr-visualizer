@@ -2,7 +2,7 @@ from fastapi import APIRouter, Query, HTTPException
 from fastapi.responses import RedirectResponse, Response
 
 import fastapi_server.fastapi_shared as fastapi_shared
-from fastapi import logger
+from fastapi.logger import logger
 
 from feature.tiling.tiling_worker import TilingWorker
 from feature.tiling.exceptions.tiling_worker import TilingWorkerTileOutOfBounds
