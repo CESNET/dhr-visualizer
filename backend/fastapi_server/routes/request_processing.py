@@ -1,6 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi_server import fastapi_shared
 
+from fastapi.logger import logger
 from resources.enums import *
 from resources.reqeusted_feature_model import ProcessedFeatureModel
 from resources.returned_feature_model import ReturnedFeatureModel
@@ -19,10 +20,10 @@ async def request_processing(
         background_tasks: BackgroundTasks,
         processed_feature_model: ProcessedFeatureModel = ProcessedFeatureModel()
 ):
-    fastapi_shared.logger.debug(f"[{__name__}]: request_feature_model: {processed_feature_model}")
+    logger.debug(f"[{__name__}]: request_feature_model: {processed_feature_model}")
 
     request_hash = processed_feature_model.hash_myself()
-    fastapi_shared.logger.debug(f"[{__name__}]: request_hash: {request_hash}")
+    logger.debug(f"[{__name__}]: request_hash: {request_hash}")
 
     # TODO - tady by se spíš měl zahashovat celý request a ten uložit do DB
     if fastapi_shared.database.get(request_hash) is None:
@@ -31,7 +32,7 @@ async def request_processing(
         match Platforms(processed_feature_model.platform):
             case Platforms.SENTINEL_1:
                 processed_feature = Sentinel1Feature(
-                    logger=fastapi_shared.logger,
+                    logger=logger,
                     feature_id=processed_feature_model.feature_id,
                     platform=processed_feature_model.platform,
                     filters=processed_feature_model.filters,
@@ -40,7 +41,7 @@ async def request_processing(
 
             case Platforms.SENTINEL_2:
                 processed_feature = Sentinel2Feature(
-                    logger=fastapi_shared.logger,
+                    logger=logger,
                     feature_id=processed_feature_model.feature_id,
                     platform=processed_feature_model.platform,
                     filters=processed_feature_model.filters,

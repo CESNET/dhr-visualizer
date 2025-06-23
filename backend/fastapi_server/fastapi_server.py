@@ -1,10 +1,11 @@
 import logging
+import sys
 
 import variables as env
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.logger import logger as fastapi_logger
 from fastapi_server import fastapi_shared
 from fastapi_server.routes import fastapi_routes
 
@@ -14,9 +15,14 @@ from database.dict_database_connector import DictDatabaseConnector
 class FastAPIServer:
     _fastapi_app: FastAPI = None
 
-    def __init__(self, logger=logging.Logger(env.APP__NAME)):
-        fastapi_shared.logger = logger
-        fastapi_shared.logger.setLevel(env.APP__LOG_LEVEL.upper())
+    def __init__(self, logger=logging.getLogger("uvicorn.error")):
+        fastapi_logger.handlers = logger.handlers
+        fastapi_logger.setLevel(env.APP__LOG_LEVEL.upper())
+        stdout_handler = logging.StreamHandler(sys.stdout)
+        stdout_handler.setLevel(env.APP__LOG_LEVEL.upper())
+        stdout_handler.setFormatter(logging.Formatter('%(levelname)s %(asctime)s - %(name)s:  %(message)s'))
+        fastapi_logger.addHandler(stdout_handler)
+
         fastapi_shared.database = DictDatabaseConnector()
 
         self._fastapi_app = FastAPI(title=env.APP__NAME)
