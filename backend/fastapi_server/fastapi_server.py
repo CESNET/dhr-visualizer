@@ -16,6 +16,7 @@ class FastAPIServer:
 
     def __init__(self, logger=logging.Logger(env.APP__NAME)):
         fastapi_shared.logger = logger
+        fastapi_shared.logger.setLevel(env.APP__LOG_LEVEL.upper())
         fastapi_shared.database = DictDatabaseConnector()
 
         self._fastapi_app = FastAPI(title=env.APP__NAME)

@@ -638,8 +638,7 @@ const requestVisualization = async (featureId) => {
     const totalTimeout = 120 // secs // TODO timeout of backend processing after 120 sec. Enough?
     const backendReplyTimeout = 30 * 1000;  // 1 sec = 1 000 millisecs // TODO timeout of backend call after 30 sec. Enough?
 
-    const selectedFeatureId = featureId;
-    const platform = featuresGlobal.get(selectedFeatureId).platform;
+    const platform = featuresGlobal.get(featureId).platform;
     const filters = Object.fromEntries(filtersGlobal.get(platform));
 
     const method = 'POST';
@@ -648,7 +647,7 @@ const requestVisualization = async (featureId) => {
     }
     const bodyJson = JSON.stringify(
         {
-            feature_id: selectedFeatureId,
+            feature_id: featureId,
             platform: platform,
             filters: filters
         }
