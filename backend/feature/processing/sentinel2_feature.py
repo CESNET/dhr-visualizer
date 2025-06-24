@@ -73,10 +73,12 @@ class Sentinel2Feature(ProcessedFeature):
 
         transformer = pyproj.Transformer.from_crs(
             crs_from=self._get_epsg_zone(),
-            crs_to=self._WEB_MERCATOR_CRS, always_xy=True
+            crs_to=self._WEB_MERCATOR_CRS,
+            always_xy=True
         )
 
-        print(transformer)
+        print(f"[{__name__}]: get_bbox_webmercator: transformer initialized")
+        print(f"[{__name__}]: get_bbox_webmercator: transformer: {transformer}")
 
         min_lon, min_lat = transformer.transform(min_lon, min_lat)
         max_lon, max_lat = transformer.transform(max_lon, max_lat)
