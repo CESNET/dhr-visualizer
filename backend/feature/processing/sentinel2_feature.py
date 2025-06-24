@@ -56,11 +56,11 @@ class Sentinel2Feature(ProcessedFeature):
 
         return selected_bands
 
-    def _utm_to_webmercator_zone(self) -> int:
+    def _utm_to_epsg_zone(self) -> int:
         if self._utm_zone is None:
             match = re.search(r"_T(\d{2}[A-Z]{3})_", self.get_feature_name())
             if not match:
-                self._logger.debug(f"[{__name__}]: _utm_to_webmercator: can't extract UTM zone from feature name")
+                self._logger.debug(f"[{__name__}]: _utm_to_epsg: can't extract UTM zone from feature name")
                 raise Sentinel2FeatureCantExtractUTMZone(feature_id=self.get_feature_id())
 
             zone_number = int(match.group(1)[:3][:-1])
@@ -78,7 +78,7 @@ class Sentinel2Feature(ProcessedFeature):
         min_lon, min_lat, max_lon, max_lat = self._get_bbox()
 
         transformer = pyproj.Transformer.from_crs(
-            #crs_from=self._utm_to_webmercator_zone(),
+            #crs_from=self._utm_to_epsg_zone(),
             crs_from=4326,
             crs_to=self._WEB_MERCATOR_CRS,
             always_xy=True
