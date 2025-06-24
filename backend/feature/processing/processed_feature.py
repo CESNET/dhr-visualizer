@@ -113,6 +113,8 @@ class ProcessedFeature(ABC):
         if self._feature_name is None:
             self._feature_name = self._dataspace_connector.get_feature_name()
 
+        return self._feature_name
+
     def get_status(self) -> RequestStatuses:
         return self._status
 
