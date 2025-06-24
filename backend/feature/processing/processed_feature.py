@@ -207,53 +207,7 @@ class ProcessedFeature(ABC):
             elif item.is_dir():
                 shutil.rmtree(item)
 
-        #gjtiff_stdout = self._run_gjtiff_docker(input_files=feature_files, output_directory=self._output_directory)
-        gjtiff_stdout = """==================================================================
-Processing input file /tmp/tmphbmsk6c0/S2A_MSIL2A_20250623T101041_N0511_R022_T33UVR_20250623T135215.SAFE/GRANULE/L2A_T33UVR_A052243_20250623T101638/IMG_DATA/R10m/T33UVR_20250623T101041_TCI_10m.jp2...
-==================================================================
-Got points:
-        Upper Left : 50.543732, 13.588086
-        Upper Right: 50.552211, 15.137770
-        Lower Right: 49.564676, 15.134971
-        Lower Left : 49.556488, 13.616763
-/data/adcc0cfab977c6dfea7e96d1254b1393aedfd5b08ba8ed7c4af4af63a59fa4a9/T33UVR_20250623T101041_TCI_10m.jpg (10980x10988; 25,549,804 B) encoded successfully
-
-==================================================================
-Processing input file /tmp/tmphbmsk6c0/S2A_MSIL2A_20250623T101041_N0511_R022_T33UVR_20250623T135215.SAFE/GRANULE/L2A_T33UVR_A052243_20250623T101638/IMG_DATA/R20m/T33UVR_20250623T101041_TCI_20m.jp2...
-==================================================================
-Got points:
-        Upper Left : 50.543732, 13.588086
-        Upper Right: 50.552211, 15.137770
-        Lower Right: 49.564676, 15.134971
-        Lower Left : 49.556488, 13.616763
-/data/adcc0cfab977c6dfea7e96d1254b1393aedfd5b08ba8ed7c4af4af63a59fa4a9/T33UVR_20250623T101041_TCI_20m.jpg (5490x5494; 7,553,559 B) encoded successfully
-
-==================================================================
-Processing input file /tmp/tmphbmsk6c0/S2A_MSIL2A_20250623T101041_N0511_R022_T33UVR_20250623T135215.SAFE/GRANULE/L2A_T33UVR_A052243_20250623T101638/IMG_DATA/R60m/T33UVR_20250623T101041_TCI_60m.jp2...
-==================================================================
-Got points:
-        Upper Left : 50.543732, 13.588086
-        Upper Right: 50.552211, 15.137770
-        Lower Right: 49.564676, 15.134971
-        Lower Left : 49.556488, 13.616763
-/data/adcc0cfab977c6dfea7e96d1254b1393aedfd5b08ba8ed7c4af4af63a59fa4a9/T33UVR_20250623T101041_TCI_60m.jpg (1830x1831; 1,037,844 B) encoded successfully
-[
-        {
-                "infile": "/tmp/tmphbmsk6c0/S2A_MSIL2A_20250623T101041_N0511_R022_T33UVR_20250623T135215.SAFE/GRANULE/L2A_T33UVR_A052243_20250623T101638/IMG_DATA/R10m/T33UVR_20250623T101041_TCI_10m.jp2",
-                "outfile": "/data/adcc0cfab977c6dfea7e96d1254b1393aedfd5b08ba8ed7c4af4af63a59fa4a9/T33UVR_20250623T101041_TCI_10m.jpg",
-                "bbox": [13.588086, 49.556488, 15.137770, 50.552211]
-        },
-        {
-                "infile": "/tmp/tmphbmsk6c0/S2A_MSIL2A_20250623T101041_N0511_R022_T33UVR_20250623T135215.SAFE/GRANULE/L2A_T33UVR_A052243_20250623T101638/IMG_DATA/R20m/T33UVR_20250623T101041_TCI_20m.jp2",
-                "outfile": "/data/adcc0cfab977c6dfea7e96d1254b1393aedfd5b08ba8ed7c4af4af63a59fa4a9/T33UVR_20250623T101041_TCI_20m.jpg",
-                "bbox": [13.588086, 49.556488, 15.137770, 50.552211]
-        },
-        {
-                "infile": "/tmp/tmphbmsk6c0/S2A_MSIL2A_20250623T101041_N0511_R022_T33UVR_20250623T135215.SAFE/GRANULE/L2A_T33UVR_A052243_20250623T101638/IMG_DATA/R60m/T33UVR_20250623T101041_TCI_60m.jp2",
-                "outfile": "/data/adcc0cfab977c6dfea7e96d1254b1393aedfd5b08ba8ed7c4af4af63a59fa4a9/T33UVR_20250623T101041_TCI_60m.jpg",
-                "bbox": [13.588086, 49.556488, 15.137770, 50.552211]
-        }
-]"""
+        gjtiff_stdout = self._run_gjtiff_docker(input_files=feature_files, output_directory=self._output_directory)
         self._logger.debug(f"[{__name__}]: gjtiff_stdout: |>|>|>{gjtiff_stdout}<|<|<|")
 
         processed_feature_files = self._extract_output_file_list(stdout=gjtiff_stdout)
