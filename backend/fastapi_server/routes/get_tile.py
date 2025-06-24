@@ -1,9 +1,8 @@
-import io
-
 from fastapi import APIRouter, Query, HTTPException
 from fastapi.responses import RedirectResponse, Response
 
 import fastapi_server.fastapi_shared as fastapi_shared
+from fastapi.logger import logger
 
 from feature.tiling.tiling_worker import TilingWorker
 from feature.tiling.exceptions.tiling_worker import TilingWorkerTileOutOfBounds
@@ -20,10 +19,10 @@ def get_tile(
         selected_file: str = Query(None, description="User selected file (satellite band etc.)"),
 ):
     try:
-        fastapi_shared.logger.debug(f"[{__name__}]: Requesting tiles for request {request_hash}; z:{z}, x:{x}, y:{y}")
+        logger.debug(f"[{__name__}]: Requesting tiles for request {request_hash}; z:{z}, x:{x}, y:{y}")
 
         if request_hash is None or selected_file is None:
-            fastapi_shared.logger.debug(
+            logger.debug(
                 f"[{__name__}]: Request hash {request_hash} or selected file {selected_file} not filled!"
             )
             return HTTPException(status_code=400, detail="Request hash or selected file not filled!")
@@ -32,7 +31,7 @@ def get_tile(
             processed_feature=fastapi_shared.database.get(request_hash),
             selected_file=selected_file,
             z=z, x=x, y=y,
-            logger=fastapi_shared.logger
+            logger=logger
         )
 
         tile_path = tiling_worker.save_tile()

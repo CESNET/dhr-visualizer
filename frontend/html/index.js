@@ -132,13 +132,34 @@ document.querySelector("#sentinel-2-cloud-cover-value").addEventListener("input"
     sentinel2CloudCoverSlider.value = this.value;
 });
 
-const featureSelect = document.getElementById("available-features-select");
-const choices = new Choices(featureSelect, {
-    searchEnabled: false,
+const generalChoicesSetup = {
+    removeItemButton: true,
     shouldSort: true,
-    itemSelectText: '',
-    position: 'auto',
-});
+    placeholder: true,
+    placeholderValue: " + ",
+    position: 'bottom',
+}
+
+// const featureSelect = document.getElementById("available-features-select");
+// const featureChoices = new Choices(featureSelect, {
+//     searchEnabled: false,
+//     shouldSort: true,
+//     position: 'bottom',
+//     itemSelectText: '',
+// });
+
+const s2BandChoices = new Choices('#sentinel-2-bands', generalChoicesSetup);
+
+const s2LevelChoices = new Choices('#sentinel-2-levels', generalChoicesSetup);
+
+const s1LevelChoices = new Choices('#sentinel-1-levels', generalChoicesSetup);
+
+const s1SensingTypesChoices = new Choices('#sentinel-1-sensing-types', generalChoicesSetup);
+
+const s1ProductTypesChoices = new Choices('#sentinel-1-product-types', generalChoicesSetup);
+
+const s1PolarisationChoices = new Choices('#sentinel-1-polarisation', generalChoicesSetup);
+
 
 const closeAlert = (alertDiv) => {
     alertDiv.style.animation = 'slide-out 0.7s forwards';
@@ -167,34 +188,6 @@ const showAlert = async (headline, message, appendContact) => {
             }, 10000)
         });
 }
-
-/*
-const preparePolygon = (northWestLat, northWestLon, southEastLat, southEastLon) => {
-    let polygon = [
-        [northWestLon, northWestLat],
-        [northWestLon, southEastLat],
-        [southEastLon, southEastLat],
-        [southEastLon, northWestLat],
-        [northWestLon, northWestLat]
-    ];
-
-    return polygon;
-};
-*/
-
-/*
-const prepareBbox = (northWestLat, northWestLon, southEastLat, southEastLon) => {
-    let coordArray = [
-        northWestLon.toString(),
-        northWestLat.toString(),
-        southEastLon.toString(),
-        southEastLat.toString()
-    ];
-
-    let bbox = coordArray.join(",");
-    return bbox;
-};
-*/
 
 const preparePolygon = (northWestLat, northWestLon, southEastLat, southEastLon) => {
     return `POLYGON((${northWestLon} ${northWestLat},${southEastLon} ${northWestLat},` +
@@ -268,12 +261,12 @@ const parseCoordinates = async (coordinatesString) => {
     return [latitude, longitude];
 }
 
-const clearFeaturesSelection = () => {
-    choices.removeActiveItems();
-    choices.clearChoices();
-    hoverLayer.clearLayers();
-    showBorders();
-}
+// const clearFeaturesSelection = () => {
+//     featureChoices.removeActiveItems();
+//     featureChoices.clearChoices();
+//     hoverLayer.clearLayers();
+//     showBorders();
+// }
 
 const fetchFeatures = async () => {
     showSpinner();
@@ -333,7 +326,6 @@ const fetchFeatures = async () => {
             return;
         }
 
-        clearFeaturesSelection();
         filtersGlobal = new Map();
         let obtainedFeatures = [];
         for (let dataset in datasetsSelected) {
@@ -343,96 +335,80 @@ const fetchFeatures = async () => {
 
             switch (datasetsSelected[dataset]) {
                 case "SENTINEL-1": {
-                    const levelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-levels"]:checked');
-                    const levelsSelected = Array.from(levelsSelectedNodes).map(checkbox => checkbox.value);
+                    const s1LevelSelected = s1LevelChoices.getValue(true);
+                    const s1SensingTypesSelected = s1SensingTypesChoices.getValue(true);
+                    const s1ProductTypesSelected = s1ProductTypesChoices.getValue(true);
+                    const s1PolarisationSelected = s1PolarisationChoices.getValue(true);
 
-                    const sensingTypesSelectedNodes = document.querySelectorAll('input[name="sentinel-1-sensing-types"]:checked');
-                    const sensingTypesSelected = Array.from(sensingTypesSelectedNodes).map(checkbox => checkbox.value);
-
-                    const productTypesSelectedNodes = document.querySelectorAll('input[name="sentinel-1-product-types"]:checked');
-                    const productTypesSelected = Array.from(productTypesSelectedNodes).map(checkbox => checkbox.value);
-
-                    const polarisationChannelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-polarisation-channels"]:checked');
-                    const polarisationChannelsSelected = Array.from(polarisationChannelsSelectedNodes).map(checkbox => checkbox.value);
-                    const combinedPolarisationChannelsSelectedNodes = document.querySelectorAll('input[name="sentinel-1-combined-polarisation-channels"]:checked');
-                    const combinedPolarisationChannelsSelected = Array.from(combinedPolarisationChannelsSelectedNodes).map(checkbox => checkbox.value);
-
-                    if (levelsSelected.length <= 0 || sensingTypesSelected.length <= 0 || productTypesSelected.length <= 0) {
+                    if (s1LevelSelected.length <= 0 || s1SensingTypesSelected.length <= 0 || s1ProductTypesSelected.length <= 0) {
                         await showAlert("Warning", "Not enough parameters specified!", false);
                     }
 
                     let selectedFilters = new Map();
 
-                    selectedFilters.set('levels', levelsSelected);
+                    selectedFilters.set('levels', s1LevelSelected);
                     let levelsApiCall = undefined;
-                    if (levelsSelected.length > 0) {
-                        levelsApiCall = `(${levelsSelected.map(
+                    if (s1LevelSelected.length > 0) {
+                        levelsApiCall = `(${s1LevelSelected.map(
                             level => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'processingLevel' and att/OData.CSC.StringAttribute/Value eq '${level}')`
                         ).join(' or ')})`;
                     }
 
-                    selectedFilters.set('sensing_types', sensingTypesSelected);
+                    selectedFilters.set('sensing_types', s1SensingTypesSelected);
                     let sensingTypesApiCall = undefined;
-                    if (sensingTypesSelected.length > 0) {
-                        sensingTypesApiCall = `(${sensingTypesSelected.map(
+                    if (s1SensingTypesSelected.length > 0) {
+                        sensingTypesApiCall = `(${s1SensingTypesSelected.map(
                             sensingType => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'operationalMode' and att/OData.CSC.StringAttribute/Value eq '${sensingType}')`
                         ).join(' or ')})`;
                     }
 
-                    selectedFilters.set('product_types', productTypesSelected);
+                    selectedFilters.set('product_types', s1ProductTypesSelected);
                     let productTypesApiCall = undefined;
-                    if (productTypesSelected.length > 0) {
-                        productTypesApiCall = `(${productTypesSelected.map(
+                    if (s1ProductTypesSelected.length > 0) {
+                        productTypesApiCall = `(${s1ProductTypesSelected.map(
                             productType => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq '${productType}')`
                         ).join(' or ')})`;
                     }
 
-                    selectedFilters.set('polarisation_channels', polarisationChannelsSelected);
-                    selectedFilters.set('polarisation_channels_combined', combinedPolarisationChannelsSelected);
-                    /*
-                    // It seems like it is not possible to search OData using polarisationChannels
+                    selectedFilters.set('polarisation_channels', s1PolarisationSelected);
                     let polarisationChannelsApiCall = undefined;
-                    if (polarisationChannelsSelected.length > 0) {
-                        polarisationChannelsApiCall = `(${polarisationChannelsSelected.map(
-                            polarisationChannel => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'polarisationChannels' and att/OData.CSC.StringAttribute/Value eq '${polarisationChannel}')`
+                    if (s1PolarisationSelected.length > 0) {
+                        polarisationChannelsApiCall = `(${s1PolarisationSelected.map(
+                            polarisationChannel => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'polarisationChannels' and att/OData.CSC.StringAttribute/Value eq '${polarisationChannel.replace('&', '%26')}')`
                         ).join(' or ')})`;
                     }
-                    */
+
 
                     filtersGlobal.set(datasetsSelected[dataset], selectedFilters);
-                    filters += `${datasetFilter} and (${levelsApiCall} and ${sensingTypesApiCall} and ${productTypesApiCall})`; //and ${polarisationChannelsApiCall})`;
+                    filters += `${datasetFilter} and (${levelsApiCall} and ${sensingTypesApiCall} and ${productTypesApiCall} and ${polarisationChannelsApiCall})`;
 
                     break;
                 }
 
                 case "SENTINEL-2": {
-                    const cloudCover = document.querySelector('#sentinel-2-cloud-cover-value').value;
+                    const s2CloudCoverSelected = document.querySelector('#sentinel-2-cloud-cover-value').value;
+                    const s2LevelsSelected = s2LevelChoices.getValue(true);
+                    const s2BandsSelected = s2BandChoices.getValue(true);
 
-                    const levelsSelectedNodes = document.querySelectorAll('input[name="sentinel-2-levels"]:checked');
-                    const levelsSelected = Array.from(levelsSelectedNodes).map(checkbox => checkbox.value);
-
-                    const bandsSelectedNodes = document.querySelectorAll('input[name="sentinel-2-bands"]:checked');
-                    const bandsSelected = Array.from(bandsSelectedNodes).map(checkbox => checkbox.value);
-
-                    if (levelsSelected.length <= 0 || bandsSelected.length <= 0) {
+                    if (s2LevelsSelected.length <= 0 || s2BandsSelected.length <= 0) {
                         await showAlert("Warning", "Not enough parameters specified!", false);
                     }
 
                     let selectedFilters = new Map();
 
-                    selectedFilters.set('cloud_cover', cloudCover);
-                    let cloudCoverApiCall = `Attributes/OData.CSC.DoubleAttribute/any(att:att/Name eq 'cloudCover' and att/OData.CSC.DoubleAttribute/Value le ${cloudCover}.00)`;
+                    selectedFilters.set('cloud_cover', s2CloudCoverSelected);
+                    let cloudCoverApiCall = `Attributes/OData.CSC.DoubleAttribute/any(att:att/Name eq 'cloudCover' and att/OData.CSC.DoubleAttribute/Value le ${s2CloudCoverSelected}.00)`;
 
 
-                    selectedFilters.set('levels', levelsSelected);
+                    selectedFilters.set('levels', s2LevelsSelected);
                     let levelsApiCall = undefined;
-                    if (levelsSelected.length > 0) {
-                        levelsApiCall = `(${levelsSelected.map(
+                    if (s2LevelsSelected.length > 0) {
+                        levelsApiCall = `(${s2LevelsSelected.map(
                             level => `Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq '${level}')`
                         ).join(' or ')})`;
                     }
 
-                    selectedFilters.set('bands', bandsSelected);
+                    selectedFilters.set('bands', s2BandsSelected);
                     // Bands not filtered in Copernicus API call
 
                     filtersGlobal.set(datasetsSelected[dataset], selectedFilters)
@@ -485,32 +461,12 @@ const fetchFeatures = async () => {
         }
 
         featuresGlobal = new Map();
+        document.getElementById("product-tile-list").innerHTML = "";
 
         for (const feature of finalFeatures) {
             featuresGlobal.set(feature.Id, feature);
-
-            choices.setChoices([
-                {
-                    value: feature.Id,
-                    label: feature.Name,
-                    customProperties: {
-                        feature: feature,
-                    }
-                }
-            ], 'value', 'label', false);
+            showProductDetail(feature);
         }
-
-        featureSelect.addEventListener('change', function (e) {
-            const selectedId = e.target.value;
-            const feature = featuresGlobal.get(selectedId);
-
-            hoverLayer.clearLayers();
-            if (feature?.GeoFootprint) {
-                hoverLayer.addData(feature.GeoFootprint);
-            }
-
-            showBorders(selectedId);
-        });
 
         document.addEventListener('mouseover', function (e) {
             const item = e.target.closest('.choices__item--choice');
@@ -531,6 +487,7 @@ const fetchFeatures = async () => {
 
         if (obtainedFeatures.length > 0) {
             enableUIElements()
+            toggleFeaturesControl();
         } else {
             enableUIElements()
             await showAlert("Warning", "No features found for selected filters!", false);
@@ -545,18 +502,28 @@ const fetchFeatures = async () => {
 };
 
 const disableUIElements = () => {
-    document.querySelector("#visualize-feature-button-div").classList.add("disabled-element");
-    document.querySelector("#available-features-select-div").classList.add("disabled-element");
-    document.querySelector("#processed-products-select-div").classList.add("disabled-element");
-    document.querySelector("#open-product-button-div").classList.add("disabled-element");
+    // document.querySelector("#open-product-button-div").classList.add("disabled-element");
+    document.querySelector("#map-div").classList.add("disabled-element");
 }
 
 const enableUIElements = () => {
-    document.querySelector("#visualize-feature-button-div").classList.remove("disabled-element");
-    document.querySelector("#available-features-select-div").classList.remove("disabled-element");
-    document.querySelector("#processed-products-select-div").classList.remove("disabled-element");
-    document.querySelector("#open-product-button-div").classList.remove("disabled-element");
+    // document.querySelector("#open-product-button-div").classList.remove("disabled-element");
+    document.querySelector("#map-div").classList.remove("disabled-element");
 }
+
+function togglePanel(activeId) {
+    const panels = ["features-panel", "preselection-panel", "visualization-panel"];
+    panels.forEach(id => {
+        const panel = document.querySelector(`#${id}`);
+        if (panel) {
+            panel.classList.toggle("hidden-element", id !== activeId);
+        }
+    });
+}
+
+const toggleFeaturesControl = () => togglePanel("features-panel");
+const togglePreselectionControl = () => togglePanel("preselection-panel");
+const toggleVisualizationControl = () => togglePanel("visualization-panel");
 
 
 const clearCoordinates = () => {
@@ -646,8 +613,8 @@ const openFeature = () => {
     }
 }
 
-const visualize = async () => {
-    let visualizationRequest = await requestVisualization()
+const visualize = async (featureId) => {
+    let visualizationRequest = await requestVisualization(featureId)
 
     let processedProductsSelect = document.querySelector("#processed-products-select");
     processedProductsSelect.innerHTML = '';
@@ -661,18 +628,18 @@ const visualize = async () => {
         }
     }
 
-    enableUIElements()
+    openFeature();
+    enableUIElements();
 }
 
-const requestVisualization = async () => {
+const requestVisualization = async (featureId) => {
     showSpinner();
 
     const repeatRequestAfter = 5 * 1000 // millisecs
     const totalTimeout = 120 // secs // TODO timeout of backend processing after 120 sec. Enough?
     const backendReplyTimeout = 30 * 1000;  // 1 sec = 1 000 millisecs // TODO timeout of backend call after 30 sec. Enough?
 
-    const selectedFeatureId = document.getElementById("available-features-select").value;
-    const platform = featuresGlobal.get(selectedFeatureId).platform;
+    const platform = featuresGlobal.get(featureId).platform;
     const filters = Object.fromEntries(filtersGlobal.get(platform));
 
     const method = 'POST';
@@ -681,7 +648,7 @@ const requestVisualization = async () => {
     }
     const bodyJson = JSON.stringify(
         {
-            feature_id: selectedFeatureId,
+            feature_id: featureId,
             platform: platform,
             filters: filters
         }
@@ -751,6 +718,7 @@ const requestVisualization = async () => {
         throw new Error("Request is not initialized!"); // todo proper exception
     }
 
+    toggleVisualizationControl();
     return visualizationRequest;
 };
 
@@ -820,59 +788,10 @@ const toggleMissionFiltersDiv = async (filterButton) => {
     }
 }
 
-const toggleSentinel1HHHV = () => {
-    if (document.querySelector("#sentinel-1-combined-hhhv-checkbox").checked) {
-        document.querySelector("#sentinel-1-hh-checkbox").checked = true;
-        document.querySelector("#sentinel-1-hv-checkbox").checked = true;
-    }
-}
-
-const toggleSentinel1VVVH = () => {
-    if (document.querySelector("#sentinel-1-combined-vvvh-checkbox").checked) {
-        document.querySelector("#sentinel-1-vv-checkbox").checked = true;
-        document.querySelector("#sentinel-1-vh-checkbox").checked = true;
-    }
-}
-
-const toggleSentinel1CombinedHHHV = () => {
-    if (document.querySelector("#sentinel-1-combined-hhhv-checkbox").checked) {
-        if (
-            !document.querySelector("#sentinel-1-hh-checkbox").checked ||
-            !document.querySelector("#sentinel-1-hv-checkbox").checked
-        ) {
-            document.querySelector("#sentinel-1-combined-hhhv-checkbox").checked = false;
-        }
-    }
-}
-
-const toggleSentinel1CombinedVVVH = () => {
-    if (document.querySelector("#sentinel-1-combined-vvvh-checkbox").checked) {
-        if (
-            !document.querySelector("#sentinel-1-vv-checkbox").checked ||
-            !document.querySelector("#sentinel-1-vh-checkbox").checked
-        ) {
-            document.querySelector("#sentinel-1-combined-vvvh-checkbox").checked = false;
-        }
-    }
-}
-
-const toggleSentinel1Checkbox = () => {
-    if (
-        document.querySelectorAll('input[name="sentinel-1-levels"]:checked').length <= 0
-        && document.querySelectorAll('input[name="sentinel-1-sensing-types"]:checked').length <= 0
-        && document.querySelectorAll('input[name="sentinel-1-data-types"]:checked').length <= 0
-    ) {
-        document.querySelector("#mission-filter-checkbox-sentinel-1").checked = false;
-    } else {
-        document.querySelector("#mission-filter-checkbox-sentinel-1").checked = true;
-    }
-}
-
 const toggleSentinel2Checkbox = () => {
     if (
-        document.querySelectorAll('input[name="sentinel-2-levels"]:checked').length <= 0
-        && document.querySelectorAll('input[name="sentinel-2-bands"]:checked').length <= 0
-        && document.querySelectorAll('input[name="sentinel-2-misc"]:checked').length <= 0
+        s2BandChoices.getValue("true").length === 0 ||
+        s2LevelChoices.getValue("true").length === 0
     ) {
         document.querySelector("#mission-filter-checkbox-sentinel-2").checked = false;
     } else {
@@ -880,46 +799,44 @@ const toggleSentinel2Checkbox = () => {
     }
 }
 
-const toggleSentinel1AdditionalCheckboxes = () => {
-    if (!document.querySelector("#mission-filter-checkbox-sentinel-1").checked) {
-        document.querySelectorAll("#mission-filters-sentinel-1-div input[type=checkbox]").forEach((checkbox) => {
-            checkbox.checked = false;
-        })
+const toggleSentinel1Checkbox = () => {
+    if (
+        s1ProductTypesChoices.getValue("true").length === 0 ||
+        s1LevelChoices.getValue("true").length === 0 ||
+        s1SensingTypesChoices.getValue("true").length === 0 ||
+        s1PolarisationChoices.getValue("true").length === 0
+    ) {
+        document.querySelector("#mission-filter-checkbox-sentinel-1").checked = false;
     } else {
-        document.querySelectorAll("#mission-filters-sentinel-1-div input[type=checkbox]").forEach((checkbox) => {
-            checkbox.checked = true;
-        })
+        document.querySelector("#mission-filter-checkbox-sentinel-1").checked = true;
     }
 }
 
-const toggleSentinel2AdditionalCheckboxes = () => {
-    if (!document.querySelector("#mission-filter-checkbox-sentinel-2").checked) {
-        document.querySelectorAll("#mission-filters-sentinel-2-div input[type=checkbox]").forEach((checkbox) => {
-            checkbox.checked = false;
-        })
-    } else {
-        document.querySelectorAll("#mission-filters-sentinel-2-div input[type=checkbox]").forEach((checkbox) => {
-            checkbox.checked = true;
-        })
-    }
-}
+const showProductDetail = (metadata) => {
+    const template = document.getElementById("product-tile-template");
+    const tileListDiv = document.getElementById("product-tile-list");
+    const product = template.content.cloneNode(true);
+    product.querySelector(".product-name").textContent = metadata.Name;
+    product.querySelector(".product-mission").textContent = metadata.platform;
+    product.querySelector(".product-time").textContent = metadata.OriginDate;
+    // product.querySelector(".product-size").textContent = metadata.ContentLength;
 
-const toggleSentinel2RGBCheckbox = () => {
-    if (document.querySelector("#sentinel-2-rgb-checkbox").checked) {
-        if (
-            !document.querySelector("#sentinel-2-b2-checkbox").checked ||
-            !document.querySelector("#sentinel-2-b3-checkbox").checked ||
-            !document.querySelector("#sentinel-2-b4-checkbox").checked
-        ) {
-            document.querySelector("#sentinel-2-rgb-checkbox").checked = false;
-        }
-    }
-}
+    productDiv = product.querySelector(".product-tile");
+    productDiv.addEventListener("mouseenter", async function (e) {
+            const feature = featuresGlobal.get(metadata.Id);
+            hoverLayer.clearLayers();
+            if (feature?.GeoFootprint) {
+                hoverLayer.addData(feature.GeoFootprint);
+            }
+        });
 
-const toggleSentinel2RGBBandsCheckboxes = () => {
-    if (document.querySelector("#sentinel-2-rgb-checkbox").checked) {
-        document.querySelector("#sentinel-2-b2-checkbox").checked = true;
-        document.querySelector("#sentinel-2-b3-checkbox").checked = true;
-        document.querySelector("#sentinel-2-b4-checkbox").checked = true;
-    }
+    productDiv.addEventListener("mouseleave", async function (e) {
+        hoverLayer.clearLayers();
+    });
+
+    product.querySelector(".visualize-btn").addEventListener("click", async function () {
+        visualize(metadata.Id);
+    })
+
+    tileListDiv.appendChild(product);
 }

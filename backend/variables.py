@@ -1,14 +1,14 @@
 import os
 
-"""
-# Only for local debugging
-from dotenv import load_dotenv
-load_dotenv("../variables.env")
-"""
+
+# # Only for local debugging
+# from dotenv import load_dotenv
+# load_dotenv("../variables.env")
 
 true_statements = ["1", "true", "yes", ]
 
 APP__NAME: str = os.getenv("APP__NAME", default="dhr-visualizer")
+APP__LOG_LEVEL: str = os.getenv("APP__LOG_LEVEL", default="INFO")
 
 UVICORN__SERVER_HOST: str = os.environ.get("UVICORN__SERVER_HOST", default="0.0.0.0")
 UVICORN__SERVER_PORT: int = int(os.environ.get("UVICORN__SERVER_PORT", default=8081))

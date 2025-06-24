@@ -1,10 +1,11 @@
 import logging
+import sys
 
 import variables as env
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.logger import logger as fastapi_logger
 from fastapi_server import fastapi_shared
 from fastapi_server.routes import fastapi_routes
 
@@ -15,7 +16,19 @@ class FastAPIServer:
     _fastapi_app: FastAPI = None
 
     def __init__(self, logger=logging.Logger(env.APP__NAME)):
-        fastapi_shared.logger = logger
+        fastapi_logger.handlers = logger.handlers
+        fastapi_logger.setLevel(env.APP__LOG_LEVEL.upper())
+
+        # file_handler = logging.FileHandler("dhr-visualization.log")
+        # file_handler.setLevel(env.APP__LOG_LEVEL.upper())
+        # file_handler.setFormatter(logging.Formatter('%(levelname)s %(asctime)s - %(name)s:  %(message)s'))
+        # fastapi_logger.addHandler(file_handler)
+
+        stdout_handler = logging.StreamHandler(sys.stdout)
+        stdout_handler.setLevel(env.APP__LOG_LEVEL.upper())
+        stdout_handler.setFormatter(logging.Formatter('%(levelname)s %(asctime)s - %(name)s:  %(message)s'))
+        fastapi_logger.addHandler(stdout_handler)
+
         fastapi_shared.database = DictDatabaseConnector()
 
         self._fastapi_app = FastAPI(title=env.APP__NAME)
