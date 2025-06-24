@@ -36,6 +36,9 @@ class CDSEConnector(DataspaceConnector):
 
         return self._feature
 
+    def get_feature_name(self) -> str:
+        return self._get_feature()['Name']
+
     def _get_s3_path(self) -> str:
         self._get_feature()
 

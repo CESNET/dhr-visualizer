@@ -8,4 +8,5 @@ pydantic-core>=2.33.0
 uvicorn>=0.34.0
 numpy~=2.3.0
 pillow~=11.2.1
+pyproj~=3.7.1
 mercantile~=1.2.1

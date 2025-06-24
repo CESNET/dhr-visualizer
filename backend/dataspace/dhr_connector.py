@@ -51,6 +51,10 @@ class DHRConnector(DataspaceConnector):
 
         return self._feature
 
+    def get_feature_name(self) -> str:
+        # TODO implement
+        raise Exception("NOT IMPLEMENTED")
+
     def _get_asset_path(self, full_path: str | None = None) -> str:
         if full_path is None:
             return ""

@@ -44,6 +44,10 @@ class DataspaceConnector(HTTPRequestableObject):
         pass
 
     @abstractmethod
+    def get_feature_name(self) -> str:
+        pass
+
+    @abstractmethod
     def _get_asset_path(self, full_path: str | None = None) -> str:
         pass
 

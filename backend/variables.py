@@ -2,8 +2,8 @@ import os
 
 
 # # Only for local debugging
-# from dotenv import load_dotenv
-# load_dotenv("../variables.env")
+from dotenv import load_dotenv
+load_dotenv("../variables.env")
 
 true_statements = ["1", "true", "yes", ]
 

@@ -1,9 +1,12 @@
 import logging
+import pyproj
 import re
 
 from typing import Dict, Any
 
 from feature.processing.processed_feature import ProcessedFeature
+
+from feature.processing.exceptions.sentinel2_feature import *
 
 
 class Sentinel2Feature(ProcessedFeature):
@@ -50,3 +53,29 @@ class Sentinel2Feature(ProcessedFeature):
                 selected_bands.append(f'B{int(band[1:]):02}')
 
         return selected_bands
+
+    def _get_epsg_zone(self) -> int:
+        match = re.search(r"_T(\d{2}[A-Z]{3})_", self.get_feature_name())
+        if not match:
+            raise Sentinel2FeatureCantExtractUTMZone(feature_id=self.get_feature_id())
+
+        zone_number = int(match.group(1)[:3][:-1])
+        zone_letter = match.group(1)[:3][-1].upper()
+
+        if 'C' <= zone_letter <= 'M':
+            return 32700 + zone_number  # southern hemisphere
+        else:
+            return 32600 + zone_number  # northern hemisphere
+
+    def get_bbox_webmercator(self) -> list[float]:
+        min_lon, min_lat, max_lon, max_lat = self._get_bbox()
+
+        transformer = pyproj.Transformer.from_crs(
+            crs_from=self._get_epsg_zone(),
+            crs_to=self._WEB_MERCATOR_CRS, always_xy=True
+        )
+
+        min_lon, min_lat = transformer.transform(min_lon, min_lat)
+        max_lon, max_lat = transformer.transform(max_lon, max_lat)
+
+        return [min_lon, min_lat, max_lon, max_lat]

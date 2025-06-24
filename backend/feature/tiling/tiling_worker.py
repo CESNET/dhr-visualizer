@@ -51,13 +51,13 @@ class TilingWorker:
         self._y = y
 
     def _calculate_pixels_per_latlon(self):
-        min_lon, min_lat, max_lon, max_lat = self._processed_feature.get_bbox()
+        min_lon, min_lat, max_lon, max_lat = self._processed_feature.get_bbox_webmercator()
 
         self._pixels_per_lon = self._image_width / (max_lon - min_lon)
         self._pixels_per_lat = self._image_height / (max_lat - min_lat)
 
     def _coords_to_pixel(self, lon, lat):
-        min_lon, _, _, max_lat = self._processed_feature.get_bbox()
+        min_lon, _, _, max_lat = self._processed_feature.get_bbox_webmercator()
         self._calculate_pixels_per_latlon()
 
         pixel_x = int((lon - min_lon) * self._pixels_per_lon)

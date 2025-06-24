@@ -57,3 +57,8 @@ class Sentinel1Feature(ProcessedFeature):
                         break
 
         return filtered_files
+
+    def get_bbox_webmercator(self):
+        # TODO IMPLEMENT
+        self._logger.critical(f"[{__name__}]: !!!!!! Sentinel-1 method get_bbox_webmercator not implemented !!!!!!")
+        return self._get_bbox()
