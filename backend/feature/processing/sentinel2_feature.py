@@ -76,6 +76,8 @@ class Sentinel2Feature(ProcessedFeature):
             crs_to=self._WEB_MERCATOR_CRS, always_xy=True
         )
 
+        print(transformer)
+
         min_lon, min_lat = transformer.transform(min_lon, min_lat)
         max_lon, max_lat = transformer.transform(max_lon, max_lat)
 
