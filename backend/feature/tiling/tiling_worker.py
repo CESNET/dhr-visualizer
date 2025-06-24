@@ -1,6 +1,8 @@
 import logging
 
 import mercantile
+import pyproj
+
 import numpy as np
 
 from PIL import Image
@@ -51,7 +53,6 @@ class TilingWorker:
         self._y = y
 
     def _calculate_pixels_per_latlon(self):
-        self._logger.debug(f"[{__name__}]: _calculate_pixels_per_latlon")
         min_lon, min_lat, max_lon, max_lat = self._processed_feature.get_bbox_webmercator()
 
         self._pixels_per_lon = self._image_width / (max_lon - min_lon)
@@ -62,6 +63,14 @@ class TilingWorker:
 
     def _coords_to_pixel(self, lon, lat):
         self._logger.debug(f"[{__name__}]: _coords_to_pixel")
+
+        transformer = pyproj.Transformer.from_crs(
+            crs_from=4326, # Todo rozlišovat s1 a s2, případně další
+            crs_to=variables.WEB_MERCATOR_CRS,
+            always_xy=True
+        )
+        lon, lat = transformer.transform(lon, lat)
+
         min_lon, _, _, max_lat = self._processed_feature.get_bbox_webmercator()
         self._calculate_pixels_per_latlon()
 

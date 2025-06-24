@@ -4,6 +4,7 @@ import re
 
 from typing import Dict, Any
 
+import variables
 from feature.processing.processed_feature import ProcessedFeature
 
 from feature.processing.exceptions.sentinel2_feature import *
@@ -79,15 +80,15 @@ class Sentinel2Feature(ProcessedFeature):
 
         transformer = pyproj.Transformer.from_crs(
             #crs_from=self._utm_to_epsg_zone(),
-            crs_from=4326,
-            crs_to=self._WEB_MERCATOR_CRS,
+            crs_from=4326, # Sentinel-2 has coordinates polygon in metadata in EPSG:4326
+            crs_to=variables.WEB_MERCATOR_CRS,
             always_xy=True
         )
 
         self._logger.debug(f"[{__name__}]: get_bbox_webmercator: transformer: {transformer}")
 
-        min_lat, min_lon = transformer.transform(min_lon, min_lat)
-        max_lat, max_lon = transformer.transform(max_lon, max_lat)
+        min_lon, min_lat = transformer.transform(min_lon, min_lat)
+        max_lon, max_lat = transformer.transform(max_lon, max_lat)
 
         webmercator_bbox = [min_lon, min_lat, max_lon, max_lat]
 

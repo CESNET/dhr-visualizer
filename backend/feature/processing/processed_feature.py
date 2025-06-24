@@ -23,8 +23,6 @@ from feature.processing.exceptions.processed_feature import *
 
 
 class ProcessedFeature(ABC):
-    _WEB_MERCATOR_CRS = 3857  # EPSG:3857 == Web Mercator
-
     _logger: logging.Logger = None
 
     _request_hash: str = None
