@@ -68,6 +68,7 @@ class Sentinel2Feature(ProcessedFeature):
             return 32600 + zone_number  # northern hemisphere
 
     def get_bbox_webmercator(self) -> list[float]:
+        self._logger.debug(f"[{__name__}]: get_bbox_webmercator: input bbox: {self._get_bbox()}")
         min_lon, min_lat, max_lon, max_lat = self._get_bbox()
 
         transformer = pyproj.Transformer.from_crs(
@@ -78,4 +79,8 @@ class Sentinel2Feature(ProcessedFeature):
         min_lon, min_lat = transformer.transform(min_lon, min_lat)
         max_lon, max_lat = transformer.transform(max_lon, max_lat)
 
-        return [min_lon, min_lat, max_lon, max_lat]
+        webmercator_bbox = [min_lon, min_lat, max_lon, max_lat]
+
+        self._logger.debug(f"[{__name__}]: get_bbox_webrecator: webmercator_bbox: {webmercator_bbox}")
+
+        return webmercator_bbox
