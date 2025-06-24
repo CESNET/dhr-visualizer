@@ -51,12 +51,14 @@ class TilingWorker:
         self._y = y
 
     def _calculate_pixels_per_latlon(self):
+        self._logger.debug(f"[{__name__}]: _calculate_pixels_per_latlon")
         min_lon, min_lat, max_lon, max_lat = self._processed_feature.get_bbox_webmercator()
 
         self._pixels_per_lon = self._image_width / (max_lon - min_lon)
         self._pixels_per_lat = self._image_height / (max_lat - min_lat)
 
     def _coords_to_pixel(self, lon, lat):
+        self._logger.debug(f"[{__name__}]: _coords_to_pixel")
         min_lon, _, _, max_lat = self._processed_feature.get_bbox_webmercator()
         self._calculate_pixels_per_latlon()
 
@@ -67,7 +69,7 @@ class TilingWorker:
 
     def save_tile(self) -> Path:
         tile_bounds = mercantile.bounds((self._x, self._y, self._z))
-        self._logger.debug(f"[{__name__}]: Tile bounds: {tile_bounds}")
+        self._logger.debug(f"[{__name__}]: save_tile: tile bounds: {tile_bounds}")
 
         tile_directory = self._selected_file.parent / self._selected_file.stem / f"{self._z}/{self._x}/"
         tile_directory.mkdir(parents=True, exist_ok=True)
@@ -79,7 +81,7 @@ class TilingWorker:
         if tile_file.is_file():
             return tile_file
 
-        self._logger.debug(f"[{__name__}]: Will output tile into: {tile_file}")
+        self._logger.debug(f"[{__name__}]: save_tile: outputting tile into: {tile_file}")
 
         left, top = self._coords_to_pixel(tile_bounds.west, tile_bounds.north)
         right, bottom = self._coords_to_pixel(tile_bounds.east, tile_bounds.south)

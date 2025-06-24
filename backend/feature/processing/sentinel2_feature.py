@@ -81,6 +81,6 @@ class Sentinel2Feature(ProcessedFeature):
 
         webmercator_bbox = [min_lon, min_lat, max_lon, max_lat]
 
-        self._logger.debug(f"[{__name__}]: get_bbox_webrecator: webmercator_bbox: {webmercator_bbox}")
+        self._logger.debug(f"[{__name__}]: get_bbox_webmercator: webmercator_bbox: {webmercator_bbox}")
 
         return webmercator_bbox
