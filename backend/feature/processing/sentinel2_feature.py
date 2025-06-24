@@ -71,6 +71,9 @@ class Sentinel2Feature(ProcessedFeature):
         self._logger.debug(f"[{__name__}]: get_bbox_webmercator: input bbox: {self._get_bbox()}")
         min_lon, min_lat, max_lon, max_lat = self._get_bbox()
 
+        self._logger.debug(f"[{__name__}]: get_bbox_webmercator: _get_epsg_zone(): {self._get_epsg_zone()}")
+        self._logger.debug(f"[{__name__}]: get_bbox_webmercator: _WEB_MERCATOR_CRS: {self._WEB_MERCATOR_CRS}")
+
         transformer = pyproj.Transformer.from_crs(
             crs_from=self._get_epsg_zone(),
             crs_to=self._WEB_MERCATOR_CRS,
