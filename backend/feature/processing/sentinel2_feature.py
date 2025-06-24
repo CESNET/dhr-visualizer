@@ -86,10 +86,8 @@ class Sentinel2Feature(ProcessedFeature):
 
         self._logger.debug(f"[{__name__}]: get_bbox_webmercator: transformer: {transformer}")
 
-        # TODO ta transformace je nějak blbě. Resp. hází to divnej bbox: [1170121.2299206383, 49.75632409111365, 1170122.7754371185, 50.75606330719175]
-
-        min_lon, min_lat = transformer.transform(min_lon, min_lat)
-        max_lon, max_lat = transformer.transform(max_lon, max_lat)
+        min_lat, min_lon = transformer.transform(min_lon, min_lat)
+        max_lat, max_lon = transformer.transform(max_lon, max_lat)
 
         webmercator_bbox = [min_lon, min_lat, max_lon, max_lat]
 
