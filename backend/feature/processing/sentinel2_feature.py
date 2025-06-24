@@ -55,12 +55,18 @@ class Sentinel2Feature(ProcessedFeature):
         return selected_bands
 
     def _get_epsg_zone(self) -> int:
+        self._logger.debug(f"[{__name__}]: _get_epsg_zone: feature name={self.get_feature_name()}")
+
         match = re.search(r"_T(\d{2}[A-Z]{3})_", self.get_feature_name())
         if not match:
+            self._logger.debug(f"[{__name__}]: _get_epsg_zone: can't extract UTM zone from feature name")
             raise Sentinel2FeatureCantExtractUTMZone(feature_id=self.get_feature_id())
 
         zone_number = int(match.group(1)[:3][:-1])
+        self._logger.debug(f"[{__name__}]: _get_epsg_zone: zone_number={zone_number}")
+
         zone_letter = match.group(1)[:3][-1].upper()
+        self._logger.debug(f"[{__name__}]: _get_epsg_zone: zone_letter={zone_letter}")
 
         if 'C' <= zone_letter <= 'M':
             return 32700 + zone_number  # southern hemisphere
@@ -80,8 +86,8 @@ class Sentinel2Feature(ProcessedFeature):
             always_xy=True
         )
 
-        print(f"[{__name__}]: get_bbox_webmercator: transformer initialized")
-        print(f"[{__name__}]: get_bbox_webmercator: transformer: {transformer}")
+        self._logger.debug(f"[{__name__}]: get_bbox_webmercator: transformer initialized")
+        self._logger.debug(f"[{__name__}]: get_bbox_webmercator: transformer: {transformer}")
 
         min_lon, min_lat = transformer.transform(min_lon, min_lat)
         max_lon, max_lat = transformer.transform(max_lon, max_lat)
