@@ -223,9 +223,10 @@ class ProcessedFeature(ABC):
         if input_files is None:
             raise ValueError("No input files provided")  ## TODO Proper exception
 
-        command = ["gjtiff", "-q", "82", "-o" f"{str(output_directory)}"] + [input_file for input_file in input_files]
+        command = ["gjtiff", "-q", "82", "-Q", "-o" f"{str(output_directory)}"] + [input_file for input_file in input_files]
 
         gjtiff_container = docker.from_env().containers.get("gjtiff_container")
-        result = gjtiff_container.exec_run(command, stdout=True, stderr=True, tty=False)
+        # https://stackoverflow.com/a/56934591
+        result = gjtiff_container.exec_run(command, stdout=True, stderr=True, tty=True)
 
         return result.output.decode('utf-8')
