@@ -43,13 +43,13 @@
 
 			<div class="controls-element controls-box" id="coordinates-div">
 				<div class="controls-element" id="coordinates-nw-input-div">
-					<label for="coordinates-nw-input">North-west corner: </label>
+					<label for="coordinates-nw-input">North-west corner</label>
 					<input type="text" class="coordinate-user-input" id="coordinates-nw-input"
 						   placeholder="Latitude;Longitude">
 				</div>
 
 				<div class="controls-element" id="coordinates-se-input-div">
-					<label for="coordinates-se-input">South-east corner: </label>
+					<label for="coordinates-se-input">South-east corner</label>
 					<input type="text" class="coordinate-user-input" id="coordinates-se-input"
 						   placeholder="Latitude;Longitude">
 				</div>
@@ -242,13 +242,11 @@
 		<div id="visualization-panel" class="hidden-element">
 			<button class="nav-item" id="visualization-back-button" onclick="toggleFeaturesControl();">⬅ Back</button>
 
+			<label for="opacity-slider">Opacity</label>
+			<input id="opacity-slider" type="range" min="0" max="1" step="0.1" value="0.8" onchange="updateOpacity(this.value)">
+
 			<label for="processed-products-select">Processed products</label>
 			<select id="processed-products-select" onchange="openFeature()"></select>
-
-
-<!--			<div class="controls-element disabled-element" id="open-product-button-div">-->
-<!--				<button id="open-product-button" onclick="openFeature()">Open product</button>-->
-<!--			</div>-->
 		</div>
 	</div>
 

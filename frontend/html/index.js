@@ -127,6 +127,10 @@ function sentinel2CloudCoverSliderToValue() {
     sentinel2CloudCoverValue.value = sentinel2CloudCoverSlider.value;
 }
 
+function updateOpacity(value) {
+    osmLayer.setOpacity(value);
+}
+
 document.querySelector("#sentinel-2-cloud-cover-value").addEventListener("input", function () {
     let sentinel2CloudCoverSlider = document.querySelector("#sentinel-2-cloud-cover-range");
     sentinel2CloudCoverSlider.value = this.value;
