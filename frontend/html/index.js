@@ -127,6 +127,10 @@ function sentinel2CloudCoverSliderToValue() {
     sentinel2CloudCoverValue.value = sentinel2CloudCoverSlider.value;
 }
 
+function updateOpacity(value) {
+    window.currentSatelliteTiles.setOpacity(value);
+}
+
 document.querySelector("#sentinel-2-cloud-cover-value").addEventListener("input", function () {
     let sentinel2CloudCoverSlider = document.querySelector("#sentinel-2-cloud-cover-range");
     sentinel2CloudCoverSlider.value = this.value;
@@ -823,12 +827,12 @@ const showProductDetail = (metadata) => {
 
     productDiv = product.querySelector(".product-tile");
     productDiv.addEventListener("mouseenter", async function (e) {
-            const feature = featuresGlobal.get(metadata.Id);
-            hoverLayer.clearLayers();
-            if (feature?.GeoFootprint) {
-                hoverLayer.addData(feature.GeoFootprint);
-            }
-        });
+        const feature = featuresGlobal.get(metadata.Id);
+        hoverLayer.clearLayers();
+        if (feature?.GeoFootprint) {
+            hoverLayer.addData(feature.GeoFootprint);
+        }
+    });
 
     productDiv.addEventListener("mouseleave", async function (e) {
         hoverLayer.clearLayers();
