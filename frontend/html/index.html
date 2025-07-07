@@ -54,12 +54,6 @@
 						   placeholder="Latitude;Longitude">
 				</div>
 
-				<div class="controls-element" id="coordinates-from-map-button-div">
-					<button id="coordinates-from-map-button" onclick="insertCoordinatesFromMap();">
-						Insert coordinates of map corners
-					</button>
-				</div>
-
 				<div class="controls-element" id="coordinates-clear-button-div">
 					<button id="coordinates-clear-button" onclick="clearCoordinates();">Clear coordinates</button>
 				</div>
@@ -125,7 +119,7 @@
 						<div class="filter">
 							<div class="filter-category-label">Polarisation</div>
 							<select onchange="toggleSentinel1Checkbox();" id="sentinel-1-polarisation" multiple>
-<!--								todo: fixme, need to encode &-->
+								<!--								todo: fixme, need to encode &-->
 								<option value="HH&HV" selected>HH+HV</option>
 								<option value="VV&VH" selected>VV+VH</option>
 								<option value="HV&HH" selected>HV+HH</option>
@@ -242,11 +236,16 @@
 		<div id="visualization-panel" class="hidden-element">
 			<button class="nav-item" id="visualization-back-button" onclick="toggleFeaturesControl();">⬅ Back</button>
 
-			<label for="opacity-slider">Opacity</label>
-			<input id="opacity-slider" type="range" min="0" max="1" step="0.1" value="0.8" onchange="updateOpacity(this.value)">
+			<div class="controls-element">
+				<label for="opacity-slider">Opacity</label>
+				<input id="opacity-slider" type="range" min="0" max="1" step="0.1" value="0.8"
+					   onchange="updateOpacity(this.value)">
+			</div>
 
-			<label for="processed-products-select">Processed products</label>
-			<select id="processed-products-select" onchange="openFeature()"></select>
+			<div class="controls-element">
+				<label for="processed-products-select">Processed products</label>
+				<select id="processed-products-select" onchange="openFeature()"></select>
+			</div>
 		</div>
 	</div>
 
@@ -268,7 +267,7 @@
 		<p class="product-name"></p>
 		<p><strong>Mission:</strong> <span class="product-mission"></span></p>
 		<p><strong>Sensing time:</strong> <span class="product-time"></span></p>
-<!--		<p><strong>Size:</strong> <span class="product-size"></span></p>-->
+		<!--		<p><strong>Size:</strong> <span class="product-size"></span></p>-->
 		<div class="buttons">
 			<button class="visualize-btn">Visualize</button>
 		</div>
