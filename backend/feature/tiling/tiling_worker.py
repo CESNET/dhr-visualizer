@@ -66,7 +66,7 @@ class TilingWorker:
         return pixel_x, pixel_y
 
     def save_tile(self) -> Path:
-        flipped_y = 2 ** self._x - 1 - self._y
+        flipped_y = (2 ** self._z) - self._y - 1
         print(flipped_y)
         tile_bounds = mercantile.bounds((self._x, flipped_y, self._z))
         self._logger.debug(f"[{__name__}]: Tile bounds: {tile_bounds}")
