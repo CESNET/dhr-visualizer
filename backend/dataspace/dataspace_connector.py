@@ -59,7 +59,7 @@ class DataspaceConnector(HTTPRequestableObject):
     def get_polygon(self) ->list[list[float]]:
         pass
 
-    def get_bbox(self) -> list[float]:
+    def get_rectangular_bbox(self) -> list[float]:
         polygon = self.get_polygon()
 
         lats = [pt[1] for pt in polygon]

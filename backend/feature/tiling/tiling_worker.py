@@ -60,8 +60,8 @@ class TilingWorker:
         min_lon, _, _, max_lat = self._processed_feature.get_bbox()
         self._calculate_pixels_per_latlon()
 
-        pixel_x = int((lon - min_lon) * self._pixels_per_lon)
-        pixel_y = int((max_lat - lat) * self._pixels_per_lat)
+        pixel_x = (lon - min_lon) * self._pixels_per_lon - 0.5
+        pixel_y = (max_lat - lat) * self._pixels_per_lat - 0.5
 
         return pixel_x, pixel_y
 

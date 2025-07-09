@@ -172,7 +172,7 @@ class ProcessedFeature(ABC):
         try:
             self._set_status(status=RequestStatuses.PROCESSING)
 
-            self._set_bbox(self._dataspace_connector.get_bbox())
+            self._set_bbox(self._dataspace_connector.get_rectangular_bbox())
 
             downloaded_feature_files_paths = await self._download_feature()
 
