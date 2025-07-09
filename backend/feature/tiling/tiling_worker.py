@@ -60,13 +60,14 @@ class TilingWorker:
         min_lon, _, _, max_lat = self._processed_feature.get_bbox()
         self._calculate_pixels_per_latlon()
 
-        pixel_x = (lon - min_lon) * self._pixels_per_lon - 0.5
-        pixel_y = (max_lat - lat) * self._pixels_per_lat - 0.5
+        pixel_x = int((lon - min_lon) * self._pixels_per_lon)
+        pixel_y = int((max_lat - lat) * self._pixels_per_lat)
 
         return pixel_x, pixel_y
 
     def save_tile(self) -> Path:
-        tile_bounds = mercantile.bounds((self._x, self._y, self._z))
+        flipped_y = 2 ** self._x - 1 - self._y
+        tile_bounds = mercantile.bounds((self._x, flipped_y, self._z))
         self._logger.debug(f"[{__name__}]: Tile bounds: {tile_bounds}")
 
         tile_directory = self._selected_file.parent / self._selected_file.stem / f"{self._z}/{self._x}/"
