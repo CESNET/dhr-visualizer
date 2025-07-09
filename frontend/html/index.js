@@ -48,7 +48,7 @@ let leafletMap = L.map('map-div').setView(leafletInitCoords, leafletInitZoom);
 L.control.scale().addTo(leafletMap);
 
 let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+    attribution: 'Base map (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
     maxZoom: 19,
     opacity: 1,
 }).addTo(leafletMap);
@@ -605,10 +605,11 @@ const openFeature = () => {
         const tileUrlTemplate = `${backendHost}/api/get_tile/{z}/{x}/{y}.jpg?request_hash=${requestHash}&selected_file=${file}`;
 
         const satelliteTiles = L.tileLayer(tileUrlTemplate, {
+            attribution: 'Satellite imagery (c) <a href="https://www.copernicus.eu/">Copernicus programme</a>',
             minZoom: 8,
             maxZoom: 19,
             tileSize: 256,
-            opacity: 0.8,
+            opacity: document.querySelector("#opacity-slider").value,
         });
 
         satelliteTiles.addTo(leafletMap);
