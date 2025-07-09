@@ -67,8 +67,10 @@ class TilingWorker:
 
     def save_tile(self) -> Path:
         flipped_y = 2 ** self._x - 1 - self._y
+        print(flipped_y)
         tile_bounds = mercantile.bounds((self._x, flipped_y, self._z))
         self._logger.debug(f"[{__name__}]: Tile bounds: {tile_bounds}")
+        print(f"[{__name__}]: Tile bounds: {tile_bounds}")
 
         tile_directory = self._selected_file.parent / self._selected_file.stem / f"{self._z}/{self._x}/"
         tile_directory.mkdir(parents=True, exist_ok=True)
