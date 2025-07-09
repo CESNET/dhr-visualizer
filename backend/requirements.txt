@@ -7,5 +7,5 @@ pydantic>=2.11.1
 pydantic-core>=2.33.0
 uvicorn>=0.34.0
 numpy~=2.3.0
-pillow~=11.2.1
+pillow~=11.3.0
 mercantile~=1.2.1
