@@ -133,6 +133,9 @@ class ProcessedFeature(ABC):
 
         return processed_files
 
+    def _set_bbox(self, bbox: list[float]):
+        self._bbox = bbox
+
     def get_bbox(self) -> list[float]:
         if self._bbox is None:
             raise ProcessedFeatureBboxNotSet(feature_id=self._feature_id)
@@ -169,7 +172,7 @@ class ProcessedFeature(ABC):
         try:
             self._set_status(status=RequestStatuses.PROCESSING)
 
-            self._bbox = self._dataspace_connector.get_bbox()
+            self._set_bbox(self._dataspace_connector.get_bbox())
 
             downloaded_feature_files_paths = await self._download_feature()
 
@@ -213,7 +216,7 @@ class ProcessedFeature(ABC):
         if len(bbox_set) != 1:
             raise ProcessedFeatureBboxForSeparateFilesNotConsistent(feature_id=self._feature_id)
 
-        self._bbox = last_json_list[0]['bbox']
+        self._set_bbox(last_json_list[0]['bbox'])
 
         output_files = [item['outfile'] for item in last_json_list]
 
