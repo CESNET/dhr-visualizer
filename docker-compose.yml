@@ -29,12 +29,12 @@ services:
     build: ./gjtiff
     container_name: "gjtiff_container"
     command: ["sleep", "infinity"]
-    volumes:
-      - tmp:/tmp
-      - shared_data:/data
     runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - tmp:/tmp
+      - shared_data:/data
 
 volumes:
   shared_data:
