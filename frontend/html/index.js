@@ -530,11 +530,6 @@ const togglePreselectionControl = () => togglePanel("preselection-panel");
 const toggleVisualizationControl = () => togglePanel("visualization-panel");
 
 
-const clearCoordinates = () => {
-    document.querySelector("#coordinates-nw-input").value = ""
-    document.querySelector("#coordinates-se-input").value = ""
-}
-
 class VisualizationRequest {
     constructor(featureId, status, processedFiles) {
         this.featureId = featureId;
