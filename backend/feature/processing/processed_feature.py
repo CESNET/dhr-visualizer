@@ -229,7 +229,9 @@ class ProcessedFeature(ABC):
         command = ["gjtiff", "-q", "82", "-Q", "-o" f"{str(output_directory)}"] + [input_file for input_file in input_files]
 
         gjtiff_container = docker.from_env().containers.get("gjtiff_container")
-        # https://stackoverflow.com/a/56934591
-        result = gjtiff_container.exec_run(command, stdout=True, stderr=True, tty=True)
 
-        return result.output.decode('utf-8')
+        stdout, stderr = gjtiff_container.exec_run(command, stdout=True, stderr=True, tty=False, demux=True).output
+        if stderr:
+            self._logger.error(f"[{__name__}]: gjtiff stderr: {stderr.decode('utf-8')}")
+
+        return stdout.decode('utf-8')
