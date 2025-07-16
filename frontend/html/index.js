@@ -718,7 +718,10 @@ const requestVisualization = async (featureId) => {
         throw new Error("Request is not initialized!"); // todo proper exception
     }
 
-    toggleVisualizationControl();
+    if (visualizationRequest.status === "completed") {
+        toggleVisualizationControl();
+    }
+
     return visualizationRequest;
 };
 
