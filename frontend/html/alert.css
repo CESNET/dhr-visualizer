@@ -30,7 +30,6 @@
 
 .alert {
     padding: 20px;
-    background-color: #d32f2f;
     color: white;
     margin-bottom: 15px;
     position: relative;
@@ -43,6 +42,18 @@
     word-wrap: break-word;
     white-space: normal;
     animation: slide-in 0.7s forwards;
+}
+
+.alert.success {
+    background-color: #4caf50;
+}
+
+.alert.warning {
+    background-color: #e68a20;
+}
+
+.alert.error {
+    background-color: #d32f2f;
 }
 
 .alert-text {

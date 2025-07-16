@@ -17,6 +17,12 @@ const offeredDatasets = [
     //"SENTINEL-5P" //todo zatím jen S1 a S2
 ];
 
+const status = {
+    ERROR: "Error",
+    WARNING: "Warning",
+    SUCCESS: "Success"
+}
+
 // // All possible datasets:
 // const offeredDatasets = [
 // // Copernicus Sentinel Mission
@@ -172,7 +178,7 @@ const closeAlert = (alertDiv) => {
     });
 }
 
-const showAlert = async (headline, message, appendContact) => {
+const showAlert = async (status, message, appendContact=false) => {
     if (appendContact) {
         message += `<br>If this problem persists feel free to <a href=\"mailto:${supportEmail}\">contact us</a>.`;
     }
@@ -181,10 +187,11 @@ const showAlert = async (headline, message, appendContact) => {
         .then(response => response.text())
         .then(data => {
             let alertDOM = new DOMParser().parseFromString(data, 'text/html');
-            alertDOM.querySelector('#alert-headline').innerHTML = headline;
+            alertDOM.querySelector('#alert-headline').innerHTML = status;
             alertDOM.querySelector('#alert-message').innerHTML = message;
 
             const alertDiv = alertDOM.querySelector('#alert-div')
+            alertDiv.classList.add(status.toLowerCase());
             document.querySelector('#alerts-div').appendChild(alertDiv);
 
             setTimeout(() => {
@@ -252,7 +259,7 @@ const parseCoordinates = async (coordinatesString) => {
 
     const parts = coordinatesString.split(';');
     if (parts.length !== 2) {
-        await showAlert("Warning", "Coordinates must be in format [dd.dddd;dd.dddd]", false);
+        await showAlert(status.WARNING, "Coordinates must be in format [dd.dddd;dd.dddd]", false);
         return undefined;
     }
 
@@ -282,7 +289,7 @@ const fetchFeatures = async () => {
         let timeTo = new Date(document.querySelector("#time-to-input").value + ":00Z");
 
         if (timeTo < timeFrom) {
-            await showAlert("Warning", "Time to must be after Time from!", false);
+            await showAlert(status.WARNING, "Time to must be after Time from!", false);
             return;
         }
 
@@ -291,7 +298,7 @@ const fetchFeatures = async () => {
         tomorrow.setUTCHours(0, 0, 0, 0);
 
         if ((timeFrom > tomorrow) || (timeTo > tomorrow)) {
-            await showAlert("Warning", "Date could not be in the future!", false);
+            await showAlert(status.WARNING, "Date could not be in the future!", false);
             return;
         }
 
@@ -326,7 +333,7 @@ const fetchFeatures = async () => {
         const datasetsSelectedNodes = document.querySelectorAll('input[name="dataset"]:checked');
         const datasetsSelected = Array.from(datasetsSelectedNodes).map(checkbox => checkbox.value);
         if (datasetsSelected.length <= 0) {
-            await showAlert("Warning", "Please choose dataset.", false);
+            await showAlert(status.WARNING, "Please choose dataset.", false);
             return;
         }
 
@@ -345,7 +352,7 @@ const fetchFeatures = async () => {
                     const s1PolarisationSelected = s1PolarisationChoices.getValue(true);
 
                     if (s1LevelSelected.length <= 0 || s1SensingTypesSelected.length <= 0 || s1ProductTypesSelected.length <= 0) {
-                        await showAlert("Warning", "Not enough parameters specified!", false);
+                        await showAlert(status.WARNING, "Not enough parameters specified!", false);
                     }
 
                     let selectedFilters = new Map();
@@ -395,7 +402,7 @@ const fetchFeatures = async () => {
                     const s2BandsSelected = s2BandChoices.getValue(true);
 
                     if (s2LevelsSelected.length <= 0 || s2BandsSelected.length <= 0) {
-                        await showAlert("Warning", "Not enough parameters specified!", false);
+                        await showAlert(status.WARNING, "Not enough parameters specified!", false);
                     }
 
                     let selectedFilters = new Map();
@@ -432,7 +439,7 @@ const fetchFeatures = async () => {
                 }
 
                 default: {
-                    await showAlert("Warning", "Unexpected datasource chosen!", false);
+                    await showAlert(status.WARNING, "Unexpected datasource chosen!", false);
                     return;
                 }
             }
@@ -494,11 +501,11 @@ const fetchFeatures = async () => {
             toggleFeaturesControl();
         } else {
             enableUIElements()
-            await showAlert("Warning", "No features found for selected filters!", false);
+            await showAlert(status.WARNING, "No features found for selected filters!", false);
         }
 
     } catch (error) {
-        await showAlert('Error', `Internal application error occurred. Please check console for further information.`, true);
+        await showAlert(status.WARNING, `Internal application error occurred. Please check console for further information.`, true);
         console.error(`Error fetching tiles!  Error name: ${error.name}; Error message: ${error.message}`);
     } finally {
         hideSpinner();
@@ -703,11 +710,11 @@ const requestVisualization = async (featureId) => {
 
     } catch (error) {
         if (error.name === 'AbortError') {
-            await showAlert("Warning", "Request timed out!", false);
+            await showAlert(status.WARNING, "Request timed out!", false);
         } else if (error.message.includes('NetworkError')) {
-            await showAlert("Warning", `Network error - connection to backend failed! Please try again later.`, true);
+            await showAlert(status.WARNING, `Network error - connection to backend failed! Please try again later.`, true);
         } else {
-            await showAlert("Error", `Internal application error occurred! Please check console for more information.`, true);
+            await showAlert(status.ERROR, `Internal application error occurred! Please check console for more information.`, true);
             console.error(`Error name: ${error.name}; Error message: ${error.message}`);
         }
     } finally {
@@ -787,7 +794,7 @@ const toggleMissionFiltersDiv = async (filterButton) => {
             filterButton.innerHTML = "Close filter"
         }
     } else {
-        await showAlert("Unknown mission!", `Unexpected mission selected`, false);
+        await showAlert(status.ERROR, `Unexpected mission selected`, false);
     }
 }
 
@@ -839,6 +846,12 @@ const showProductDetail = (metadata) => {
 
     product.querySelector(".visualize-btn").addEventListener("click", async function () {
         visualize(metadata.Id);
+    })
+
+    product.querySelector(".download-link-btn").addEventListener("click", async function () {
+        const url = "https://download.dataspace.copernicus.eu/odata/v1/Products(" + metadata.Id + ")/$value";
+        await navigator.clipboard.writeText(url);
+        showAlert(status.SUCCESS, "URL copied to clipboard.");
     })
 
     tileListDiv.appendChild(product);
