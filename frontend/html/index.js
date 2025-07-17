@@ -639,6 +639,40 @@ const visualize = async (featureId) => {
     enableUIElements();
 }
 
+const downloadImage = async () => {
+    const selectedValue = document.querySelector("#processed-products-select").value;
+    if (!selectedValue) {
+        showAlert(status.WARNING, "No image selected for download!");
+    }
+
+    try {
+        const selectedValueJSON = JSON.parse(selectedValue);
+        const requestHash = encodeURIComponent(selectedValueJSON.requestHash);
+        const filename = encodeURIComponent(selectedValueJSON.file);
+
+        const response = await fetch(`${backendHost}/api/download_image/${requestHash}/${filename}`);
+
+        if (!response.ok) {
+            showAlert(status.ERROR, `Download failed with status ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+
+    } catch (error) {
+        showAlert(status.ERROR, "Failed to download image. Please try again later.", true);
+        console.error(`Error downloading image: ${error.message}`);
+    }
+
+}
+
 const requestVisualization = async (featureId) => {
     showSpinner();
 
