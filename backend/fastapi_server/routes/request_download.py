@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException
+
+import variables
 from fastapi_server import fastapi_shared
 from fastapi.responses import FileResponse
 from fastapi.logger import logger
@@ -7,7 +9,7 @@ from resources.enums import *
 router = APIRouter()
 
 
-@router.get("/download_band/{request_hash}/{filename}")
+@router.get(variables.UVICORN__SERVER_PREFIX + "/download_band/{request_hash}/{filename}")
 async def download_band(request_hash: str, filename: str):
     logger.debug(f"[{__name__}]: Requesting file download for hash: {request_hash}, file: {filename}")
 
