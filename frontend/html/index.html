@@ -242,6 +242,12 @@
 				<label for="processed-products-select">Processed products</label>
 				<select id="processed-products-select" onchange="openFeature()"></select>
 			</div>
+
+			<div class="controls-element">
+				<button class="download-image-btn" id="download-image-btn" onclick="downloadImage();">
+					Download current image
+				</button>
+			</div>
 		</div>
 	</div>
 
@@ -266,7 +272,10 @@
 		<!--		<p><strong>Size:</strong> <span class="product-size"></span></p>-->
 		<div class="buttons">
 			<button class="visualize-btn">Visualize</button>
-			<button class="side-option-btn download-link-btn" title="Copy link to download product (authentication with CDS is required)"><img src="copy.svg" alt="Copy link"></button>
+			<button class="side-option-btn download-link-btn"
+					title="Copy link to download product (authentication with CDS is required)"><img src="copy.svg"
+																									 alt="Copy link">
+			</button>
 		</div>
 	</div>
 </template>

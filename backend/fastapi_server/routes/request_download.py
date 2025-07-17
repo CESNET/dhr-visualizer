@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from pathlib import Path
 
 import variables
 from fastapi_server import fastapi_shared
@@ -9,8 +10,8 @@ from resources.enums import *
 router = APIRouter()
 
 
-@router.get(variables.UVICORN__SERVER_PREFIX + "/download_band/{request_hash}/{filename}")
-async def download_band(request_hash: str, filename: str):
+@router.get(variables.UVICORN__SERVER_PREFIX + "/download_image/{request_hash}/{filename}")
+async def download_image(request_hash: str, filename: str):
     logger.debug(f"[{__name__}]: Requesting file download for hash: {request_hash}, file: {filename}")
 
     return_entry = fastapi_shared.database.get(request_hash)
@@ -22,10 +23,14 @@ async def download_band(request_hash: str, filename: str):
         raise HTTPException(status_code=400, detail="Product processing is not completed!")
 
     processed_files = return_entry.get_processed_files()
-    logger.debug(f"[{__name__}]: Processed files: {processed_files}")
-    if filename not in processed_files:
+    if filename not in processed_files[request_hash]:
         raise HTTPException(status_code=404, detail=f"File {filename} not available for this product!")
 
-    file_path = processed_files[filename]
-    logger.debug(f"[{__name__}]: File path: {file_path}")
-    return FileResponse(path=file_path, filename=f"{filename}")
+    selected_file = (
+            Path(variables.DOCKER_SHARED_DATA_DIRECTORY) /
+            request_hash /
+            filename
+    )
+
+    logger.debug(f"[{__name__}]: File path: {selected_file}")
+    return FileResponse(path=selected_file, filename=f"{request_hash}_{filename}")
