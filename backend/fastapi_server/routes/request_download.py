@@ -7,9 +7,9 @@ from resources.enums import *
 router = APIRouter()
 
 
-@router.get("/download_band/{request_hash}/{band}")
-async def download_band(request_hash: str, band: str):
-    logger.debug(f"[{__name__}]: Requesting band download for hash: {request_hash}, band: {band}")
+@router.get("/download_band/{request_hash}/{filename}")
+async def download_band(request_hash: str, filename: str):
+    logger.debug(f"[{__name__}]: Requesting file download for hash: {request_hash}, file: {filename}")
 
     return_entry = fastapi_shared.database.get(request_hash)
 
@@ -20,9 +20,10 @@ async def download_band(request_hash: str, band: str):
         raise HTTPException(status_code=400, detail="Product processing is not completed!")
 
     processed_files = return_entry.get_processed_files()
-    if band not in processed_files:
-        raise HTTPException(status_code=404, detail=f"Band {band} not available for this product!")
+    logger.debug(f"[{__name__}]: Processed files: {processed_files}")
+    if filename not in processed_files:
+        raise HTTPException(status_code=404, detail=f"File {filename} not available for this product!")
 
-    file_path = processed_files[band]
+    file_path = processed_files[filename]
     logger.debug(f"[{__name__}]: File path: {file_path}")
-    return FileResponse(path=file_path, filename=f"{request_hash}_{band}.tif")
+    return FileResponse(path=file_path, filename=f"{filename}")
