@@ -20,9 +20,11 @@ services:
       - variables.env
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - shared_data:/usr/local/apache2/htdocs/data
       - ./certbot-www:/usr/local/apache2/htdocs/certbot
+      - ./certs:/etc/letsencrypt
     depends_on:
       - backend
 
