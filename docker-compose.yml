@@ -19,9 +19,10 @@ services:
     env_file:
       - variables.env
     ports:
-      - "8080:8080"
+      - "80:80"
     volumes:
       - shared_data:/usr/local/apache2/htdocs/data
+      - ./certbot-www:/usr/local/apache2/htdocs/certbot
     depends_on:
       - backend
 
