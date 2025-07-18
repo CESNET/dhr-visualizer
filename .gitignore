@@ -197,3 +197,7 @@ gjtiff
 
 # env
 variables.env
+
+# apache2 (frontend), https, let's encrypt, certbot
+certbot-www/
+certs/
