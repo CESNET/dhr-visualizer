@@ -90,29 +90,34 @@ class TilingWorker:
                 z=self._z, x=self._x, y=self._y
             )
 
-        tile_crop = self._image_file.crop((left, top, right, bottom))
+        if self._should_return_lowres_tile(left, top, right, bottom):
+            return self._get_lowres_tile()
 
-        """
-        try:
-            tile_crop = image.crop((left, top, right, bottom))
-        except (DecompressionBombWarning, DecompressionBombError):
-            image_bytes = io.BytesIO()
-            Image.open("TILE_SMALL.jpg").save(image_bytes, format="JPEG")
-            image_bytes.seek(0)
-            return StreamingResponse(image_bytes, media_type="image/jpeg")
-        """
+        tile_crop = self._image_file.crop((int(left), int(top), int(right), int(bottom)))
+        tile_resized = tile_crop.resize((256, 256), resample=Image.LANCZOS)
+        tile_resized.save(tile_file, format="JPEG")
 
-        if tile_crop.size[0] < 256 or tile_crop.size[1] < 256:
-            lowres_file = Path(variables.DOCKER_SHARED_DATA_DIRECTORY) / "LOW_RES.jpg"
+        return tile_file
 
-            if not lowres_file.exists():
-                src = Path(__file__).parent / "LOW_RES.jpg"
-                lowres_file.write_bytes(src.read_bytes())
+    def _should_return_lowres_tile(self, left: float, top: float, right: float, bottom: float) -> bool:
+        crop_width = right - left
+        crop_height = bottom - top
 
-            return lowres_file
+        # Invalid crop
+        if crop_width <= 0 or crop_height <= 0:
+            return True
 
-        else:
-            tile_resized = tile_crop.resize((256, 256), resample=Image.LANCZOS)
-            tile_resized.save(tile_file, format="JPEG")
+        # Low resolution
+        if crop_width < 256 or crop_height < 256:
+            return True
 
-            return tile_file
+        return False
+
+    def _get_lowres_tile(self) -> Path:
+        lowres_file = Path(variables.DOCKER_SHARED_DATA_DIRECTORY) / "LOW_RES.jpg"
+        
+        if not lowres_file.exists():
+            src = Path(__file__).parent / "LOW_RES.jpg"
+            lowres_file.write_bytes(src.read_bytes())
+
+        return lowres_file
