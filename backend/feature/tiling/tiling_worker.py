@@ -109,6 +109,7 @@ class TilingWorker:
                 src = Path(__file__).parent / "LOW_RES.jpg"
                 lowres_file.write_bytes(src.read_bytes())
 
+            print("Returning lowres")
             return lowres_file
 
         else:
