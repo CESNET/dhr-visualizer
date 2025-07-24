@@ -103,10 +103,16 @@ class TilingWorker:
         """
 
         if tile_crop.size[0] < 256 or tile_crop.size[1] < 256:
-            src = Path(__file__).parent / "RES_LOW.jpg"
-            tile_file.write_bytes(src.read_bytes())
+            lowres_file = Path(variables.DOCKER_SHARED_DATA_DIRECTORY) / "LOW_RES.jpg"
+
+            if not lowres_file.exists():
+                src = Path(__file__).parent / "LOW_RES.jpg"
+                lowres_file.write_bytes(src.read_bytes())
+
+            return lowres_file
+
         else:
             tile_resized = tile_crop.resize((256, 256), resample=Image.LANCZOS)
             tile_resized.save(tile_file, format="JPEG")
 
-        return tile_file
+            return tile_file
