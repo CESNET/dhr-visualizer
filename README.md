@@ -11,7 +11,7 @@ Visualization is dependent on `gjtiff` that can be found [here](https://github.c
 git clone https://github.com/MartinPulec/gjtiff.git
 ```
 
-Also `variables_secret.env` must be created in `dhr-visualizer` root directory as follows:
+Also `.env` must be created in `dhr-visualizer` root directory as follows:
 
 ```bash
 DHR__CONNECTOR_HOST_BASE="https://dhr1.cesnet.cz/"
@@ -33,8 +33,7 @@ Final tree will then look like this:
 ├── frontend
 ├── gjtiff
 ├── docker-compose.yml
-├── variables.env
-└── variables_secret.env
+├── .env
 ```
 
 Then the deployment is matter of running:
@@ -47,16 +46,11 @@ Frontend will be accessible at 0.0.0.0:8080, backend at 0.0.0.0:8081. These port
 
 ## Configuration
 
-By default application uses local datahub relay specified in `variables.env`:
+By default application uses local datahub relay specified in `.env` file:
 
 ```bash
 DHR__USE_DHR="True"
 DHR__CATALOG_ROOT="https://stac.cesnet.cz/"
-```
-
-and `variables_secret.env`:
-
-```bash
 DHR__CONNECTOR_HOST_BASE="https://dhr1.cesnet.cz/"
 DHR__CONNECTOR_USERNAME=""
 DHR__CONNECTOR_PASSWORD=""
