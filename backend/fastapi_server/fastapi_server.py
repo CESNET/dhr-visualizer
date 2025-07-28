@@ -30,6 +30,7 @@ class FastAPIServer:
         fastapi_logger.addHandler(stdout_handler)
 
         fastapi_shared.database = MongoDatabaseConnector()
+        fastapi_shared.database.connect()
 
         self._fastapi_app = FastAPI(title=env.APP__NAME)
 
