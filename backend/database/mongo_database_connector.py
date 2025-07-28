@@ -14,7 +14,10 @@ class MongoDatabaseConnector(DatabaseConnector):
     def connect(self):
         self.client = MongoClient(self.mongo_uri)
         self.db = self.client[self.database_name]
-        self.collection = self.db[self.collection_name]
+        if self.collection_name not in self.db.list_collection_names():
+            self.collection = self.db.create_collection(self.collection_name)
+        else:
+            self.collection = self.db[self.collection_name]
 
     def get(self, key):
         document = self.collection.find_one({"_id": key})
