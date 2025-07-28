@@ -32,7 +32,6 @@ async def request_processing(
         match Platforms(processed_feature_model.platform):
             case Platforms.SENTINEL_1:
                 processed_feature = Sentinel1Feature(
-                    logger=logger,
                     feature_id=processed_feature_model.feature_id,
                     platform=processed_feature_model.platform,
                     filters=processed_feature_model.filters,
@@ -41,7 +40,6 @@ async def request_processing(
 
             case Platforms.SENTINEL_2:
                 processed_feature = Sentinel2Feature(
-                    logger=logger,
                     feature_id=processed_feature_model.feature_id,
                     platform=processed_feature_model.platform,
                     filters=processed_feature_model.filters,
@@ -51,7 +49,6 @@ async def request_processing(
             case _:
                 raise HTTPException(status_code=400, detail="Unknown platform!")
 
-        # TODO zmenit praci s DB, je blbost ukladat tam Python object, ze jo...
         fastapi_shared.database.set(
             key=request_hash,
             value=processed_feature

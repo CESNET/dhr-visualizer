@@ -1,14 +1,13 @@
-import logging
 import re
 
 from typing import Dict, Any
-
+from fastapi.logger import logger
 from feature.processing.processed_feature import ProcessedFeature
 
 
 class Sentinel2Feature(ProcessedFeature):
     def __init__(
-            self, logger: logging.Logger = logging.getLogger(name=__name__),
+            self,
             feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None,
             request_hash: str = None
     ):
@@ -80,4 +79,4 @@ class Sentinel2Feature(ProcessedFeature):
             if int(resolution) < int(best_resolution[band][0]):
                 best_resolution[band] = (resolution, i)
 
-        return [files[i] for r,i in best_resolution.values()]
+        return [files[i] for r, i in best_resolution.values()]

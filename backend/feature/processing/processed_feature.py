@@ -10,6 +10,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Dict, Any
 
+from fastapi_server import fastapi_shared
 from resources.enums import RequestStatuses
 
 from dataspace.dataspace_connector import DataspaceConnector
@@ -144,6 +145,32 @@ class ProcessedFeature(ABC):
     def get_request_hash(self) -> str:
         return self._request_hash
 
+    def to_dict(self) -> dict:
+        return {
+            "_id": self._request_hash,
+            "feature_id": self._feature_id,
+            "platform": self._platform,
+            "filters": self._filters,
+            "status": self._status.value,
+            "fail_reason": self._fail_reason,
+            "output_files": self._output_files,
+            "bbox": self._bbox
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        instance = cls(
+            feature_id=data.get('feature_id'),
+            platform=data.get('platform'),
+            filters=data.get('filters'),
+            request_hash=data.get('_id')
+        )
+        instance._status = RequestStatuses(data.get('status'))
+        instance._fail_reason = data.get('fail_reason')
+        instance._output_files = data.get('output_files')
+        instance._bbox = data.get('bbox')
+        return instance
+
     def get_output_directory(self) -> Path:
         if self._output_directory is None:
             raise ProcessedFeatureOutputDirectoryNotSet(feature_id=self._feature_id)
@@ -184,6 +211,7 @@ class ProcessedFeature(ABC):
             # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
 
             self._set_status(status=RequestStatuses.COMPLETED)
+            fastapi_shared.database.set(self._request_hash, self)
 
         except Exception as e:
             self._fail_reason = str(e)
