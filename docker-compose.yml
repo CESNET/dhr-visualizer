@@ -3,6 +3,7 @@ version: '3.8'
 services:
   backend:
     build: ./backend
+    restart: always
     container_name: "backend_container"
     env_file:
       - variables.env
@@ -12,9 +13,12 @@ services:
       - tmp:/tmp
       - shared_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - mongo
 
   frontend:
     build: ./frontend
+    restart: always
     container_name: "frontend_container"
     env_file:
       - variables.env
@@ -51,6 +55,16 @@ services:
       - ./certs:/etc/letsencrypt
     entrypoint: sh -c "sleep infinity"
 
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO__USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO__PASSWORD}
+#    volumes:
+#      - mongodb_data:/data/db
+
 volumes:
   shared_data:
   tmp:
+#  mongodb_data:
