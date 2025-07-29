@@ -126,9 +126,8 @@ class ProcessedFeature(ABC):
             return processed_files
 
         for file in self._output_files:
-            file = file.replace(str(self._output_directory).replace("\\", "/"), '')
-            while file[0] == '/':
-                file = file[1:]
+            # file = file.replace(str(self._output_directory).replace("\\", "/"), '')
+            file = file.split('/')[-1]
 
             processed_files.setdefault(self._request_hash, []).append(file)
 
