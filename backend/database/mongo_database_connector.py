@@ -25,7 +25,6 @@ class MongoDatabaseConnector(DatabaseConnector):
 
     def get(self, key):
         document = self.collection.find_one({"_id": key})
-        logger.debug(f"[{__name__}]: Found MongoDB document: {document}")
         if not document:
             return None
         if document["platform"] == "SENTINEL-2":
@@ -33,11 +32,10 @@ class MongoDatabaseConnector(DatabaseConnector):
         if document["platform"] == "SENTINEL-1":
             return Sentinel1Feature.from_dict(document)
         logger.error(f"[{__name__}]: Unknown platform: {document['platform']}")
-        return None
+        raise Exception(f"Unknown platform: {document['platform']} found in database for key: {key}!")
 
     def set(self, key, value):
-        logger.debug(f"[{__name__}]: Setting to mongo: {value.to_dict()}")
-        logger.debug(f"[{__name__}]: Original files: {value.get_processed_files()}")
+        # logger.debug(f"[{__name__}]: Setting to mongo: {value.to_dict()}")
         self.collection.update_one(
             {"_id": key},
             {"$set": value.to_dict()},
