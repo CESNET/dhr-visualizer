@@ -3,7 +3,7 @@ import os
 
 # # Only for local debugging
 # from dotenv import load_dotenv
-# load_dotenv("../variables.env")
+# load_dotenv("../.env")
 
 true_statements = ["1", "true", "yes", ]
 
@@ -32,3 +32,6 @@ CDSE__CONNECTOR_S3_CREDENTIALS = {
 }
 
 DOCKER_SHARED_DATA_DIRECTORY: str = os.getenv("DOCKER_SHARED_DATA_DIRECTORY", default="/data")
+
+MONGO__URI: str = os.getenv("MONGO__URI")
+MONGO__DB: str = os.getenv("MONGO__DB")

@@ -1,8 +1,7 @@
-import logging
 import re
 
 from typing import Dict, Any
-
+from fastapi.logger import logger
 from feature.processing.processed_feature import ProcessedFeature
 
 
@@ -10,12 +9,11 @@ class Sentinel1Feature(ProcessedFeature):
     _filters_polarisation_channels_availability = None  # Todo stav tohohle po S3 filtrování nějak vracet frontendu, na frontendu pak vypsat alert
 
     def __init__(
-            self, logger: logging.Logger = logging.getLogger(name=__name__),
+            self,
             feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None,
             request_hash: str = None
     ):
         super().__init__(
-            logger=logger,
             feature_id=feature_id,
             platform=platform,
             filters=filters,
@@ -29,7 +27,7 @@ class Sentinel1Feature(ProcessedFeature):
             'HV': False,
         }
 
-        self._logger.debug(f"[{__name__}]: Sentinel-1 feature initialized")
+        logger.debug(f"[{__name__}]: Sentinel-1 feature initialized")
 
     def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
         # TODO asi bude potřeba přidělat stažení i nějakých metadat pro zobrazení v mapě
