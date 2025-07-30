@@ -249,11 +249,17 @@ class ProcessedFeature(ABC):
 
         return output_files
 
-    def _run_gjtiff_docker(self, input_files: list[str] = None, output_directory: Path = _output_directory) -> str:
+    def _run_gjtiff_docker(
+            self,
+            input_files: list[str] = None,
+            output_directory: Path = _output_directory,
+            min_zoom: int = 8, max_zoom: int = 19
+    ) -> str:
         if input_files is None:
             raise ValueError("No input files provided")  ## TODO Proper exception
 
-        command = ["gjtiff", "-q", "82", "-Q", "-o" f"{str(output_directory)}"] + [input_file for input_file in input_files]
+        zoom_values = ",".join(str(z) for z in range(min_zoom, max_zoom + 1))  # range max is exclusive
+        command = ["gjtiff", "-q", "82", "-Q", "-z", zoom_values, "-o", str(output_directory)] + input_files
 
         gjtiff_container = docker.from_env().containers.get("gjtiff_container")
 
