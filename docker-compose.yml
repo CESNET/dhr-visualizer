@@ -4,7 +4,7 @@ services:
   backend:
     build: ./backend
     restart: always
-    container_name: "backend_container"
+    container_name: "oculus_backend"
     env_file:
       - .env
     ports:
@@ -19,7 +19,7 @@ services:
   frontend:
     build: ./frontend
     restart: always
-    container_name: "frontend_container"
+    container_name: "oculus_frontend"
     env_file:
       - .env
     ports:
@@ -34,7 +34,7 @@ services:
 
   gjtiff:
     build: ./gjtiff
-    container_name: "gjtiff_container"
+    container_name: "oculus_gjtiff"
     command: ["sleep", "infinity"]
     deploy:
       resources:
@@ -49,7 +49,7 @@ services:
 
   certbot:
     image: certbot/certbot
-    container_name: certbot
+    container_name: oculus_certbot
     volumes:
       - ./certbot-www:/var/www/certbot
       - ./certs:/etc/letsencrypt
@@ -57,7 +57,7 @@ services:
 
   mongo:
     image: mongo
-    container_name: "mongodb_container"
+    container_name: "oculus_mongodb"
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO__USER}
