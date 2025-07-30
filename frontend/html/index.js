@@ -610,7 +610,7 @@ const openFeature = () => {
         const satelliteTiles = L.tileLayer(tileUrlTemplate, {
             attribution: 'Satellite imagery (c) <a href="https://www.copernicus.eu/">Copernicus programme</a>',
             minZoom: 8,
-            maxZoom: 19,    
+            maxZoom: 19,
             tileSize: 256,
             opacity: document.querySelector("#opacity-slider").value,
         });
