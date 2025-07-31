@@ -55,7 +55,7 @@ L.control.scale().addTo(leafletMap);
 
 let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Base map (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
-    minZoom: 2,
+    minZoom: 3,
     maxZoom: 19,
     opacity: 1,
 }).addTo(leafletMap);

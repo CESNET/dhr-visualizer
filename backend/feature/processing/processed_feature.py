@@ -42,7 +42,7 @@ class ProcessedFeature(ABC):
 
     _bbox: list[float] = None
 
-    _zoom_levels = {"min_zoom": 11, "max_zoom": 14} # todo should be 8 to 19 but gjtiff crashes on low memory
+    _zoom_levels = {"min_zoom": 8, "max_zoom": 15} # todo should be like 8 to 15 but gjtiff crashes on low memory
 
     _workdir: TemporaryDirectory = None
 
