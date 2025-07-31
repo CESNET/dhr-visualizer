@@ -42,6 +42,8 @@ class ProcessedFeature(ABC):
 
     _bbox: list[float] = None
 
+    _zoom_levels = {"min_zoom": 11, "max_zoom": 13} # todo should be 8 to 19 but gjtiff crashes on low memory
+
     _workdir: TemporaryDirectory = None
 
     def __init__(
@@ -226,7 +228,10 @@ class ProcessedFeature(ABC):
             elif item.is_dir():
                 shutil.rmtree(item)
 
-        gjtiff_stdout = self._run_gjtiff_docker(input_files=feature_files, output_directory=self._output_directory)
+        gjtiff_stdout = self._run_gjtiff_docker(
+            input_files=feature_files,
+            output_directory=self._output_directory
+        )
         self._logger.debug(f"[{__name__}]: gjtiff_stdout: |>|>|>{gjtiff_stdout}<|<|<|")
 
         processed_feature_files = self._extract_output_file_list(stdout=gjtiff_stdout)
@@ -235,15 +240,12 @@ class ProcessedFeature(ABC):
         return processed_feature_files
 
     def _extract_output_file_list(self, stdout: str) -> list[str] | None:
+        ## REMOVE TRAILING COMMAS - should be fixed in gjtiff # todo delete
+        stdout = re.sub(r',\s*([]}])', r'\1', stdout)
+
         json_list_pattern = r'\[.*\]'
         matches = re.findall(json_list_pattern, stdout, re.DOTALL)
         last_json_list = json.loads(matches[-1] if matches else None)
-
-        bbox_set = {tuple(item['bbox']) for item in last_json_list}
-        if len(bbox_set) != 1:
-            raise ProcessedFeatureBboxForSeparateFilesNotConsistent(feature_id=self._feature_id)
-
-        self._set_bbox(last_json_list[0]['bbox'])
 
         output_files = [item['outfile'] for item in last_json_list]
 
@@ -253,13 +255,11 @@ class ProcessedFeature(ABC):
             self,
             input_files: list[str] = None,
             output_directory: Path = _output_directory,
-            # todo tohle je správně: min_zoom: int = 8, max_zoom: int = 19
-            min_zoom: int = 11, max_zoom: int = 13
     ) -> str:
         if input_files is None:
             raise ValueError("No input files provided")  ## TODO Proper exception
 
-        zoom_values = ",".join(str(z) for z in range(min_zoom, max_zoom + 1))  # range max is exclusive
+        zoom_values = ",".join(str(z) for z in range(self._zoom_levels["min_zoom"], self._zoom_levels["max_zoom"] + 1))  # range max is exclusive
         command = ["gjtiff", "-q", "82", "-Q", "-z", zoom_values, "-o", str(output_directory)] + input_files
 
         self._logger.debug(f"[{__name__}]: Running gjtiff_docker command: {command}")
@@ -267,8 +267,6 @@ class ProcessedFeature(ABC):
         gjtiff_container = docker.from_env().containers.get("oculus_gjtiff")
 
         stdout, stderr = gjtiff_container.exec_run(command, stdout=True, stderr=True, tty=False, demux=True).output
-
-        self._logger.debug(f"[{__name__}]: gjtiff stdout: {stdout}")
 
         if stderr:
             self._logger.error(f"[{__name__}]: gjtiff stderr: {stderr.decode('utf-8')}")
