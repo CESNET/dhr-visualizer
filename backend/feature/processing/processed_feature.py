@@ -261,9 +261,14 @@ class ProcessedFeature(ABC):
         zoom_values = ",".join(str(z) for z in range(min_zoom, max_zoom + 1))  # range max is exclusive
         command = ["gjtiff", "-q", "82", "-Q", "-z", zoom_values, "-o", str(output_directory)] + input_files
 
+        self._logger.debug(f"[{__name__}]: Running gjtiff_docker command: {command}")
+
         gjtiff_container = docker.from_env().containers.get("oculus_gjtiff")
 
         stdout, stderr = gjtiff_container.exec_run(command, stdout=True, stderr=True, tty=False, demux=True).output
+
+        self._logger.debug(f"[{__name__}]: gjtiff stdout: {stdout}")
+
         if stderr:
             self._logger.error(f"[{__name__}]: gjtiff stderr: {stderr.decode('utf-8')}")
 
