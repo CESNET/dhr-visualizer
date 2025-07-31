@@ -9,8 +9,9 @@ from fastapi.logger import logger as fastapi_logger
 from fastapi_server import fastapi_shared
 from fastapi_server.routes import fastapi_routes
 
-# from database.dict_database_connector import DictDatabaseConnector
+from database.dict_database_connector import DictDatabaseConnector
 from database.mongo_database_connector import MongoDatabaseConnector
+
 
 class FastAPIServer:
     _fastapi_app: FastAPI = None
@@ -29,7 +30,8 @@ class FastAPIServer:
         stdout_handler.setFormatter(logging.Formatter('%(levelname)s %(asctime)s - %(name)s:  %(message)s'))
         fastapi_logger.addHandler(stdout_handler)
 
-        fastapi_shared.database = MongoDatabaseConnector()
+        fastapi_shared.database = DictDatabaseConnector()
+        # fastapi_shared.database = MongoDatabaseConnector()
         fastapi_shared.database.connect()
 
         self._fastapi_app = FastAPI(title=env.APP__NAME)
