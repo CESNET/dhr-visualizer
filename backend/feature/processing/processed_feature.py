@@ -253,7 +253,8 @@ class ProcessedFeature(ABC):
             self,
             input_files: list[str] = None,
             output_directory: Path = _output_directory,
-            min_zoom: int = 8, max_zoom: int = 19
+            # todo tohle je správně: min_zoom: int = 8, max_zoom: int = 19
+            min_zoom: int = 11, max_zoom: int = 13
     ) -> str:
         if input_files is None:
             raise ValueError("No input files provided")  ## TODO Proper exception
