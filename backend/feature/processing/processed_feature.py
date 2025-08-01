@@ -212,11 +212,13 @@ class ProcessedFeature(ABC):
             # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
 
             self._set_status(status=RequestStatuses.COMPLETED)
-            fastapi_shared.database.set(self._request_hash, self)
 
         except Exception as e:
             self._fail_reason = str(e)
             self._set_status(status=RequestStatuses.FAILED)
+
+        finally:
+            fastapi_shared.database.set(self._request_hash, self)
 
     def _process_feature_files(self, feature_files: list[str]) -> list[str] | None:
         self._output_directory = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, self._request_hash)
