@@ -242,9 +242,6 @@ class ProcessedFeature(ABC):
         return processed_feature_files
 
     def _extract_output_file_list(self, stdout: str) -> list[str] | None:
-        ## REMOVE TRAILING COMMAS - should be fixed in gjtiff # todo delete
-        stdout = re.sub(r',\s*([]}])', r'\1', stdout)
-
         json_list_pattern = r'\[.*\]'
         matches = re.findall(json_list_pattern, stdout, re.DOTALL)
         last_json_list = json.loads(matches[-1] if matches else None)
