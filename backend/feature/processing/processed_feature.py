@@ -42,7 +42,7 @@ class ProcessedFeature(ABC):
 
     _bbox: list[float] = None
 
-    _zoom_levels = {"min_zoom": 8, "max_zoom": 15} # todo should be like 8 to 15 but gjtiff crashes on low memory
+    _zoom_levels = {"min_zoom": 8, "max_zoom": 15}  # todo should be like 8 to 15 but gjtiff crashes on low memory
 
     _workdir: TemporaryDirectory = None
 
@@ -120,6 +120,9 @@ class ProcessedFeature(ABC):
 
     def _set_status(self, status: RequestStatuses):
         self._status = status
+
+        # Update status in database
+        fastapi_shared.database.set(key=self._request_hash, value=self)
 
     def get_processed_files(self) -> dict[str, list[str]]:
         processed_files = {}
@@ -218,7 +221,7 @@ class ProcessedFeature(ABC):
             self._set_status(status=RequestStatuses.FAILED)
 
         finally:
-            fastapi_shared.database.set(self._request_hash, self)
+            fastapi_shared.database.set(key=self._request_hash, value=self)
 
     def _process_feature_files(self, feature_files: list[str]) -> list[str] | None:
         self._output_directory = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, self._request_hash)
@@ -258,7 +261,8 @@ class ProcessedFeature(ABC):
         if input_files is None:
             raise ValueError("No input files provided")  ## TODO Proper exception
 
-        zoom_values = ",".join(str(z) for z in range(self._zoom_levels["min_zoom"], self._zoom_levels["max_zoom"] + 1))  # range max is exclusive
+        zoom_values = ",".join(str(z) for z in range(self._zoom_levels["min_zoom"],
+                                                     self._zoom_levels["max_zoom"] + 1))  # range max is exclusive
         command = ["gjtiff", "-q", "82", "-Q", "-z", zoom_values, "-o", str(output_directory)] + input_files
 
         self._logger.debug(f"[{__name__}]: Running gjtiff_docker command: {command}")

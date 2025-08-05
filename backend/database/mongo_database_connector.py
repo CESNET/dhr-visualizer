@@ -8,23 +8,23 @@ from feature.processing.sentinel2_feature import Sentinel2Feature
 
 class MongoDatabaseConnector(DatabaseConnector):
     def __init__(self):
-        self.client = None
-        self.db = None
-        self.collection = None
-        self.mongo_uri = variables.MONGO__URI
-        self.database_name = variables.MONGO__DB
-        self.collection_name = "products"
+        self._client = None
+        self._db = None
+        self._collection = None
+        self._mongo_uri = variables.MONGO__URI
+        self._database_name = variables.MONGO__DB
+        self._collection_name = "products"
 
     def connect(self):
-        self.client = MongoClient(self.mongo_uri)
-        self.db = self.client[self.database_name]
-        if self.collection_name not in self.db.list_collection_names():
-            self.collection = self.db.create_collection(self.collection_name)
+        self._client = MongoClient(self._mongo_uri)
+        self._db = self._client[self._database_name]
+        if self._collection_name not in self._db.list_collection_names():
+            self._collection = self._db.create_collection(self._collection_name)
         else:
-            self.collection = self.db[self.collection_name]
+            self._collection = self._db[self._collection_name]
 
     def get(self, key):
-        document = self.collection.find_one({"_id": key})
+        document = self._collection.find_one({"_id": key})
         if not document:
             return None
         if document["platform"] == "SENTINEL-2":
@@ -36,7 +36,7 @@ class MongoDatabaseConnector(DatabaseConnector):
 
     def set(self, key, value):
         # logger.debug(f"[{__name__}]: Setting to mongo: {value.to_dict()}")
-        self.collection.update_one(
+        self._collection.update_one(
             {"_id": key},
             {"$set": value.to_dict()},
             upsert=True
@@ -44,4 +44,4 @@ class MongoDatabaseConnector(DatabaseConnector):
 
     def delete(self, key):
         logger.debug(f"[{__name__}]: Deleting MongoDB document with key: {key}")
-        self.collection.delete_one({"_id": key})
+        self._collection.delete_one({"_id": key})
