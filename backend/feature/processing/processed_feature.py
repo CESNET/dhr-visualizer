@@ -259,7 +259,7 @@ class ProcessedFeature(ABC):
             raise ValueError("No input files provided")  ## TODO Proper exception
 
         zoom_values = ",".join(str(z) for z in range(self._zoom_levels["min_zoom"],
-                                                     self._zoom_levels["max_zoom"] + 1))  # range max is exclusive
+                                                     self._zoom_levels["max_zoom"] + 1))  # range() max is exclusive
         command = ["gjtiff", "-q", "82", "-Q", "-z", zoom_values, "-o", str(output_directory)] + input_files
 
         self._logger.debug(f"[{__name__}]: Running gjtiff_docker command: {command}")
