@@ -121,9 +121,6 @@ class ProcessedFeature(ABC):
     def _set_status(self, status: RequestStatuses):
         self._status = status
 
-        # Update status in database
-        fastapi_shared.database.set(key=self._request_hash, value=self)
-
     def get_processed_files(self) -> dict[str, list[str]]:
         processed_files = {}
 
