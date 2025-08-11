@@ -3,6 +3,7 @@ version: '3.8'
 services:
   backend:
     build: ./backend
+    image: oculus/backend:latest
     restart: always
     container_name: "oculus_backend"
     env_file:
@@ -18,23 +19,23 @@ services:
       - redis
 
   worker:
-    build: ./queue
+    image: oculus/backend:latest
     entrypoint: celery
-    command: -A tasks worker -l info -E
+    command: -A celery_app.celery_app worker -l info -E
     container_name: "oculus_worker"
     environment:
       CELERY_BROKER_URL: redis://redis
       CELERY_RESULT_BACKEND: redis://redis
     depends_on:
       - redis
-    volumes:
-      - './queue:/queue'
+#    volumes:
+#      - './queue:/queue'
 
   redis:
     image: redis:alpine
     container_name: "oculus_redis"
-    ports:
-      - "6379:6379"
+#    ports:
+#      - "6379:6379"
 
   frontend:
     build: ./frontend

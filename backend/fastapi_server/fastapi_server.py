@@ -30,8 +30,8 @@ class FastAPIServer:
         stdout_handler.setFormatter(logging.Formatter('%(levelname)s %(asctime)s - %(name)s:  %(message)s'))
         fastapi_logger.addHandler(stdout_handler)
 
-        fastapi_shared.database = DictDatabaseConnector()
-        #fastapi_shared.database = MongoDatabaseConnector()
+        # fastapi_shared.database = DictDatabaseConnector()
+        fastapi_shared.database = MongoDatabaseConnector()
         fastapi_shared.database.connect()
 
         fastapi_shared.celery_queue = celery_queue

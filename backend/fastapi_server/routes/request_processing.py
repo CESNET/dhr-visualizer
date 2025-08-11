@@ -1,4 +1,4 @@
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, HTTPException
 from fastapi_server import fastapi_shared
 
 from fastapi.logger import logger
@@ -18,7 +18,6 @@ router = APIRouter()
 
 @router.post(f"{variables.UVICORN__SERVER_PREFIX}" + "/request_processing")
 async def request_processing(
-        background_tasks: BackgroundTasks,
         processed_feature_model: ProcessedFeatureModel = ProcessedFeatureModel()
 ):
     logger.debug(f"[{__name__}]: request_feature_model: {processed_feature_model}")
@@ -55,8 +54,7 @@ async def request_processing(
             value=processed_feature
         )
 
-        # background_tasks.add_task(processed_feature.process_feature)
-        fastapi_shared.celery_queue.send_task(processed_feature.get_feature_id())
+        fastapi_shared.celery_queue.send_task('tasks.data_tasks.process_feature_task', args=[processed_feature.get_feature_id()])
 
     return_entry: ProcessedFeature | None = fastapi_shared.database.get(request_hash)
 
