@@ -2,6 +2,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi_server import fastapi_shared
 
 from fastapi.logger import logger
+
 from resources.enums import *
 from resources.reqeusted_feature_model import ProcessedFeatureModel
 from resources.returned_feature_model import ReturnedFeatureModel
@@ -54,7 +55,8 @@ async def request_processing(
             value=processed_feature
         )
 
-        background_tasks.add_task(processed_feature.process_feature)
+        # background_tasks.add_task(processed_feature.process_feature)
+        fastapi_shared.celery_queue.send_task(processed_feature.get_feature_id())
 
     return_entry: ProcessedFeature | None = fastapi_shared.database.get(request_hash)
 

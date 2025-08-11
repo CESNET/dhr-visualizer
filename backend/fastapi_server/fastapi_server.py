@@ -16,7 +16,7 @@ from database.mongo_database_connector import MongoDatabaseConnector
 class FastAPIServer:
     _fastapi_app: FastAPI = None
 
-    def __init__(self, logger=logging.Logger(env.APP__NAME)):
+    def __init__(self, celery_queue, logger=logging.Logger(env.APP__NAME)):
         fastapi_logger.handlers = logger.handlers
         fastapi_logger.setLevel(env.APP__LOG_LEVEL.upper())
 
@@ -33,6 +33,8 @@ class FastAPIServer:
         fastapi_shared.database = DictDatabaseConnector()
         #fastapi_shared.database = MongoDatabaseConnector()
         fastapi_shared.database.connect()
+
+        fastapi_shared.celery_queue = celery_queue
 
         self._fastapi_app = FastAPI(title=env.APP__NAME)
 

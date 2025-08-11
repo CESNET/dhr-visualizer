@@ -15,6 +15,26 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - mongo
+      - redis
+
+  worker:
+    build: ./queue
+    entrypoint: celery
+    command: -A tasks worker -l info -E
+    container_name: "oculus_worker"
+    environment:
+      CELERY_BROKER_URL: redis://redis
+      CELERY_RESULT_BACKEND: redis://redis
+    depends_on:
+      - redis
+    volumes:
+      - './queue:/queue'
+
+  redis:
+    image: redis:alpine
+    container_name: "oculus_redis"
+    ports:
+      - "6379:6379"
 
   frontend:
     build: ./frontend
