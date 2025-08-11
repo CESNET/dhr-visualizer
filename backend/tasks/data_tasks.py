@@ -1,10 +1,10 @@
 import logging
 from celery_app import celery_app
 from database.mongo_database_connector import MongoDatabaseConnector
+from celery.utils.log import get_task_logger
 
-logger = logging.getLogger(name=__name__)
 _db: MongoDatabaseConnector | None = None
-
+logger = get_task_logger("tasks")
 
 def init_db():
     global _db

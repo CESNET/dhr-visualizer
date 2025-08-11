@@ -54,7 +54,7 @@ async def request_processing(
             value=processed_feature
         )
 
-        fastapi_shared.celery_queue.send_task('tasks.data_tasks.process_feature_task', args=[processed_feature.get_feature_id()])
+        fastapi_shared.celery_queue.send_task('tasks.data_tasks.process_feature_task', args=[request_hash])
 
     return_entry: ProcessedFeature | None = fastapi_shared.database.get(request_hash)
 
