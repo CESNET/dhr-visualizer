@@ -23,6 +23,8 @@ services:
     entrypoint: celery
     command: -A celery_app.celery_app worker -l info -E
     container_name: "oculus_worker"
+    env_file:
+      - .env
     environment:
       CELERY_BROKER_URL: redis://redis
       CELERY_RESULT_BACKEND: redis://redis
