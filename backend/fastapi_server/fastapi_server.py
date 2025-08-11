@@ -9,13 +9,14 @@ from fastapi.logger import logger as fastapi_logger
 from fastapi_server import fastapi_shared
 from fastapi_server.routes import fastapi_routes
 
-# from database.dict_database_connector import DictDatabaseConnector
+from database.dict_database_connector import DictDatabaseConnector
 from database.mongo_database_connector import MongoDatabaseConnector
+
 
 class FastAPIServer:
     _fastapi_app: FastAPI = None
 
-    def __init__(self, logger=logging.Logger(env.APP__NAME)):
+    def __init__(self, celery_queue, logger=logging.Logger(env.APP__NAME)):
         fastapi_logger.handlers = logger.handlers
         fastapi_logger.setLevel(env.APP__LOG_LEVEL.upper())
 
@@ -29,18 +30,21 @@ class FastAPIServer:
         stdout_handler.setFormatter(logging.Formatter('%(levelname)s %(asctime)s - %(name)s:  %(message)s'))
         fastapi_logger.addHandler(stdout_handler)
 
+        # fastapi_shared.database = DictDatabaseConnector()
         fastapi_shared.database = MongoDatabaseConnector()
         fastapi_shared.database.connect()
+
+        fastapi_shared.celery_queue = celery_queue
 
         self._fastapi_app = FastAPI(title=env.APP__NAME)
 
         # TODO odebrat na produkci
         self._fastapi_app.add_middleware(
             CORSMiddleware,
-            allow_origins=["*"],  # Allows all origins
+            allow_origins=["*"], # Allows all origins
             allow_credentials=True,
-            allow_methods=["*"],  # Allows all methods
-            allow_headers=["*"],  # Allows all headers
+            allow_methods=["*"], # Allows all methods
+            allow_headers=["*"], # Allows all headers
         )
 
         self._register_routes()

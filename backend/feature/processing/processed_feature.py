@@ -10,7 +10,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Dict, Any
 
-from fastapi_server import fastapi_shared
 from resources.enums import RequestStatuses
 
 from dataspace.dataspace_connector import DataspaceConnector
@@ -41,6 +40,8 @@ class ProcessedFeature(ABC):
     _output_files: list[str] = None  # TODO možná url, Path, nebo tak něco..?
 
     _bbox: list[float] = None
+
+    _zoom_levels = {"min_zoom": 8, "max_zoom": 15}  # todo should be like 8 to 15 but gjtiff crashes on low memory
 
     _workdir: TemporaryDirectory = None
 
@@ -180,14 +181,14 @@ class ProcessedFeature(ABC):
     def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
         pass
 
-    async def _download_feature(self) -> list[str]:
+    def _download_feature(self) -> list[str]:
         available_files = self._dataspace_connector.get_available_files()
         filtered_files = self._filter_available_files(available_files=available_files)
         downloaded_files = self._dataspace_connector.download_selected_files(files_to_download=filtered_files)
 
         return downloaded_files
 
-    async def process_feature(self):
+    def process_feature(self):
         """
         Stažení tily identifikované pomocí feature_id z copernicus dataspace
         Pravděpodobně z jejich s3 na loklání uložiště. Poté spustit processing dané tily
@@ -200,7 +201,7 @@ class ProcessedFeature(ABC):
 
             self._set_bbox(self._dataspace_connector.get_rectangular_bbox())
 
-            downloaded_feature_files_paths = await self._download_feature()
+            downloaded_feature_files_paths = self._download_feature()
 
             self._logger.debug(f"[{__name__}]: Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")
 
@@ -210,11 +211,11 @@ class ProcessedFeature(ABC):
             # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
 
             self._set_status(status=RequestStatuses.COMPLETED)
-            fastapi_shared.database.set(self._request_hash, self)
 
         except Exception as e:
             self._fail_reason = str(e)
             self._set_status(status=RequestStatuses.FAILED)
+
 
     def _process_feature_files(self, feature_files: list[str]) -> list[str] | None:
         self._output_directory = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, self._request_hash)
@@ -226,7 +227,10 @@ class ProcessedFeature(ABC):
             elif item.is_dir():
                 shutil.rmtree(item)
 
-        gjtiff_stdout = self._run_gjtiff_docker(input_files=feature_files, output_directory=self._output_directory)
+        gjtiff_stdout = self._run_gjtiff_docker(
+            input_files=feature_files,
+            output_directory=self._output_directory
+        )
         self._logger.debug(f"[{__name__}]: gjtiff_stdout: |>|>|>{gjtiff_stdout}<|<|<|")
 
         processed_feature_files = self._extract_output_file_list(stdout=gjtiff_stdout)
@@ -239,25 +243,28 @@ class ProcessedFeature(ABC):
         matches = re.findall(json_list_pattern, stdout, re.DOTALL)
         last_json_list = json.loads(matches[-1] if matches else None)
 
-        bbox_set = {tuple(item['bbox']) for item in last_json_list}
-        if len(bbox_set) != 1:
-            raise ProcessedFeatureBboxForSeparateFilesNotConsistent(feature_id=self._feature_id)
-
-        self._set_bbox(last_json_list[0]['bbox'])
-
         output_files = [item['outfile'] for item in last_json_list]
 
         return output_files
 
-    def _run_gjtiff_docker(self, input_files: list[str] = None, output_directory: Path = _output_directory) -> str:
+    def _run_gjtiff_docker(
+            self,
+            input_files: list[str] = None,
+            output_directory: Path = _output_directory,
+    ) -> str:
         if input_files is None:
             raise ValueError("No input files provided")  ## TODO Proper exception
 
-        command = ["gjtiff", "-q", "82", "-Q", "-o" f"{str(output_directory)}"] + [input_file for input_file in input_files]
+        zoom_values = ",".join(str(z) for z in range(self._zoom_levels["min_zoom"],
+                                                     self._zoom_levels["max_zoom"] + 1))  # range() max is exclusive
+        command = ["gjtiff", "-q", "82", "-Q", "-z", zoom_values, "-o", str(output_directory)] + input_files
 
-        gjtiff_container = docker.from_env().containers.get("gjtiff_container")
+        self._logger.debug(f"[{__name__}]: Running gjtiff_docker command: {command}")
+
+        gjtiff_container = docker.from_env().containers.get("oculus_gjtiff")
 
         stdout, stderr = gjtiff_container.exec_run(command, stdout=True, stderr=True, tty=False, demux=True).output
+
         if stderr:
             self._logger.error(f"[{__name__}]: gjtiff stderr: {stderr.decode('utf-8')}")
 

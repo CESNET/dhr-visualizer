@@ -35,3 +35,6 @@ DOCKER_SHARED_DATA_DIRECTORY: str = os.getenv("DOCKER_SHARED_DATA_DIRECTORY", de
 
 MONGO__URI: str = os.getenv("MONGO__URI")
 MONGO__DB: str = os.getenv("MONGO__DB")
+
+CELERY_BROKER_URL: str = os.getenv("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND: str = os.getenv("CELERY_RESULT_BACKEND")

@@ -55,6 +55,7 @@ L.control.scale().addTo(leafletMap);
 
 let osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Base map (c) <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+    minZoom: 3,
     maxZoom: 19,
     opacity: 1,
 }).addTo(leafletMap);
@@ -598,13 +599,16 @@ const openFeature = () => {
         const selectedValueJSON = JSON.parse(selectedValue);
 
         const requestHash = encodeURIComponent(selectedValueJSON.requestHash);
-        const file = encodeURIComponent(selectedValueJSON.file);
+        let file = encodeURIComponent(selectedValueJSON.file);
 
         if (window.currentSatelliteTiles) {
             leafletMap.removeLayer(window.currentSatelliteTiles);
         }
 
-        const tileUrlTemplate = `${backendHost}/api/get_tile/{z}/{x}/{y}.jpg?request_hash=${requestHash}&selected_file=${file}`;
+        //const tileUrlTemplate = `${backendHost}/api/get_tile/{z}/{x}/{y}.jpg?request_hash=${requestHash}&selected_file=${file}`;
+
+        file = file.split('.').slice(0,-1).join('.');
+        const tileUrlTemplate = `${backendHost}/data/${requestHash}/${file}/{z}/{x}/{y}.jpg`;
 
         const satelliteTiles = L.tileLayer(tileUrlTemplate, {
             attribution: 'Satellite imagery (c) <a href="https://www.copernicus.eu/">Copernicus programme</a>',
