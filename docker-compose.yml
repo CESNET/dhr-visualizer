@@ -17,12 +17,12 @@ services:
       - mongo
       - redis
 
-  worker:
+  celery:
     build: ./backend
     image: oculus/backend:latest
     entrypoint: celery
     command: -A celery_app.celery_app worker -l info -E
-    container_name: "oculus_worker"
+    container_name: "oculus_celery"
     env_file:
       - .env
     environment:
