@@ -15,7 +15,7 @@ import variables as variables
 router = APIRouter()
 
 
-@router.post(f"{variables.UVICORN__SERVER_PREFIX}" + "/request_processing")
+@router.post(f"{variables.SERVER_PREFIX}" + "/request_processing")
 async def request_processing(
         background_tasks: BackgroundTasks,
         processed_feature_model: ProcessedFeatureModel = ProcessedFeatureModel()

@@ -10,3 +10,4 @@ numpy~=2.3.0
 pillow~=11.3.0
 mercantile~=1.2.1
 pymongo>=4.6.2
+gunicorn>=21.2.0
