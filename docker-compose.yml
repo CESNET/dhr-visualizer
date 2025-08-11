@@ -30,8 +30,9 @@ services:
       CELERY_RESULT_BACKEND: redis://redis
     depends_on:
       - redis
-#    volumes:
-#      - './queue:/queue'
+    volumes:
+      - shared_data:/data
+      - tmp:/tmp
 
   redis:
     image: redis:alpine

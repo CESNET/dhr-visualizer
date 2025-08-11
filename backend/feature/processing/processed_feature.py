@@ -10,7 +10,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Dict, Any
 
-from fastapi_server import fastapi_shared
 from resources.enums import RequestStatuses
 
 from dataspace.dataspace_connector import DataspaceConnector
@@ -217,8 +216,6 @@ class ProcessedFeature(ABC):
             self._fail_reason = str(e)
             self._set_status(status=RequestStatuses.FAILED)
 
-        finally:
-            fastapi_shared.database.set(key=self._request_hash, value=self)
 
     def _process_feature_files(self, feature_files: list[str]) -> list[str] | None:
         self._output_directory = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, self._request_hash)

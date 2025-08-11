@@ -1,4 +1,3 @@
-import logging
 from celery_app import celery_app
 from database.mongo_database_connector import MongoDatabaseConnector
 from celery.utils.log import get_task_logger
@@ -19,5 +18,7 @@ def process_feature_task(hash: str):
     # will have more complex payload once we implement additional bands processing for existing files
     logger.info(f"Task {hash}")
     feature = _db.get(hash)
+    feature._logger = logger
     logger.info(f"Processed feature: {feature}")
     feature.process_feature()
+    _db.set(key=feature.get_request_hash(), value=feature)
