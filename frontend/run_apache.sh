@@ -40,7 +40,7 @@ while true; do
     sleep 10
 done &
 
-# Reload Apache every 12 hours for renewal
+# Reload Apache every 12 hours for certificate renewal
 while true; do
     sleep 43200
     echo "Reloading Apache for certificate renewal"

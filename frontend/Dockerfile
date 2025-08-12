@@ -1,5 +1,7 @@
 FROM httpd:latest
 
+RUN apt-get update && apt-get install -y --no-install-recommends gettext-base && rm -rf /var/lib/apt/lists/*
+
 COPY apache/httpd_no_ssl.conf /usr/local/apache2/conf/httpd_no_ssl.conf
 COPY apache/httpd_ssl_part.conf /usr/local/apache2/conf/httpd_ssl_part.conf
 
