@@ -64,7 +64,7 @@ services:
     volumes:
       - shared_data:/usr/local/apache2/htdocs/data
       - certbot_challenge:/usr/local/apache2/htdocs/.well-known/acme-challenge
-      - ./frontend/certs:/etc/letsencrypt
+      - ./certs:/etc/letsencrypt
     depends_on:
       - backend
 
@@ -74,7 +74,7 @@ services:
     restart: always
     volumes:
       - certbot_challenge:/var/www/certbot
-      - ./frontend/certs:/etc/letsencrypt
+      - ./certs:/etc/letsencrypt
       - ./frontend/run_certbot.sh:/run_certbot.sh
     env_file:
       - .env
