@@ -4,21 +4,21 @@ CERT_DIR="/etc/letsencrypt"
 WEBROOT="/var/www/certbot"
 
 if [ ! -f "$CERT_DIR/live/$FRONTEND__DOMAIN/fullchain.pem" ]; then
-  # HTTPS certificate does not exist
-  echo "Requesting new HTTPS certificate"
-  certbot certonly --webroot -w $WEBROOT -d $FRONTEND__DOMAIN --non-interactive --agree-tos --email $FRONTEND__EMAIL
+    # HTTPS certificate does not exist
+    echo "Requesting new HTTPS certificate"
+    certbot certonly --webroot -w $WEBROOT -d $FRONTEND__DOMAIN --non-interactive --agree-tos --email $FRONTEND__EMAIL
 else
-  # HTTPS certificate exists
-  echo "HTTPS certificate exist, attempting renewal"
-  certbot renew --webroot -w $WEBROOT --non-interactive
+    # HTTPS certificate exists
+    echo "HTTPS certificate exist, attempting renewal"
+    certbot renew --webroot -w $WEBROOT --non-interactive
 fi
 
 echo "HTTPS certificate obtained"
 
 # Renew certificate every 12 hours
 while true; do
-  renewal_time=43200
-  echo "Certificate renewal will occur in $(( renewal_time / 3600 )) hours."
-  sleep $renewal_time # 43200 seconds == 12 hours
-  certbot renew --webroot -w $WEBROOT --non-interactive
+    renewal_time=43200
+    echo "Certificate renewal will occur in $(( renewal_time / 3600 )) hours."
+    sleep $renewal_time # 43200 seconds == 12 hours
+    certbot renew --webroot -w $WEBROOT --non-interactive
 done

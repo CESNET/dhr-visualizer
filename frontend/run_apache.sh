@@ -48,7 +48,9 @@ done
 
 # Reload Apache every 12 hours for certificate renewal
 while true; do
-    sleep 43200
+    renewal_time=43200
+    echo "Apache reload for certificate renewal will occur in $(( renewal_time / 3600 )) hours."
+    sleep $renewal_time # 43200 seconds == 12 hours
     echo "Reloading Apache for certificate renewal"
     apachectl graceful
 done &
