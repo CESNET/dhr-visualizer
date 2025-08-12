@@ -41,6 +41,17 @@ services:
 #    ports:
 #      - "6379:6379"
 
+  mongo:
+    image: mongo
+    container_name: "oculus_mongodb"
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO__USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO__PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO__DB}
+#    volumes:
+#      - mongodb_data:/data/db
+
   frontend:
     build: ./frontend
     restart: always
@@ -52,7 +63,7 @@ services:
       - "443:443"
     volumes:
       - shared_data:/usr/local/apache2/htdocs/data
-      - ./frontend/certbot-www:/usr/local/apache2/htdocs/.well-known/acme-challenge
+      - certbot_challenge:/usr/local/apache2/htdocs/.well-known/acme-challenge
       - ./frontend/certs:/etc/letsencrypt
     depends_on:
       - backend
@@ -62,7 +73,7 @@ services:
     container_name: oculus_certbot
     restart: always
     volumes:
-      - ./frontend/certbot-www:/var/www/certbot
+      - certbot_challenge:/var/www/certbot
       - ./frontend/certs:/etc/letsencrypt
       - ./frontend/run_certbot.sh:/run_certbot.sh
     env_file:
@@ -85,18 +96,8 @@ services:
       - tmp:/tmp
       - shared_data:/data
 
-  mongo:
-    image: mongo
-    container_name: "oculus_mongodb"
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO__USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO__PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGO__DB}
-#    volumes:
-#      - mongodb_data:/data/db
-
 volumes:
+  certbot_challenge:
   shared_data:
   tmp:
 #  mongodb_data:
