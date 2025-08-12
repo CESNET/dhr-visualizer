@@ -2,7 +2,7 @@
 
 set -e
 
-CERT_PATH="/etc/letsencrypt/live/$FRONTEND__DOMAIN/fullchain.pem"
+CERT_PATH="/etc/letsencrypt/live/$FRONTEND_DOMAIN/fullchain.pem"
 CONF_DIR="/usr/local/apache2/conf"
 
 running_https=0

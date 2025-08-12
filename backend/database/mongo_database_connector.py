@@ -11,8 +11,8 @@ class MongoDatabaseConnector(DatabaseConnector):
         self._client = None
         self._db = None
         self._collection = None
-        self._mongo_uri = variables.MONGO__URI
-        self._database_name = variables.MONGO__DB
+        self._mongo_uri = variables.MONGO_URI
+        self._database_name = variables.MONGO_DB
         self._collection_name = "products"
 
     def connect(self):

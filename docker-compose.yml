@@ -46,9 +46,9 @@ services:
     container_name: "oculus_mongodb"
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO__USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO__PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGO__DB}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB}
 #    volumes:
 #      - mongodb_data:/data/db
 
@@ -78,7 +78,6 @@ services:
       - ./frontend/run_certbot.sh:/run_certbot.sh
     env_file:
       - .env
-    #entrypoint: sh -c "sleep infinity"
     entrypoint: sh /run_certbot.sh
 
   gjtiff:

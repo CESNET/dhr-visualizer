@@ -16,9 +16,9 @@ from database.mongo_database_connector import MongoDatabaseConnector
 class FastAPIServer:
     _fastapi_app: FastAPI = None
 
-    def __init__(self, celery_queue, logger=logging.Logger(env.APP__NAME)):
+    def __init__(self, celery_queue, logger=logging.Logger(env.APP_NAME)):
         fastapi_logger.handlers = logger.handlers
-        fastapi_logger.setLevel(env.APP__LOG_LEVEL.upper())
+        fastapi_logger.setLevel(env.APP_LOG_LEVEL.upper())
 
         # file_handler = logging.FileHandler("dhr-visualization.log")
         # file_handler.setLevel(env.APP__LOG_LEVEL.upper())
@@ -26,7 +26,7 @@ class FastAPIServer:
         # fastapi_logger.addHandler(file_handler)
 
         stdout_handler = logging.StreamHandler(sys.stdout)
-        stdout_handler.setLevel(env.APP__LOG_LEVEL.upper())
+        stdout_handler.setLevel(env.APP_LOG_LEVEL.upper())
         stdout_handler.setFormatter(logging.Formatter('%(levelname)s %(asctime)s - %(name)s:  %(message)s'))
         fastapi_logger.addHandler(stdout_handler)
 
@@ -36,7 +36,7 @@ class FastAPIServer:
 
         fastapi_shared.celery_queue = celery_queue
 
-        self._fastapi_app = FastAPI(title=env.APP__NAME)
+        self._fastapi_app = FastAPI(title=env.APP_NAME)
 
         # TODO odebrat na produkci
         self._fastapi_app.add_middleware(

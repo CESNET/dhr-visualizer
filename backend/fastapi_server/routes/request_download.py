@@ -10,7 +10,7 @@ from resources.enums import *
 router = APIRouter()
 
 
-@router.get(variables.UVICORN__SERVER_PREFIX + "/download_image/{request_hash}/{filename}")
+@router.get(variables.UVICORN_SERVER_PREFIX + "/download_image/{request_hash}/{filename}")
 async def download_image(request_hash: str, filename: str):
     logger.debug(f"[{__name__}]: Requesting file download for hash: {request_hash}, file: {filename}")
 

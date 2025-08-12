@@ -88,7 +88,7 @@ class ProcessedFeature(ABC):
     def _assign_connector(self):
         self._logger.debug(f"[{__name__}]: Assigning dataspace connector")
 
-        if variables.DHR__USE_DHR:
+        if variables.DHR_USE_DHR:
             try:
                 self._dataspace_connector = DHRConnector(
                     feature_id=self._feature_id,

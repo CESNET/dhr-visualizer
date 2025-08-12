@@ -3,7 +3,7 @@ import re
 
 import httpx
 
-from variables import DHR__USE_DHR, DHR__CATALOG_ROOT, DHR__CONNECTOR_CREDENTIALS
+from variables import DHR_USE_DHR, DHR_CATALOG_ROOT, DHR_CONNECTOR_CREDENTIALS
 
 from dataspace.dataspace_connector import DataspaceConnector
 from dataspace.http_client import HTTPClient
@@ -20,10 +20,10 @@ class DHRConnector(DataspaceConnector):
             feature_id=None, workdir=None,
             logger: logging.Logger = logging.getLogger(__name__)
     ):
-        if not DHR__USE_DHR:
+        if not DHR_USE_DHR:
             raise DHRConnectorIsNotRequestedByUser()
-        super().__init__(root_url=DHR__CATALOG_ROOT, feature_id=feature_id, workdir=workdir, logger=logger)
-        self._dhr_http_client = HTTPClient(config=DHR__CONNECTOR_CREDENTIALS, logger=self._logger)
+        super().__init__(root_url=DHR_CATALOG_ROOT, feature_id=feature_id, workdir=workdir, logger=logger)
+        self._dhr_http_client = HTTPClient(config=DHR_CONNECTOR_CREDENTIALS, logger=self._logger)
 
     def _get_resto_id(self) -> str:
         if self._resto_id is None:

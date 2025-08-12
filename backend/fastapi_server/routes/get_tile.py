@@ -12,7 +12,7 @@ import variables as variables
 router = APIRouter()
 
 
-@router.get(f"{variables.UVICORN__SERVER_PREFIX}" + "/get_tile/{z}/{x}/{y}.jpg")
+@router.get(f"{variables.UVICORN_SERVER_PREFIX}" + "/get_tile/{z}/{x}/{y}.jpg")
 def get_tile(
         z: int, x: int, y: int,
         request_hash: str = Query(None, description="Request hash assigned by /api/request_processing endpoint"),
