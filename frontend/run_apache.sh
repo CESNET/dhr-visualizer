@@ -35,15 +35,14 @@ apache_pid=$!
 echo "Apache started, PID: ${apache_pid}"
 
 # Watch for cert and reload Apache when needed
-while true; do
-    if [ -f "$CERT_PATH" ] && [ "$running_https" -eq 0 ]; then
+while [ "$running_https" -eq 0 ]; do
+    sleep 10
+    if [ -f "$CERT_PATH" ]; then
         echo "Certificate detected, switching Apache to HTTPS"
         cat $CONF_DIR/httpd_no_ssl.conf $CONF_DIR/httpd_ssl_part.conf > $CONF_DIR/httpd.conf
         apachectl graceful
         running_https=1
-        break
     fi
-    sleep 10
 done
 
 # Reload Apache every 12 hours for certificate renewal
