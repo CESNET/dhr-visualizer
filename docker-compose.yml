@@ -63,7 +63,7 @@ services:
       - "443:443"
     volumes:
       - shared_data:/usr/local/apache2/htdocs/data
-      - certbot_challenge:/usr/local/apache2/htdocs/.well-known/acme-challenge
+      - certbot_challenge:/usr/local/apache2/htdocs/challenge #/.well-known/acme-challenge
       - ./certs:/etc/letsencrypt
     depends_on:
       - backend
