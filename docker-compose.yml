@@ -79,7 +79,7 @@ services:
       - ./frontend/certbot-www:/var/www/certbot
       - ./frontend/certs:/etc/letsencrypt
       - ./frontend/run_certbot.sh:/run_certbot.sh
-    env:
+    env_file:
       - .env
     entrypoint: sh -c "sleep infinity"
 
