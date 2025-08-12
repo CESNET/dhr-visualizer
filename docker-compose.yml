@@ -52,10 +52,23 @@ services:
       - "443:443"
     volumes:
       - shared_data:/usr/local/apache2/htdocs/data
-      - ./frontend/certbot-www:/usr/local/apache2/htdocs/certbot
+      - ./frontend/certbot-www:/usr/local/apache2/htdocs/.well-known/acme-challenge
       - ./frontend/certs:/etc/letsencrypt
     depends_on:
       - backend
+
+  certbot:
+    image: certbot/certbot
+    container_name: oculus_certbot
+    restart: always
+    volumes:
+      - ./frontend/certbot-www:/var/www/certbot
+      - ./frontend/certs:/etc/letsencrypt
+      - ./frontend/run_certbot.sh:/run_certbot.sh
+    env_file:
+      - .env
+    #entrypoint: sh -c "sleep infinity"
+    entrypoint: sh /run_certbot.sh
 
   gjtiff:
     build: ./gjtiff
@@ -71,19 +84,6 @@ services:
     volumes:
       - tmp:/tmp
       - shared_data:/data
-
-  certbot:
-    image: certbot/certbot
-    container_name: oculus_certbot
-    restart: always
-    volumes:
-      - ./frontend/certbot-www:/var/www/certbot
-      - ./frontend/certs:/etc/letsencrypt
-      - ./frontend/run_certbot.sh:/run_certbot.sh
-    env_file:
-      - .env
-    #entrypoint: sh -c "sleep infinity"
-    entrypoint: sh /run_certbot.sh
 
   mongo:
     image: mongo

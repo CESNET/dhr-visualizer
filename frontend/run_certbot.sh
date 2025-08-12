@@ -3,7 +3,7 @@
 CERT_DIR="/etc/letsencrypt"
 WEBROOT="/var/www/certbot"
 
-if [ ! -f "$CERT_DIR/live/$DOMAIN/fullchain.pem" ]; then
+if [ ! -f "$CERT_DIR/live/$FRONTEND__DOMAIN/fullchain.pem" ]; then
   # HTTPS certificate does not exist
   echo "Requesting new HTTPS certificate"
   certbot certonly --webroot -w $WEBROOT -d $FRONTEND__DOMAIN --non-interactive --agree-tos --email $FRONTEND__EMAIL

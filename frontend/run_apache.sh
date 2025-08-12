@@ -26,9 +26,9 @@ fi
 
 # Start Apache in background
 httpd-foreground &
-
-# Save Apache PID
 apache_pid=$!
+
+echo "Apache started, PID: ${apache_pid}"
 
 # Watch for cert and reload Apache when needed
 while true; do
