@@ -52,8 +52,8 @@ services:
       - "443:443"
     volumes:
       - shared_data:/usr/local/apache2/htdocs/data
-      - ./certbot-www:/usr/local/apache2/htdocs/certbot
-      - ./certs:/etc/letsencrypt
+      - ./frontend/certbot-www:/usr/local/apache2/htdocs/certbot
+      - ./frontend/certs:/etc/letsencrypt
     depends_on:
       - backend
 
@@ -76,9 +76,9 @@ services:
     image: certbot/certbot
     container_name: oculus_certbot
     volumes:
-      - ./certbot-www:/var/www/certbot
-      - ./certs:/etc/letsencrypt
-      - ./run_certbot.sh:/run_certbot.sh
+      - ./frontend/certbot-www:/var/www/certbot
+      - ./frontend/certs:/etc/letsencrypt
+      - ./frontend/run_certbot.sh:/run_certbot.sh
     env:
       - .env
     entrypoint: sh -c "sleep infinity"
