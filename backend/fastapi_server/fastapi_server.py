@@ -1,7 +1,7 @@
 import logging
 import sys
 
-import variables as env
+import env as env
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

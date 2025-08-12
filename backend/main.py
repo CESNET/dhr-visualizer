@@ -4,7 +4,7 @@ import uvicorn
 from fastapi_server.fastapi_server import FastAPIServer
 from celery import Celery
 
-import variables as env
+import env as env
 
 if __name__ == "__main__":
     celery_queue = Celery('tasks', broker=env.CELERY_BROKER_URL, backend=env.CELERY_RESULT_BACKEND)

@@ -1,5 +1,6 @@
 from celery import Celery
-import variables as env
+
+import env as env
 
 
 def create_celery_app() -> Celery:

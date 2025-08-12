@@ -17,7 +17,7 @@ from dataspace.exceptions.dataspace_connector import DataspaceConnectorCouldNotF
 from dataspace.cdse_connector import CDSEConnector
 from dataspace.dhr_connector import DHRConnector
 
-import variables as variables
+import env as env
 
 from feature.processing.exceptions.processed_feature import *
 
@@ -88,7 +88,7 @@ class ProcessedFeature(ABC):
     def _assign_connector(self):
         self._logger.debug(f"[{__name__}]: Assigning dataspace connector")
 
-        if variables.DHR_USE_DHR:
+        if env.DHR_USE_DHR:
             try:
                 self._dataspace_connector = DHRConnector(
                     feature_id=self._feature_id,
@@ -207,7 +207,7 @@ class ProcessedFeature(ABC):
 
             self._output_files = self._process_feature_files(feature_files=downloaded_feature_files_paths)
             # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
-            # TODO prozatím bude uloženo ve složce webserveru s frontendem (config/variables.py --- FRONTEND_ROOT_DIR)
+            # TODO prozatím bude uloženo ve složce webserveru s frontendem (config/env.py --- FRONTEND_ROOT_DIR)
             # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
 
             self._set_status(status=RequestStatuses.COMPLETED)
@@ -218,7 +218,7 @@ class ProcessedFeature(ABC):
 
 
     def _process_feature_files(self, feature_files: list[str]) -> list[str] | None:
-        self._output_directory = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, self._request_hash)
+        self._output_directory = Path(env.DOCKER_SHARED_DATA_DIRECTORY, self._request_hash)
         self._output_directory.mkdir(parents=True, exist_ok=True)
 
         for item in self._output_directory.iterdir():

@@ -5,7 +5,8 @@ import numpy as np
 
 from PIL import Image
 
-import variables
+import env as env
+
 from feature.processing.processed_feature import ProcessedFeature
 
 from feature.tiling.exceptions.tiling_worker import *
@@ -38,7 +39,7 @@ class TilingWorker:
         self._processed_feature = processed_feature
 
         self._selected_file = (
-                Path(variables.DOCKER_SHARED_DATA_DIRECTORY) /
+                Path(env.DOCKER_SHARED_DATA_DIRECTORY) /
                 self._processed_feature.get_request_hash() /
                 selected_file
         )
@@ -114,7 +115,7 @@ class TilingWorker:
         return False
 
     def _get_lowres_tile(self) -> Path:
-        lowres_file = Path(variables.DOCKER_SHARED_DATA_DIRECTORY) / "LOW_RES.jpg"
+        lowres_file = Path(env.DOCKER_SHARED_DATA_DIRECTORY) / "LOW_RES.jpg"
         
         if not lowres_file.exists():
             src = Path(__file__).parent / "LOW_RES.jpg"

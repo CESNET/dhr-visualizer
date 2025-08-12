@@ -3,7 +3,7 @@ import re
 
 import httpx
 
-from variables import CDSE_CATALOG_ROOT, CDSE_S3_CREDENTIALS
+from env import CDSE_CATALOG_ROOT, CDSE_S3_CREDENTIALS
 
 from dataspace.dataspace_connector import DataspaceConnector
 from dataspace.s3_client import S3Client

@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pathlib import Path
 
-import variables
+import env as env
+
 from fastapi_server import fastapi_shared
 from fastapi.responses import FileResponse
 from fastapi.logger import logger
@@ -10,7 +11,7 @@ from resources.enums import *
 router = APIRouter()
 
 
-@router.get(variables.UVICORN_SERVER_PREFIX + "/download_image/{request_hash}/{filename}")
+@router.get(env.UVICORN_SERVER_PREFIX + "/download_image/{request_hash}/{filename}")
 async def download_image(request_hash: str, filename: str):
     logger.debug(f"[{__name__}]: Requesting file download for hash: {request_hash}, file: {filename}")
 
@@ -27,7 +28,7 @@ async def download_image(request_hash: str, filename: str):
         raise HTTPException(status_code=404, detail=f"File {filename} not available for this product!")
 
     selected_file = (
-            Path(variables.DOCKER_SHARED_DATA_DIRECTORY) /
+            Path(env.DOCKER_SHARED_DATA_DIRECTORY) /
             request_hash /
             filename
     )

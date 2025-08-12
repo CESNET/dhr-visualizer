@@ -3,7 +3,7 @@ import re
 
 import httpx
 
-from variables import DHR_USE_DHR, DHR_CATALOG_ROOT, DHR_CONNECTOR_CREDENTIALS
+from env import DHR_USE_DHR, DHR_CATALOG_ROOT, DHR_CONNECTOR_CREDENTIALS
 
 from dataspace.dataspace_connector import DataspaceConnector
 from dataspace.http_client import HTTPClient

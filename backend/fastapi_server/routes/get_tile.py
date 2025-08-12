@@ -7,12 +7,12 @@ from fastapi.logger import logger
 from feature.tiling.tiling_worker import TilingWorker
 from feature.tiling.exceptions.tiling_worker import TilingWorkerTileOutOfBounds
 
-import variables as variables
+import env as env
 
 router = APIRouter()
 
 
-@router.get(f"{variables.UVICORN_SERVER_PREFIX}" + "/get_tile/{z}/{x}/{y}.jpg")
+@router.get(f"{env.UVICORN_SERVER_PREFIX}" + "/get_tile/{z}/{x}/{y}.jpg")
 def get_tile(
         z: int, x: int, y: int,
         request_hash: str = Query(None, description="Request hash assigned by /api/request_processing endpoint"),

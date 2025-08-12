@@ -11,7 +11,7 @@ from feature.processing.processed_feature import ProcessedFeature
 from feature.processing.sentinel1_feature import Sentinel1Feature
 from feature.processing.sentinel2_feature import Sentinel2Feature
 
-import variables as variables
+import env as variables
 
 router = APIRouter()
 
