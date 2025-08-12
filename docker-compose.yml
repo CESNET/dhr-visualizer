@@ -75,13 +75,15 @@ services:
   certbot:
     image: certbot/certbot
     container_name: oculus_certbot
+    restart: always
     volumes:
       - ./frontend/certbot-www:/var/www/certbot
       - ./frontend/certs:/etc/letsencrypt
       - ./frontend/run_certbot.sh:/run_certbot.sh
     env_file:
       - .env
-    entrypoint: sh -c "sleep infinity"
+    #entrypoint: sh -c "sleep infinity"
+    entrypoint: sh /run_certbot.sh
 
   mongo:
     image: mongo
