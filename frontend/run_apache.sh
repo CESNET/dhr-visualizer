@@ -5,6 +5,8 @@ set -e
 CERT_PATH="/etc/letsencrypt/live/$FRONTEND_DOMAIN/fullchain.pem"
 CONF_DIR="/usr/local/apache2/conf"
 
+running_https=0
+
 echo "Populating httpd.conf with .env variables"
 
 envsubst < $CONF_DIR/httpd_no_ssl.conf > $CONF_DIR/httpd_no_ssl.conf.tmp
@@ -19,9 +21,11 @@ echo "httpd.conf populated with .env variables"
 if [ ! -f "$CERT_PATH" ]; then
     echo "No SSL certificate yet. Starting Apache in HTTP mode"
     cat $CONF_DIR/httpd_no_ssl.conf > $CONF_DIR/httpd.conf
+    running_https=0
 else
     echo "SSL certificate found. Starting Apache in HTTPS mode"
     cat $CONF_DIR/httpd_no_ssl.conf $CONF_DIR/httpd_ssl_part.conf > $CONF_DIR/httpd.conf
+    running_https=1
 fi
 
 # Start Apache in background
@@ -32,10 +36,11 @@ echo "Apache started, PID: ${apache_pid}"
 
 # Watch for cert and reload Apache when needed
 while true; do
-    if [ -f "$CERT_PATH" ] && ! grep -q "$CONF_DIR/httpd_ssl_part.conf" $CONF_DIR/httpd.conf; then
+    if [ -f "$CERT_PATH" ] && [ "$running_https=0" ]; then
         echo "Certificate detected, switching Apache to HTTPS"
         cat $CONF_DIR/httpd_no_ssl.conf $CONF_DIR/httpd_ssl_part.conf > $CONF_DIR/httpd.conf
         apachectl graceful
+        running_https=1
     fi
     sleep 10
 done &
