@@ -16,6 +16,14 @@ services:
     depends_on:
       - mongo
       - redis
+    labels:
+      - "app=oculus"
+      - "component=backend"
+    logging:
+      driver: "journald"
+      options:
+        tag: "oculus"
+        labels: "app,component"
 
   celery:
     build: ./backend
@@ -34,12 +42,26 @@ services:
       - shared_data:/data
       - tmp:/tmp
       - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "app=oculus"
+      - "component=celery"
+    logging:
+      driver: "journald"
+      options:
+        tag: "oculus"
+        labels: "app,component"
 
   redis:
     image: redis:alpine
     container_name: "oculus_redis"
-#    ports:
-#      - "6379:6379"
+    labels:
+      - "app=oculus"
+      - "component=redis"
+    logging:
+      driver: "journald"
+      options:
+        tag: "oculus"
+        labels: "app,component"
 
   mongo:
     image: mongo
@@ -51,6 +73,14 @@ services:
       MONGO_INITDB_DATABASE: ${MONGO_DB}
 #    volumes:
 #      - mongodb_data:/data/db
+    labels:
+      - "app=oculus"
+      - "component=mongo"
+    logging:
+      driver: "journald"
+      options:
+        tag: "oculus"
+        labels: "app,component"
 
   frontend:
     build: ./frontend
@@ -67,6 +97,14 @@ services:
       - ./certs:/etc/letsencrypt
     depends_on:
       - backend
+    labels:
+      - "app=oculus"
+      - "component=frontend"
+    logging:
+      driver: "journald"
+      options:
+        tag: "oculus"
+        labels: "app,component"
 
   certbot:
     image: certbot/certbot
@@ -94,6 +132,14 @@ services:
     volumes:
       - tmp:/tmp
       - shared_data:/data
+    labels:
+      - "app=oculus"
+      - "component=gjitff"
+    logging:
+      driver: "journald"
+      options:
+        tag: "oculus"
+        labels: "app,component"
 
 volumes:
   certbot_challenge:
