@@ -109,6 +109,7 @@ class ProcessedFeature(ABC):
         return self._feature_id
 
     def get_status(self) -> RequestStatuses:
+        # TODO tohle by se mělo asi nějak rovnou propsat do databáze
         return self._status
 
     def _set_fail_reason(self, reason):
