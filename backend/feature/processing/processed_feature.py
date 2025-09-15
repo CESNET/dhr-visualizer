@@ -198,16 +198,13 @@ class ProcessedFeature(ABC):
 
         Na stav se bude ptát peridociky forntend voláním /api/check_visualization_status
         """
-        from celery.utils.log import get_task_logger
-        logger = get_task_logger("tasks")
-
         try:
             self._set_status(status=RequestStatuses.PROCESSING)
 
             self._set_bbox(self._dataspace_connector.get_rectangular_bbox())
 
             time_download_start = datetime.now(tz=timezone.utc)
-            logger.debug(
+            print(
                 f"[{__name__}]: Downloading feature {self._feature_id} started at {time_download_start}"
             )
 
@@ -215,15 +212,15 @@ class ProcessedFeature(ABC):
 
             time_download_finish = datetime.now(tz=timezone.utc)
             time_download_elapsed = time_download_finish - time_download_start
-            logger.debug(
+            print(
                 f"[{__name__}]: Downloading feature {self._feature_id} finished at {time_download_finish},"
                 f" elapsed {time_download_elapsed}"
             )
 
-            logger.debug(f"[{__name__}]: Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")
+            print(f"[{__name__}]: Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")
 
             time_process_start = datetime.now(tz=timezone.utc)
-            logger.debug(
+            print(
                 f"[{__name__}]: Processing feature {self._feature_id} started at {time_process_start}"
             )
 
@@ -231,7 +228,7 @@ class ProcessedFeature(ABC):
 
             time_process_finish = datetime.now(tz=timezone.utc)
             time_process_elapsed = time_process_finish - time_process_start
-            logger.debug(
+            print(
                 f"[{__name__}]: Processing feature {self._feature_id} finished at {time_process_finish},"
                 f" elapsed {time_process_elapsed}"
             )
@@ -242,7 +239,7 @@ class ProcessedFeature(ABC):
             self._set_status(status=RequestStatuses.COMPLETED)
 
             time_total_elapsed = time_process_finish - time_download_start
-            logger.debug(
+            print(
                 f"[{__name__}]: Total time elapsed {time_total_elapsed}"
             )
 
