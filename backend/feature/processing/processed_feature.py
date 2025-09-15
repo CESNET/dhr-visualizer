@@ -6,6 +6,7 @@ import shutil
 import docker
 
 from abc import ABC, abstractmethod
+from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Dict, Any
@@ -202,21 +203,49 @@ class ProcessedFeature(ABC):
 
             self._set_bbox(self._dataspace_connector.get_rectangular_bbox())
 
+            time_download_start = datetime.now(tz=timezone.utc)
+            self._logger.debug(
+                f"[{__name__}]: Downloading feature {self._feature_id} started at {time_download_start}"
+            )
+
             downloaded_feature_files_paths = self._download_feature()
+
+            time_download_finish = datetime.now(tz=timezone.utc)
+            time_download_elapsed = time_download_finish - time_download_start
+            self._logger.debug(
+                f"[{__name__}]: Downloading feature {self._feature_id} finished at {time_download_finish},"
+                f" elapsed {time_download_elapsed}"
+            )
 
             self._logger.debug(f"[{__name__}]: Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")
 
+            time_process_start = datetime.now(tz=timezone.utc)
+            self._logger.debug(
+                f"[{__name__}]: Processing feature {self._feature_id} started at {time_process_start}"
+            )
+
             self._output_files = self._process_feature_files(feature_files=downloaded_feature_files_paths)
+
+            time_process_finish = datetime.now(tz=timezone.utc)
+            time_process_elapsed = time_process_finish - time_process_start
+            self._logger.debug(
+                f"[{__name__}]: Processing feature {self._feature_id} finished at {time_process_finish},"
+                f" elapsed {time_process_elapsed}"
+            )
             # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
             # TODO prozatím bude uloženo ve složce webserveru s frontendem (config/variables.py --- FRONTEND_ROOT_DIR)
             # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
 
             self._set_status(status=RequestStatuses.COMPLETED)
 
+            time_total_elapsed = time_process_finish - time_download_start
+            self._logger.debug(
+                f"[{__name__}]: Total time elapsed {time_total_elapsed}"
+            )
+
         except Exception as e:
             self._fail_reason = str(e)
             self._set_status(status=RequestStatuses.FAILED)
-
 
     def _process_feature_files(self, feature_files: list[str]) -> list[str] | None:
         self._output_directory = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, self._request_hash)
