@@ -866,7 +866,7 @@ const showProductDetail = (metadata) => {
     const product = template.content.cloneNode(true);
     product.querySelector(".product-name").textContent = metadata.Name;
     product.querySelector(".product-mission").textContent = metadata.platform;
-    product.querySelector(".product-time").textContent = metadata.OriginDate;
+    product.querySelector(".product-time").textContent = metadata.ContentDate.Start;
     // product.querySelector(".product-size").textContent = metadata.ContentLength;
 
     productDiv = product.querySelector(".product-tile");
