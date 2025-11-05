@@ -25,6 +25,15 @@ async def request_processing(
     request_hash = processed_feature_model.hash_myself()
     logger.debug(f"[{__name__}]: request_hash: {request_hash}")
 
+    # return failed reason once and prepare for recomputation
+    db_feature = fastapi_shared.database.get(request_hash)
+    if db_feature is not None and db_feature.get_status() == RequestStatuses.FAILED:
+        fastapi_shared.database.delete(request_hash)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Feature processing failed! Reason: {db_feature.get_fail_reason()}"
+        )
+
     # TODO - tady by se spíš měl zahashovat celý request a ten uložit do DB
     if fastapi_shared.database.get(request_hash) is None:
         processed_feature: ProcessedFeature | None = None
@@ -59,15 +68,15 @@ async def request_processing(
     return_entry: ProcessedFeature | None = fastapi_shared.database.get(request_hash)
 
     if return_entry is None:
-        return HTTPException(status_code=404, detail="Feature not found in database!")
+        raise HTTPException(status_code=404, detail="Feature not found in database!")
 
     if return_entry.get_status == RequestStatuses.NON_EXISTING:
         fastapi_shared.database.delete(request_hash)
-        return HTTPException(status_code=404, detail="Feature not found in database!")
+        raise HTTPException(status_code=404, detail="Feature not found in database!")
 
     if return_entry.get_status == RequestStatuses.FAILED:
         fastapi_shared.database.delete(request_hash)
-        return HTTPException(
+        raise HTTPException(
             status_code=500,
             detail=f"Feature processing failed! Reason: {return_entry.get_fail_reason()}"
         )
