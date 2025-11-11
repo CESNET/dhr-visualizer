@@ -1,3 +1,5 @@
+import time
+
 from fastapi import APIRouter, HTTPException
 from fastapi_server import fastapi_shared
 
@@ -21,6 +23,7 @@ async def request_processing(
         processed_feature_model: ProcessedFeatureModel = ProcessedFeatureModel()
 ):
     logger.debug(f"[{__name__}]: request_feature_model: {processed_feature_model}")
+    logger.error(f"BENCHMARK: {time.time()} REQUEST RECEIVED")
 
     request_hash = processed_feature_model.hash_myself()
     logger.debug(f"[{__name__}]: request_hash: {request_hash}")

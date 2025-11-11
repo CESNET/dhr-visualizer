@@ -2,6 +2,7 @@ import json
 import logging
 import re
 import shutil
+import time
 
 import docker
 
@@ -207,11 +208,13 @@ class ProcessedFeature(ABC):
             print(
                 f"[{__name__}]: Downloading feature {self._feature_id} started at {time_download_start}"
             )
+            self._logger.error(f"BENCHMARK: {time.time()} DOWNLOADING FEATURE")
 
             downloaded_feature_files_paths = self._download_feature()
 
             time_download_finish = datetime.now(tz=timezone.utc)
             time_download_elapsed = time_download_finish - time_download_start
+            self._logger.error(f"BENCHMARK: {time.time()} FEATURE DOWNLOADED")
             print(
                 f"[{__name__}]: Downloading feature {self._feature_id} finished at {time_download_finish},"
                 f" elapsed {time_download_elapsed}"
@@ -293,7 +296,9 @@ class ProcessedFeature(ABC):
 
         gjtiff_container = docker.from_env().containers.get("oculus_gjtiff")
 
+        self._logger.error(f"BENCHMARK: {time.time()} RUN GJTIFF")
         stdout, stderr = gjtiff_container.exec_run(command, stdout=True, stderr=True, tty=False, demux=True).output
+        self._logger.error(f"BENCHMARK: {time.time()} FINISHED GJTIFF")
 
         if stderr:
             self._logger.error(f"[{__name__}]: gjtiff stderr: {stderr.decode('utf-8')}")

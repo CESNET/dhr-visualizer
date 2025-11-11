@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 
 import httpx
@@ -66,14 +67,18 @@ class CDSEConnector(DataspaceConnector):
 
     def download_selected_files(self, files_to_download: list[tuple[str, str]]) -> list[str]:
         downloaded_files = []
+        total_size = 0
 
         for file_to_download in files_to_download:
             downloaded_file_path = self._cdse_s3_client.download_file(
                 bucket_key=file_to_download[1],
                 root_output_directory=self._workdir
             )
+            file_size = os.path.getsize(downloaded_file_path)
+            total_size += file_size
             downloaded_files.append(str(downloaded_file_path))
 
+        self._logger.error(f"BENCHMARK: {total_size / (1024 * 1024):.2f} MB FILES DOWNLOADED")
         return downloaded_files
 
     def get_polygon(self) -> list[list[float]]:
