@@ -1,11 +1,13 @@
 # Oculus
-Visualizations of satellite data
+Visualization of the satellite data
 
-## Deploy
+![gui](docs/img/gui.png)
+
+## Deployment
 
 Deployment is done using Docker.
 
-Visualization is dependent on `gjtiff` that can be found [here](https://github.com/MartinPulec/gjtiff/). It must be cloned into `dhr-visualizer` root directory:
+Visualization is dependent on `gjtiff` processing software that can be found [here](https://github.com/MartinPulec/gjtiff/). It must be cloned into `dhr-visualizer` root directory:
 
 ```bash
 git clone https://github.com/MartinPulec/gjtiff.git
@@ -66,3 +68,7 @@ docker compose up -d
 ```
 
 Frontend will be accessible at ${FRONTEND_DOMAIN} backend at ${FRONTEND_DOMAIN}/api.
+
+## Notes
+
+Currently Oculus supports two data sources - CDSE and DHR with prioritizing DHuS data source if the demanded product is available there. Since DHuS software is being deprecated in favor of GSS, GSS connector will be further implemented and support for DHuS will be removed.
