@@ -26,8 +26,8 @@ Design principles:
 ![architecture](img/architecture.png)
 
 Repository & demo:
-- Code: `https://github.com/CESNET/dhr-visualizer`
-- Live instance: `https://oculus.cesnet.cz/`
+- Code: (`https://github.com/CESNET/dhr-visualizer`)[https://github.com/CESNET/dhr-visualizer]
+- Live instance: (`https://oculus.cesnet.cz/`)[https://oculus.cesnet.cz/]
 
 ---
 
