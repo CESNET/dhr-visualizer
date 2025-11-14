@@ -31,6 +31,7 @@ DHR_CATALOG_ROOT="https://stac.domain.cz/"
 DHR_CONNECTOR_HOST_BASE="https://dhr.domain.cz/"
 DHR_CONNECTOR_USERNAME="USERNAME"
 DHR_CONNECTOR_PASSWORD="PASSWORD"
+# DHR (DHuS) is being deprecated in favor of GSS. See: https://docs.metacentrum.cz/en/docs/related/collgs
 
 CDSE_CATALOG_ROOT="https://catalogue.dataspace.copernicus.eu/odata/v1/"
 CDSE_CONNECTOR_S3_HOST_BASE="https://eodata.dataspace.copernicus.eu/"
@@ -38,6 +39,7 @@ CDSE_CONNECTOR_S3_HOST_BUCKET="eodata"
 CDSE_CONNECTOR_S3_REGION_NAME="default"
 CDSE_CONNECTOR_S3_ACCESS_KEY="ACCESS_KEY"
 CDSE_CONNECTOR_S3_SECRET_KEY="SECRET_KEY"
+# Guide to obtain CDSE S3 credentials can be found here: https://documentation.dataspace.copernicus.eu/APIs/S3.html
 
 DOCKER_SHARED_DATA_DIRECTORY="/data"
 
@@ -69,6 +71,12 @@ docker compose up -d
 
 Frontend will be accessible at ${FRONTEND_DOMAIN} backend at ${FRONTEND_DOMAIN}/api.
 
+## Requirements
+
+- Docker
+- CUDA capable GPU (tested with NVIDIA GeForce RTX 4080)
+- Access to [CDSE S3 storage](https://documentation.dataspace.copernicus.eu/APIs/S3.html)
+
 ## Notes
 
-Currently Oculus supports two data sources - CDSE and DHR with prioritizing DHuS data source if the demanded product is available there. Since DHuS software is being deprecated in favor of GSS, GSS connector will be further implemented and support for DHuS will be removed.
+Currently Oculus supports two data sources - CDSE and DHuS([^1]: Using Czech DataHub Relay: https://docs.metacentrum.cz/en/docs/related/collgs) with prioritizing DHuS data source if the demanded product is available there. Since DHuS software is being deprecated in favor of GSS, GSS connector will be further implemented and support for DHuS will be removed.

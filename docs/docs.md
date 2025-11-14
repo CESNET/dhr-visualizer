@@ -17,6 +17,10 @@ Design principles:
 - **GPU-accelerated processing** - heavy raster processing is executed on NVIDIA CUDA GPUs to minimize latency for preview generation.
 - **Containerized** - full stack runs in Docker for reproducible deployments.
 
+## Core workflow
+
+![core_workflow](img/core_workflow.png)
+
 ## Architecture
 
 ![architecture](img/architecture.png)
@@ -70,6 +74,7 @@ The frontend is a JavaScript single-page web application for visualization of sa
 - Generated images are returned as JPEG previews and as tiled overlays (WebMercator) so they can be added as map layers.
 - Overlay opacity is adjustable for quick comparison with base maps.
 - Tiling enables efficient display of large products in the browser.
+- Processed images of the entire scene can be downloaded using dedicated button in the GUI
 
 ---
 
