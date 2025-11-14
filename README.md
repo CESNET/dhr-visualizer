@@ -79,4 +79,6 @@ Frontend will be accessible at ${FRONTEND_DOMAIN} backend at ${FRONTEND_DOMAIN}/
 
 ## Notes
 
-Currently Oculus supports two data sources - CDSE and DHuS([^1]: Using Czech DataHub Relay: https://docs.metacentrum.cz/en/docs/related/collgs) with prioritizing DHuS data source if the demanded product is available there. Since DHuS software is being deprecated in favor of GSS, GSS connector will be further implemented and support for DHuS will be removed.
+Currently Oculus supports two data sources - CDSE and DHuS[^1] with prioritizing DHuS data source if the demanded product is available there. Since DHuS software is being deprecated in favor of GSS, GSS connector will be further implemented and support for DHuS will be removed.
+
+[^1]: Using [Czech DataHub Relay](https://docs.metacentrum.cz/en/docs/related/collgs)
