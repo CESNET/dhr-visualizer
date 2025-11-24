@@ -1,8 +1,6 @@
 # Oculus - User Documentation
 
-**Project goal:** provide an easy-to-use system for searching, processing and visualizing Sentinel-1 and Sentinel-2 (and possibly more platforms) satellite data. The platform lets end users select areas and time ranges, apply mission-specific filters, and quickly view processed imagery in a web browser without knowledge of APIs or GIS tools.
-
-Oculus is a web‑based tool that lets you search for Sentinel‑1 and Sentinel‑2 satellite products, apply filters, and view a visual preview directly in the browser. All heavy processing happens on the server, so you only need a modern web browser. 
+Oculus is a easy-to-use web-based tool for searching, processing and visualizing Sentinel-1 and Sentinel-2 (and possibly more platforms) satellite data. The platform lets end users select areas and time ranges, apply mission-specific filters, and quickly view processed imagery in a web browser without knowledge of APIs or GIS tools.
 
 ---
 
