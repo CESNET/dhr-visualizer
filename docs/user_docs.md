@@ -25,13 +25,13 @@ corner fields. Otherwise, the currently viewed area will be used.
 
 * Each product's area is highlighted in the map when hovered over its information card.
 * You can copy the link to the product's information by clicking the files icon next to the Visualize button.
-* Select product which you want to visualize by clicking the Visualize button.
+* Select the product which you want to visualize by clicking the Visualize button.
 
 
 ### Step 3: Visualize
 ![Step3](img/user_step_3.png)
 
-* The product will be displayed in the map.
+* The product will be displayed on the map.
 * You can use the Opacity slider to adjust the opacity of the product over the base map.
 * The Processed products dropdown list shows all the files that have been processed.
 * You can download the product by clicking the Download button.
