@@ -598,17 +598,15 @@ const openFeature = () => {
     if (selectedValue) {
         const selectedValueJSON = JSON.parse(selectedValue);
 
-        const requestHash = encodeURIComponent(selectedValueJSON.requestHash);
+        const featureId = encodeURIComponent(selectedValueJSON.featureId);
         let file = encodeURIComponent(selectedValueJSON.file);
 
         if (window.currentSatelliteTiles) {
             leafletMap.removeLayer(window.currentSatelliteTiles);
         }
 
-        //const tileUrlTemplate = `${backendHost}/api/get_tile/{z}/{x}/{y}.jpg?request_hash=${requestHash}&selected_file=${file}`;
-
         file = file.split('.').slice(0,-1).join('.');
-        const tileUrlTemplate = `${backendHost}/data/${requestHash}/${file}/{z}/{x}/{y}.jpg`;
+        const tileUrlTemplate = `${backendHost}/data/${featureId}/${file}/{z}/{x}/{y}.jpg`;
 
         const satelliteTiles = L.tileLayer(tileUrlTemplate, {
             attribution: 'Satellite imagery (c) <a href="https://www.copernicus.eu/">Copernicus programme</a>',
@@ -629,14 +627,13 @@ const visualize = async (featureId) => {
 
     let processedProductsSelect = document.querySelector("#processed-products-select");
     processedProductsSelect.innerHTML = '';
+    console.log(visualizationRequest.getProcessedFiles())
 
-    for (const requestHash in visualizationRequest.getProcessedFiles()) {
-        for (const file of visualizationRequest.getProcessedFiles()[requestHash]) {
-            let option = document.createElement("option");
-            option.value = `{"requestHash":"${requestHash}", "file":"${file}"}`;
-            option.textContent = file;
-            processedProductsSelect.appendChild(option);
-        }
+    for (const file of visualizationRequest.getProcessedFiles()[featureId]) {
+        let option = document.createElement("option");
+        option.value = `{"featureId":"${featureId}", "file":"${file}"}`;
+        option.textContent = file;
+        processedProductsSelect.appendChild(option);
     }
 
     openFeature();
@@ -651,10 +648,10 @@ const downloadImage = async () => {
 
     try {
         const selectedValueJSON = JSON.parse(selectedValue);
-        const requestHash = encodeURIComponent(selectedValueJSON.requestHash);
+        const featureId = encodeURIComponent(selectedValueJSON.featureId);
         const filename = encodeURIComponent(selectedValueJSON.file);
 
-        const response = await fetch(`${backendHost}/api/download_image/${requestHash}/${filename}`);
+        const response = await fetch(`${backendHost}/api/download_image/${featureId}/${filename}`);
 
         if (!response.ok) {
             showAlert(status.ERROR, `Download failed with status ${response.status}`);

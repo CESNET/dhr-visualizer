@@ -10,14 +10,12 @@ class Sentinel1Feature(ProcessedFeature):
 
     def __init__(
             self,
-            feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None,
-            request_hash: str = None
+            feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None
     ):
         super().__init__(
             feature_id=feature_id,
             platform=platform,
-            filters=filters,
-            request_hash=request_hash
+            filters=filters
         )
 
         self._filters_polarisation_channels_availability = {

@@ -39,7 +39,7 @@ class TilingWorker:
 
         self._selected_file = (
                 Path(variables.DOCKER_SHARED_DATA_DIRECTORY) /
-                self._processed_feature.get_request_hash() /
+                self._processed_feature.get_feature_id() /
                 selected_file
         )
         self._image_file = Image.open(self._selected_file)
@@ -86,7 +86,7 @@ class TilingWorker:
 
         if left > self._image_width or top > self._image_height or right < 0 or bottom < 0:
             raise TilingWorkerTileOutOfBounds(
-                request_hash=self._processed_feature.get_request_hash(),
+                request_hash=self._processed_feature.get_feature_id(),
                 z=self._z, x=self._x, y=self._y
             )
 

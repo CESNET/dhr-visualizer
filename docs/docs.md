@@ -92,7 +92,7 @@ The backend is a Python service built with FastAPI and designed to process satel
 ## API endpoints
 - `POST /api/request_processing` - queue visualization request for a product, get status.
 - `GET /api/get_tile/{z}/{x}/{x}` - retrieve WebMercator tile
-- `GET /api/download_image/{request_hash}/{filename}` - download entire processed product image file.
+- `GET /api/download_image/{feature_id}/{filename}` - download entire processed product image file.
 
 ## Workflow
 1. **Enqueue** - frontend posts a visualization request containing product ID + parameters.

@@ -13,12 +13,12 @@ def init_db():
 
 
 @celery_app.task(ignore_result=True)
-def process_feature_task(hash: str):
+def process_feature_task(feature_id: str):
     init_db()
     # will have more complex payload once we implement additional bands processing for existing files
-    logger.info(f"Task {hash}")
-    feature = _db.get(hash)
+    logger.info(f"Task {feature_id}")
+    feature = _db.get(feature_id)
     feature._logger = logger
     logger.info(f"Processed feature: {feature}")
     feature.process_feature()
-    _db.set(key=feature.get_request_hash(), value=feature)
+    _db.set(key=feature_id, value=feature)

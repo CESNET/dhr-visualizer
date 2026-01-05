@@ -26,8 +26,6 @@ from feature.processing.exceptions.processed_feature import *
 class ProcessedFeature(ABC):
     _logger: logging.Logger = None
 
-    _request_hash: str = None
-
     _dataspace_connector: DataspaceConnector | None = None
 
     _feature_id: str = None
@@ -48,13 +46,10 @@ class ProcessedFeature(ABC):
 
     def __init__(
             self, logger: logging.Logger = logging.getLogger(name=__name__),
-            feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None,
-            request_hash: str = None
+            feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None
     ):
         self._logger = logger
         self._logger.debug(f"[{__name__}]: Initializing Requested feature for platform: {platform}")
-
-        self._request_hash = request_hash
 
         self._workdir = TemporaryDirectory()
 
@@ -132,7 +127,7 @@ class ProcessedFeature(ABC):
             # file = file.replace(str(self._output_directory).replace("\\", "/"), '')
             file = file.split('/')[-1]
 
-            processed_files.setdefault(self._request_hash, []).append(file)
+            processed_files.setdefault(self._feature_id, []).append(file)
 
         return processed_files
 
@@ -144,12 +139,9 @@ class ProcessedFeature(ABC):
             raise ProcessedFeatureBboxNotSet(feature_id=self._feature_id)
         return self._bbox
 
-    def get_request_hash(self) -> str:
-        return self._request_hash
-
     def to_dict(self) -> dict:
         return {
-            "_id": self._request_hash,
+            "_id": self._feature_id,
             "feature_id": self._feature_id,
             "platform": self._platform,
             "filters": self._filters,
@@ -164,8 +156,7 @@ class ProcessedFeature(ABC):
         instance = cls(
             feature_id=data.get('feature_id'),
             platform=data.get('platform'),
-            filters=data.get('filters'),
-            request_hash=data.get('_id')
+            filters=data.get('filters')
         )
         instance._status = RequestStatuses(data.get('status'))
         instance._fail_reason = data.get('fail_reason')
@@ -248,7 +239,7 @@ class ProcessedFeature(ABC):
             self._set_status(status=RequestStatuses.FAILED)
 
     def _process_feature_files(self, feature_files: list[str]) -> list[str] | None:
-        self._output_directory = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, self._request_hash)
+        self._output_directory = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, self._feature_id)
         self._output_directory.mkdir(parents=True, exist_ok=True)
 
         for item in self._output_directory.iterdir():

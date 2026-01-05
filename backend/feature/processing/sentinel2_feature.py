@@ -8,15 +8,13 @@ from feature.processing.processed_feature import ProcessedFeature
 class Sentinel2Feature(ProcessedFeature):
     def __init__(
             self,
-            feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None,
-            request_hash: str = None
+            feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None
     ):
         super().__init__(
             logger=logger,
             feature_id=feature_id,
             platform=platform,
-            filters=filters,
-            request_hash=request_hash
+            filters=filters
         )
 
         self._logger.debug(f"[{__name__}]: Sentinel-2 feature initialized")
