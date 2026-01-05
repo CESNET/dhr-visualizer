@@ -27,7 +27,7 @@ class DataspaceConnector(HTTPRequestableObject):
 
         if workdir is None:
             raise DataspaceConnectorWorkdirNotSpecified()
-        self._workdir = Path(workdir.name)
+        self._workdir = workdir
 
         super().__init__(
             root_url=root_url,

@@ -1,14 +1,10 @@
 import json
 import logging
 import re
-import shutil
-
 import docker
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Dict, Any
 
 from resources.enums import RequestStatuses
@@ -35,6 +31,7 @@ class ProcessedFeature(ABC):
     _status: RequestStatuses = RequestStatuses.NON_EXISTING
     _fail_reason: str = None
 
+    _downloaded_files: list[str] = None
     _output_directory: Path = None
     _output_files: list[str] = None  # TODO možná url, Path, nebo tak něco..?
 
@@ -42,7 +39,7 @@ class ProcessedFeature(ABC):
 
     _zoom_levels = {"min_zoom": 8, "max_zoom": 15}  # todo should be like 8 to 15 but gjtiff crashes on low memory
 
-    _workdir: TemporaryDirectory = None
+    _workdir: Path = None
 
     def __init__(
             self, logger: logging.Logger = logging.getLogger(name=__name__),
@@ -51,11 +48,10 @@ class ProcessedFeature(ABC):
         self._logger = logger
         self._logger.debug(f"[{__name__}]: Initializing Requested feature for platform: {platform}")
 
-        self._workdir = TemporaryDirectory()
-
         if feature_id is None:
             raise ProcessedFeatureIDNotSpecified()
         self._feature_id = feature_id
+        self._workdir = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, feature_id)
 
         self._assign_connector()
 
@@ -75,11 +71,6 @@ class ProcessedFeature(ABC):
             else:
                 self._remove_path_tree(child)
         path.rmdir()
-
-    def __del__(self):
-        self._workdir.cleanup()
-        # if self._output_directory is not None:
-        #     self._remove_path_tree(self._output_directory)
 
     def _assign_connector(self):
         self._logger.debug(f"[{__name__}]: Assigning dataspace connector")
@@ -148,7 +139,8 @@ class ProcessedFeature(ABC):
             "status": self._status.value,
             "fail_reason": self._fail_reason,
             "output_files": self._output_files,
-            "bbox": self._bbox
+            "bbox": self._bbox,
+            "downloaded_files": self._downloaded_files
         }
 
     @classmethod
@@ -162,6 +154,7 @@ class ProcessedFeature(ABC):
         instance._fail_reason = data.get('fail_reason')
         instance._output_files = data.get('output_files')
         instance._bbox = data.get('bbox')
+        instance._downloaded_files = data.get('downloaded_files')
         return instance
 
     def get_output_directory(self) -> Path:
@@ -174,65 +167,29 @@ class ProcessedFeature(ABC):
     def _filter_available_files(self, available_files: list[tuple[str, str]] = None) -> list[tuple[str, str]]:
         pass
 
-    def _download_feature(self) -> list[str]:
+    def _download_feature(self):
         available_files = self._dataspace_connector.get_available_files()
         filtered_files = self._filter_available_files(available_files=available_files)
-        downloaded_files = self._dataspace_connector.download_selected_files(files_to_download=filtered_files)
+        self._downloaded_files = self._dataspace_connector.download_selected_files(files_to_download=filtered_files)
 
-        return downloaded_files
-
-    def process_feature(self):
-        """
-        Stažení tily identifikované pomocí feature_id z copernicus dataspace
-        Pravděpodobně z jejich s3 na loklání uložiště. Poté spustit processing dané tily
-        Po dokončení processingu zápis do DB ohledně dokončení generování
-
-        Na stav se bude ptát peridociky forntend voláním /api/check_visualization_status
-        """
+    def download_feature(self):
         try:
             self._set_status(status=RequestStatuses.PROCESSING)
-
             self._set_bbox(self._dataspace_connector.get_rectangular_bbox())
 
-            time_download_start = datetime.now(tz=timezone.utc)
-            print(
-                f"[{__name__}]: Downloading feature {self._feature_id} started at {time_download_start}"
-            )
+            self._logger.info(f"[{__name__}]: Downloading feature {self._feature_id} started.")
+            self._download_feature()
+            self._logger.info(f"[{__name__}]: Feature {self._feature_id} downloaded.")
+        except Exception as e:
+            self._fail_reason = str(e)
+            self._set_status(status=RequestStatuses.FAILED)
 
-            downloaded_feature_files_paths = self._download_feature()
-
-            time_download_finish = datetime.now(tz=timezone.utc)
-            time_download_elapsed = time_download_finish - time_download_start
-            print(
-                f"[{__name__}]: Downloading feature {self._feature_id} finished at {time_download_finish},"
-                f" elapsed {time_download_elapsed}"
-            )
-
-            print(f"[{__name__}]: Feature ID {self._feature_id} downloaded into {str(self._workdir.name)}")
-
-            time_process_start = datetime.now(tz=timezone.utc)
-            print(
-                f"[{__name__}]: Processing feature {self._feature_id} started at {time_process_start}"
-            )
-
-            self._output_files = self._process_feature_files(feature_files=downloaded_feature_files_paths)
-
-            time_process_finish = datetime.now(tz=timezone.utc)
-            time_process_elapsed = time_process_finish - time_process_start
-            print(
-                f"[{__name__}]: Processing feature {self._feature_id} finished at {time_process_finish},"
-                f" elapsed {time_process_elapsed}"
-            )
-            # Po vytvoření snímku ho dočasně nakopírovat na nějaké úložiště
-            # TODO prozatím bude uloženo ve složce webserveru s frontendem (config/variables.py --- FRONTEND_ROOT_DIR)
-            # ze seznamu souborů ve složce udělat seznam odkazů na webserver a uložit do self._hrefs: [str]
-
+    def process_feature(self):
+        try:
+            self._logger.info(f"[{__name__}]: Processing feature {self._feature_id} started.")
+            self._output_files = self._process_feature_files(feature_files=self._downloaded_files)
+            self._logger.info(f"[{__name__}]: Processing feature {self._feature_id} completed.")
             self._set_status(status=RequestStatuses.COMPLETED)
-
-            time_total_elapsed = time_process_finish - time_download_start
-            print(
-                f"[{__name__}]: Total time elapsed {time_total_elapsed}"
-            )
 
         except Exception as e:
             self._fail_reason = str(e)
@@ -240,13 +197,6 @@ class ProcessedFeature(ABC):
 
     def _process_feature_files(self, feature_files: list[str]) -> list[str] | None:
         self._output_directory = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, self._feature_id)
-        self._output_directory.mkdir(parents=True, exist_ok=True)
-
-        for item in self._output_directory.iterdir():
-            if item.is_file() or item.is_symlink():
-                item.unlink()
-            elif item.is_dir():
-                shutil.rmtree(item)
 
         gjtiff_stdout = self._run_gjtiff_docker(
             input_files=feature_files,

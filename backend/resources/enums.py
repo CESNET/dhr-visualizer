@@ -4,6 +4,7 @@ from enum import Enum
 class RequestStatuses(Enum):
     NON_EXISTING = "non_existing"
     ACCEPTED = "accepted"
+    DOWNLOADING = "downloading"
     PROCESSING = "processing"
     COMPLETED = "completed"
     FAILED = "failed"
