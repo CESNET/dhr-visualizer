@@ -42,10 +42,9 @@ class ProcessedFeature(ABC):
     _workdir: Path = None
 
     def __init__(
-            self, logger: logging.Logger = logging.getLogger(name=__name__),
-            feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None
+            self, feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None
     ):
-        self._logger = logger
+        self._logger = logging.getLogger(name=__name__)
         self._logger.debug(f"[{__name__}]: Initializing Requested feature for platform: {platform}")
 
         if feature_id is None:
@@ -184,10 +183,10 @@ class ProcessedFeature(ABC):
             self._fail_reason = str(e)
             self._set_status(status=RequestStatuses.FAILED)
 
-    def process_feature(self):
+    def process_feature(self, files_to_process: list[str]):
         try:
-            self._logger.info(f"[{__name__}]: Processing feature {self._feature_id} started.")
-            self._output_files = self._process_feature_files(feature_files=self._downloaded_files)
+            self._logger.info(f"[{__name__}]: Processing feature {self._feature_id} started, files {files_to_process}")
+            self._output_files = self._process_feature_files(feature_files=files_to_process)
             self._logger.info(f"[{__name__}]: Processing feature {self._feature_id} completed.")
             self._set_status(status=RequestStatuses.COMPLETED)
 
@@ -240,3 +239,13 @@ class ProcessedFeature(ABC):
             self._logger.error(f"[{__name__}]: gjtiff stderr: {stderr.decode('utf-8')}")
 
         return stdout.decode('utf-8')
+
+    @abstractmethod
+    def get_default_product_files(self):
+        """ From downloaded files filters those that match the default products (bands)"""
+        pass
+
+    @abstractmethod
+    def get_product_files(self, products):
+        """ From downloaded files filters those that match the products (bands) list in order"""
+        pass

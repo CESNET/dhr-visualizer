@@ -31,12 +31,12 @@ def download_feature_task(feature_id: str):
         delete_feature_task.apply_async(args=[feature_id], countdown=60*60)
 
 @celery_app.task(ignore_result=True)
-def process_feature_task(feature_id: str):
+def process_feature_task(feature_id: str, files: list[str] = None):
     init_db()
-    logger.info(f"Processing task for {feature_id}")
+    logger.info(f"Processing task for {feature_id}, requested files: {files}")
     feature = _db.get(feature_id)
-
-    feature.process_feature()
+    files_to_process = feature.get_default_product_files() if not files else feature.get_product_files(files)
+    feature.process_feature(files_to_process)
     _db.set(key=feature_id, value=feature)
     
 @celery_app.task(ignore_result=True)

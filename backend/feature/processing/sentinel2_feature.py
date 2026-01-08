@@ -1,9 +1,9 @@
 import re
 
 from typing import Dict, Any
-from fastapi.logger import logger
 from feature.processing.processed_feature import ProcessedFeature
 
+DEFAULT_PRODUCTS = ['TCI']
 
 class Sentinel2Feature(ProcessedFeature):
     def __init__(
@@ -11,7 +11,6 @@ class Sentinel2Feature(ProcessedFeature):
             feature_id: str = None, platform: str = None, filters: Dict[str, Any] = None
     ):
         super().__init__(
-            logger=logger,
             feature_id=feature_id,
             platform=platform,
             filters=filters
@@ -78,3 +77,25 @@ class Sentinel2Feature(ProcessedFeature):
                 best_resolution[band] = (resolution, i)
 
         return [files[i] for r, i in best_resolution.values()]
+
+    def get_default_product_files(self):
+        products = self.get_product_files(DEFAULT_PRODUCTS)
+        if not products:
+            products = [self._downloaded_files[0]]
+        return products
+
+    def get_product_files(self, products):
+        if not self._downloaded_files:
+            raise Exception("No downloaded files found for this feature")
+        if len(products) != 1 and len(products) != 3:
+            raise Exception(f"Only 1 or 3 bands are supported as processable, defined: {products}")
+
+        files = []
+        for product in products:
+            pattern = re.compile(rf'_{re.escape(product)}_.*\.[^.]+$')
+            for file in self._downloaded_files:
+                if pattern.search(file):
+                    files.append(file)
+                    continue
+
+        return files

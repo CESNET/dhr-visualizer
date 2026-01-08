@@ -35,7 +35,6 @@ class MongoDatabaseConnector(DatabaseConnector):
         raise Exception(f"Unknown platform: {document['platform']} found in database for key: {key}!")
 
     def set(self, key, value):
-        # logger.debug(f"[{__name__}]: Setting to mongo: {value.to_dict()}")
         self._collection.update_one(
             {"_id": key},
             {"$set": value.to_dict()},

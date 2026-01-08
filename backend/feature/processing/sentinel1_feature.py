@@ -57,3 +57,9 @@ class Sentinel1Feature(ProcessedFeature):
                         break
 
         return filtered_files
+
+    def get_default_product_files(self):
+        return []
+
+    def get_product_files(self, products):
+        return []
