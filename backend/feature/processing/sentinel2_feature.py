@@ -23,17 +23,20 @@ class Sentinel2Feature(ProcessedFeature):
             return []
 
         filtered_files = []
+        self._logger.info(f"To filter files: {available_files}")
 
         selected_bands_pattern = "|".join(self._get_selected_bands())
         extensions = ['jp2', 'j2k', 'jpf', 'jpm', 'jpg2', 'j2c', 'jpc', 'jpx', 'mj2']
         extensions_pattern = "|".join(extensions)
-        regex_pattern = rf"([^/]+)/GRANULE/([^/]+)/IMG_DATA/(?:R\d{{2}}m/)?([^/]+_({selected_bands_pattern})(?:_\d{{2}}m)?\.({extensions_pattern}))"
+        regex_pattern = rf"(?:.*/)?(?!.*MSK)[^/]+\.({extensions_pattern})$"
+        # csde_regex_pattern = rf"([^/]+)/GRANULE/([^/]+)/IMG_DATA/(?:R\d{{2}}m/)?([^/]+_({selected_bands_pattern})(?:_\d{{2}}m)?\.({extensions_pattern}))"
 
         for available_file in available_files:
             if re.match(regex_pattern, available_file[0].strip()):
                 filtered_files.append(available_file)
 
         filtered_files = self._prune_low_resolution_files(filtered_files)
+        self._logger.info(f"Filtered files: {filtered_files}")
 
         return filtered_files
 
