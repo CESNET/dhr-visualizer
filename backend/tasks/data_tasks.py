@@ -21,6 +21,7 @@ def download_feature_task(feature_id: str):
     init_db()
     logger.info (f"Download task for {feature_id}")
     feature = _db.get(feature_id)
+    feature._logger = logger
     feature._status = RequestStatuses.DOWNLOADING
     _db.set(key=feature_id, value=feature)
 
@@ -35,6 +36,7 @@ def process_feature_task(feature_id: str, files: list[str] = None):
     init_db()
     logger.info(f"Processing task for {feature_id}, requested files: {files}")
     feature = _db.get(feature_id)
+    feature._logger = logger
     files_to_process = feature.get_default_product_files() if not files else feature.get_product_files(files)
     feature.process_feature(files_to_process)
     _db.set(key=feature_id, value=feature)

@@ -20,6 +20,8 @@ DHR_CONNECTOR_CREDENTIALS = {
     'host_base': os.getenv("DHR_CONNECTOR_HOST_BASE"),
     'username': os.getenv("DHR_CONNECTOR_USERNAME"),
     'password': os.getenv("DHR_CONNECTOR_PASSWORD"),
+    'token_url': os.getenv("DHR_CONNECTOR_TOKEN_URL"),
+    'client_id': os.getenv("DHR_CONNECTOR_CLIENT_ID"),
 }
 
 CDSE_CATALOG_ROOT: str = os.getenv("CDSE_CATALOG_ROOT")

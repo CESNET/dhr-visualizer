@@ -13,7 +13,6 @@ from dataspace.exceptions.dhr_connector import *
 
 class DHRConnector(DataspaceConnector):
     _dhr_http_client: HTTPClient | None = None
-    _resto_id: str | None = None
 
     def __init__(
             self,
@@ -24,18 +23,11 @@ class DHRConnector(DataspaceConnector):
             raise DHRConnectorIsNotRequestedByUser()
         super().__init__(root_url=DHR_CATALOG_ROOT, feature_id=feature_id, workdir=workdir, logger=logger)
         self._dhr_http_client = HTTPClient(config=DHR_CONNECTOR_CREDENTIALS, logger=self._logger)
-
-    def _get_resto_id(self) -> str:
-        if self._resto_id is None:
-            import uuid
-            resto_uuid_namespace = b'\x92\x70\x80\x59\x20\x77\x45\xa3\xa4\xf3\x1e\xb4\x28\x78\x9c\xff'
-            self._resto_id = str(uuid.uuid5(uuid.UUID(bytes=resto_uuid_namespace), f"dhr1{self._feature_id}"))
-
-        return self._resto_id
+        self._logger.info("DHR connector initialized")
 
     def _get_feature(self) -> dict:
         if self._feature is None:
-            response: httpx.Response = self._send_request(endpoint="search", payload_dict={"ids": self._get_resto_id()})
+            response: httpx.Response = self._send_request(endpoint="search", payload_dict={"ids": self._feature_id})
 
             if response.status_code != 200:
                 raise DHRConnectorCouldNotFetchFeature(feature_id=self._feature_id)
@@ -55,10 +47,12 @@ class DHRConnector(DataspaceConnector):
         if full_path is None:
             return ""
 
-        re_matches = re.findall(r"Nodes\('([^']+)'\)", full_path)
-        asset_path = "/".join(re_matches)
-
-        return asset_path
+        self._logger.info(f"full path: {full_path}")
+        self._logger.info(f"product: {re.search(r'/product/(.+?)/', full_path)}")
+        parts = full_path.split('/product/')
+        if len(parts) > 1:
+            return parts[1]
+        return ""
 
     def get_available_files(self) -> list[tuple[str, str]]:
         self._get_feature()
@@ -66,6 +60,7 @@ class DHRConnector(DataspaceConnector):
         available_files = [
             (self._get_asset_path(asset['href']), asset['href']) for asset in self._feature['assets'].values()
         ]
+        self._logger.debug(f"Available files: {available_files}")
 
         return available_files
 
@@ -81,6 +76,4 @@ class DHRConnector(DataspaceConnector):
         return downloaded_files
 
     def get_polygon(self) -> list[list[float]]:
-        # TODO implement after Sentinel available in STAC
-        raise Exception("Not implemented")
-        return [[0.0]]
+        return self._feature['geometry']['coordinates'][0]

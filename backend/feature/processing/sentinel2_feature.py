@@ -24,10 +24,11 @@ class Sentinel2Feature(ProcessedFeature):
 
         filtered_files = []
 
-        selected_bands_pattern = "|".join(self._get_selected_bands())
+        # selected_bands_pattern = "|".join(self._get_selected_bands())
         extensions = ['jp2', 'j2k', 'jpf', 'jpm', 'jpg2', 'j2c', 'jpc', 'jpx', 'mj2']
         extensions_pattern = "|".join(extensions)
-        regex_pattern = rf"([^/]+)/GRANULE/([^/]+)/IMG_DATA/(?:R\d{{2}}m/)?([^/]+_({selected_bands_pattern})(?:_\d{{2}}m)?\.({extensions_pattern}))"
+        regex_pattern = rf"(?:.*/)?(?!.*MSK)[^/]+\.({extensions_pattern})$" # anything ending with correct extension and not being a mask file (MSK)
+        # csde_regex_pattern = rf"([^/]+)/GRANULE/([^/]+)/IMG_DATA/(?:R\d{{2}}m/)?([^/]+_({selected_bands_pattern})(?:_\d{{2}}m)?\.({extensions_pattern}))"
 
         for available_file in available_files:
             if re.match(regex_pattern, available_file[0].strip()):
@@ -37,17 +38,17 @@ class Sentinel2Feature(ProcessedFeature):
 
         return filtered_files
 
-    def _get_selected_bands(self):
-        selected_bands = []
-
-        for band in self._filters['bands']:
-            band = band.upper()
-            if band == 'B8A' or band == 'TCI':
-                selected_bands.append(band)
-            else:
-                selected_bands.append(f'B{int(band[1:]):02}')
-
-        return selected_bands
+    # def _get_selected_bands(self):
+    #     selected_bands = []
+    #
+    #     for band in self._filters['bands']:
+    #         band = band.upper()
+    #         if band == 'B8A' or band == 'TCI':
+    #             selected_bands.append(band)
+    #         else:
+    #             selected_bands.append(f'B{int(band[1:]):02}')
+    #
+    #     return selected_bands
 
     def _prune_low_resolution_files(self, files: list[tuple[str, str]]):
         """
