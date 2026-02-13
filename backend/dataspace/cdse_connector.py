@@ -17,10 +17,10 @@ class CDSEConnector(DataspaceConnector):
     def __init__(
             self,
             feature_id=None, workdir=None,
-            logger: logging.Logger = logging.getLogger(__name__)
     ):
-        super().__init__(root_url=CDSE_CATALOG_ROOT, feature_id=feature_id, workdir=workdir, logger=logger)
-        self._cdse_s3_client = S3Client(config=CDSE_S3_CREDENTIALS, logger=self._logger)
+        super().__init__(root_url=CDSE_CATALOG_ROOT, feature_id=feature_id, workdir=workdir)
+        self._cdse_s3_client = S3Client(config=CDSE_S3_CREDENTIALS)
+        self._logger = logging.getLogger(__name__)
 
     def _get_feature(self) -> dict:
         if self._feature is None:

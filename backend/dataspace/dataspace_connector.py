@@ -15,8 +15,7 @@ class DataspaceConnector(HTTPRequestableObject):
 
     def __init__(
             self,
-            root_url=None, feature_id=None, workdir=None,
-            logger: logging.Logger = logging.getLogger(__name__)
+            root_url=None, feature_id=None, workdir=None
     ):
         if root_url is None:
             raise DataspaceConnectorRootURLNotProvided()
@@ -30,9 +29,9 @@ class DataspaceConnector(HTTPRequestableObject):
         self._workdir = workdir
 
         super().__init__(
-            root_url=root_url,
-            logger=logger,
+            root_url=root_url
         )
+        self._logger = logging.getLogger(__name__)
 
         try:
             self._get_feature()

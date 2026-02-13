@@ -20,10 +20,9 @@ class S3Client:
 
     def __init__(
             self,
-            config: dict = None,
-            logger=logging.getLogger(__name__)
+            config: dict = None
     ):
-        self._logger = logger
+        self._logger = logging.getLogger(name=__name__)
 
         if config is None:
             raise S3ClientConfigNotProvided()

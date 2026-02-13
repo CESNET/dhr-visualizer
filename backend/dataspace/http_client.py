@@ -1,9 +1,7 @@
 import logging
-
 import httpx
 
 from pathlib import Path
-
 from dataspace.exceptions.http_client import *
 
 
@@ -14,11 +12,9 @@ class HTTPClient:
 
     def __init__(
             self,
-            config: dict = None,
-            logger=logging.getLogger(__name__)
+            config: dict = None
     ):
-        self._logger = logger
-
+        self._logger = logging.getLogger(name=__name__)
         if config is None:
             raise HTTPClientConfigNotProvided()
 
@@ -64,3 +60,9 @@ class HTTPClient:
             raise
         return response.json()["access_token"]
 
+    def get(self, url: str, params: dict | None = None, headers: dict | None = None) -> httpx.Response:
+        return self._http_client.get(url, params=params, headers=headers)
+
+    def post(self, url: str, data: dict | None = None, headers: dict | None = None) -> httpx.Response:
+        return self._http_client.post(url, json=data, headers=headers)
+        #return self._http_client.post(url, json=json, data=data, headers=headers)

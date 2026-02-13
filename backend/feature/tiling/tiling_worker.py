@@ -30,10 +30,9 @@ class TilingWorker:
             self,
             processed_feature: ProcessedFeature,
             selected_file: str,
-            z: int, x: int, y: int,
-            logger: logging.Logger = logging.getLogger(__name__),
+            z: int, x: int, y: int
     ):
-        self._logger = logger
+        self._logger = logging.getLogger(__name__)
 
         self._processed_feature = processed_feature
 

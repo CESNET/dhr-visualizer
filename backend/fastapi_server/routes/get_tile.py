@@ -30,8 +30,7 @@ def get_tile(
         tiling_worker = TilingWorker(
             processed_feature=fastapi_shared.database.get(request_hash),
             selected_file=selected_file,
-            z=z, x=x, y=y,
-            logger=logger
+            z=z, x=x, y=y
         )
 
         tile_path = tiling_worker.save_tile()

@@ -1,5 +1,6 @@
 import logging
 import re
+from urllib.parse import urljoin
 
 import httpx
 
@@ -16,18 +17,18 @@ class DHRConnector(DataspaceConnector):
 
     def __init__(
             self,
-            feature_id=None, workdir=None,
-            logger: logging.Logger = logging.getLogger(__name__)
+            feature_id=None, workdir=None
     ):
         if not DHR_USE_DHR:
             raise DHRConnectorIsNotRequestedByUser()
-        super().__init__(root_url=DHR_CATALOG_ROOT, feature_id=feature_id, workdir=workdir, logger=logger)
-        self._dhr_http_client = HTTPClient(config=DHR_CONNECTOR_CREDENTIALS, logger=self._logger)
-        self._logger.info("DHR connector initialized")
+        self._logger = logging.getLogger(__name__)
+        self._dhr_http_client = HTTPClient(config=DHR_CONNECTOR_CREDENTIALS)
+        super().__init__(root_url=DHR_CATALOG_ROOT, feature_id=feature_id, workdir=workdir)
 
     def _get_feature(self) -> dict:
         if self._feature is None:
-            response: httpx.Response = self._send_request(endpoint="search", payload_dict={"ids": self._feature_id})
+            url = urljoin(DHR_CATALOG_ROOT, "/search")
+            response: httpx.Response = self._dhr_http_client.get(url, params={"ids": self._feature_id})
 
             if response.status_code != 200:
                 raise DHRConnectorCouldNotFetchFeature(feature_id=self._feature_id)

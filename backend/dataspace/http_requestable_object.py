@@ -13,11 +13,11 @@ class HTTPRequestableObject:
     _root_url: str = None
     _logger: logging.Logger = None
 
-    def __init__(self, root_url=None, logger=logging.getLogger(__name__)):
+    def __init__(self, root_url=None,):
         if not root_url:
             raise HTTPRequestableObjectBaseURLNotSpecified()
         self._root_url = self._normalize_url(url=root_url)
-        self._logger = logger
+        self._logger = logging.getLogger(__name__)
 
     @staticmethod
     def _normalize_url(url: str) -> str:
