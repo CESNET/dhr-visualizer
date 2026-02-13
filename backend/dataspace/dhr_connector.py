@@ -27,13 +27,15 @@ class DHRConnector(DataspaceConnector):
 
     def _get_feature(self) -> dict:
         if self._feature is None:
-            url = urljoin(DHR_CATALOG_ROOT, "/search")
-            response: httpx.Response = self._dhr_http_client.get(url, params={"ids": self._feature_id})
-
+            url = urljoin(DHR_CATALOG_ROOT, "search")
+            response: httpx.Response = httpx.get(url, params={"ids": self._feature_id})
+            # response: httpx.Response = self._dhr_http_client.get(url, params={"ids": self._feature_id})
+            self._logger.warning(f"DHR connector calling search endpoint for feature {self._feature_id}")
             if response.status_code != 200:
                 raise DHRConnectorCouldNotFetchFeature(feature_id=self._feature_id)
 
             response_data = response.json()
+            self._logger.warning(f"DHR connector response: {response_data}")
             if response_data['numberReturned'] < 1:
                 raise DHRConnectorCouldNotFetchFeature(feature_id=self._feature_id)
 
