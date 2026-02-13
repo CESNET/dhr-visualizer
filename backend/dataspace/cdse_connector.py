@@ -27,9 +27,10 @@ class CDSEConnector(DataspaceConnector):
             endpoint = f"Products({self._feature_id})"
 
             response: httpx.Response = self._send_request(endpoint=endpoint)
+            self._logger.debug(f"CDSE connector calling search endpoint for feature {self._feature_id}")
 
             if response.status_code != 200:
-                raise CDSEConnectorCouldNotFetchFeature(feature_id=self._feature_id)
+                raise CDSEConnectorCouldNotFetchFeature(feature_id=self._feature_id, message=f"HTTP status code: {response.status_code}, response: {response.text if response.text else 'none'}")
 
             response_data = response.json()
             self._feature = response_data

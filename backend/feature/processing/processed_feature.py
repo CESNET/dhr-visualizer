@@ -52,7 +52,6 @@ class ProcessedFeature(ABC):
         self._feature_id = feature_id
         self._workdir = Path(variables.DOCKER_SHARED_DATA_DIRECTORY, feature_id)
 
-        self._logger.warning(f"[{__name__}]: Calling assign connector for: {feature_id}")
         self._assign_connector()
 
         if platform is not None:
@@ -82,7 +81,8 @@ class ProcessedFeature(ABC):
                     workdir=self._workdir
                 )
                 return
-            except DataspaceConnectorCouldNotFetchFeature:
+            except DataspaceConnectorCouldNotFetchFeature as e:
+                self._logger.debug(f"DHR connector failed, trying CDSE connector. {e.message}")
                 pass
 
         self._dataspace_connector = CDSEConnector(
