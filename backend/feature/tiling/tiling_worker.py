@@ -70,7 +70,7 @@ class TilingWorker:
 
         tile_directory = self._selected_file.parent / self._selected_file.stem / f"{self._z}/{self._x}/"
         tile_directory.mkdir(parents=True, exist_ok=True)
-        tile_file = tile_directory / f"{self._y}.jpg"
+        tile_file = tile_directory / f"{self._y}.webp"
 
         if tile_file.is_dir():
             raise TilingWorkerOutputFileIsDirectory(tile_file)
@@ -94,7 +94,7 @@ class TilingWorker:
 
         tile_crop = self._image_file.crop((int(left), int(top), int(right), int(bottom)))
         tile_resized = tile_crop.resize((256, 256), resample=Image.LANCZOS)
-        tile_resized.save(tile_file, format="JPEG")
+        tile_resized.save(tile_file, format="WEBP")
 
         return tile_file
 

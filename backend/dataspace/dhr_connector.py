@@ -35,7 +35,7 @@ class DHRConnector(DataspaceConnector):
                 raise DHRConnectorCouldNotFetchFeature(feature_id=self._feature_id)
 
             response_data = response.json()
-            self._logger.warning(f"DHR connector response: {response_data}")
+            self._logger.debug(f"DHR connector response: {response_data}")
             if response_data['numberReturned'] < 1:
                 raise DHRConnectorCouldNotFetchFeature(feature_id=self._feature_id)
 

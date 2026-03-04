@@ -606,7 +606,7 @@ const openFeature = () => {
         }
 
         file = file.split('.').slice(0,-1).join('.');
-        const tileUrlTemplate = `${backendHost}/data/${featureId}/${file}/{z}/{x}/{y}.jpg`;
+        const tileUrlTemplate = `${backendHost}/data/${featureId}/${file}/{z}/{x}/{y}.webp`;
 
         const satelliteTiles = L.tileLayer(tileUrlTemplate, {
             attribution: 'Satellite imagery (c) <a href="https://www.copernicus.eu/">Copernicus programme</a>',
